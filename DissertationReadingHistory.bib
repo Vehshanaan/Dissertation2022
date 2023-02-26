@@ -14,4 +14,56 @@
   readstatus = {skimmed},
 }
 
+@Article{oh2017bio,
+  author     = {Oh, Hyondong and Shirazi, Ataollah Ramezan and Sun, Chaoli and Jin, Yaochu},
+  journal    = {Robotics and Autonomous Systems},
+  title      = {Bio-inspired self-organising multi-robot pattern formation: A review},
+  year       = {2017},
+  pages      = {83--100},
+  volume     = {91},
+  comment    = {开始找一些综述，为了能写研究目标的文献综述部分。
+
+我想到，我的愿景与传统蜂群的不同之处：  
+就是，只能用于已知结构的环境。也就是说，只专注于资源共享，且资源的位置等等都已知。  
+且：需要一个共同的信道。
+
+在这篇综述中，我们处理了移动群体机器人背景下的自组织模式形成问题。通过模式形成，我们指的是模式生成和模式维护  
+现有的多代理/机器人系统模式形成算法可以分为许多不同的方法 。其中，本文特别关注仿生算法，因为大自然为自适应模式形成提供了丰富而优秀的分布式自组织系统示例。  
+本文将相关的生物启发模式形成算法分为两组：（1）宏观集体行为启发和（2）微观多细胞生物启发模式形成。
+
+宏观-结构化1：一个领导者+若干追随者，在本地实现追随功能。  
+宏观-结构化2：虚拟的结构：要求机器人在网格中保持一定的相对位置。
+
+宏观-行为法1：势场法。势场法的基本思想是每个机器人根据势场梯度的方向移动，势场梯度由虚拟吸引力和排斥力之和产生。
+宏观-行为法2：基于共识的控制。agent之间通过信息交换来达到共识。  这个共识有点意思。  
+
+提到了大规模蜂群中存在的通讯延迟问题。  
+
+多细胞机制1-形态原扩散：在生物学中，形态发生素代表在胚胎阶段扩散到发育组织中的信号分子。形态发生素的浓度随着远离其来源而降低，并形成相应的梯度。细胞对它们相对于该梯度的位置有一个相对的了解，并相应地调整它们的行为和反应。细胞生长、细胞分化、细胞运动、其他基因和形态发生素的产生或抑制是这些作用的例子  
+多细胞机制2-反应扩散机制：当一个细胞中的几种形态发生素开始与其他相邻细胞中的形态发生素发生反应时，它们能够创造出有趣的模式
+多细胞机制3-基因调控网络  
+多细胞机制4-趋化性 ：趋化性是一种引导细胞运动的机制，其中细胞向周围环境释放化学物质，其他细胞通过移向或远离它来对此作出反应
+
+挑战与展望：  
+1.现实世界的问题：大多数研究都是在模拟中展开，带来了以下问题：
+ 	- 难以模拟机器人之间以及与模拟环境之间的交互  
+	- 机器人动力学很难纳入模拟  
+	- 网络问题很难纳入模拟，如延迟，丢包等。},
+  publisher  = {Elsevier},
+  ranking    = {rank5},
+  readstatus = {read},
+}
+
+@InProceedings{cheraghi2022past,
+  author       = {Cheraghi, Ahmad Reza and Shahzad, Sahdia and Graffi, Kalman},
+  booktitle    = {Intelligent Systems and Applications: Proceedings of the 2021 Intelligent Systems Conference (IntelliSys) Volume 3},
+  title        = {Past, present, and future of swarm robotics},
+  year         = {2022},
+  organization = {Springer},
+  pages        = {190--233},
+  comment      = {没有新鲜玩意儿——正确的废话。},
+  ranking      = {rank3},
+  readstatus   = {skimmed},
+}
+
 @Comment{jabref-meta: databaseType:bibtex;}
