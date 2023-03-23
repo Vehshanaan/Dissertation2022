@@ -159,35 +159,4 @@
 }
 
 @Article{wei2016altruistic,
-  author    = {Wei, Changyun and Hindriks, Koen V and Jonker, Catholijn M},
-  journal   = {Applied Intelligence},
-  title     = {Altruistic coordination for multi-robot cooperative pathfinding},
-  year      = {2016},
-  pages     = {269--281},
-  volume    = {44},
-  publisher = {Springer},
-}
-
-@InProceedings{salzman2020research,
-  author     = {Salzman, Oren and Stern, Roni},
-  booktitle  = {Proceedings of the 19th International Conference on Autonomous Agents and MultiAgent Systems},
-  title      = {Research challenges and opportunities in multi-agent path finding and multi-agent pickup and delivery problems},
-  year       = {2020},
-  pages      = {1711--1715},
-  ranking    = {rank4},
-  readstatus = {skimmed},
-}
-
-@Article{8962201,
-  author   = {Wang, Hanlin and Rubenstein, Michael},
-  journal  = {IEEE Robotics and Automation Letters},
-  title    = {Walk, Stop, Count, and Swap: Decentralized Multi-Agent Path Finding With Theoretical Guarantees},
-  year     = {2020},
-  number   = {2},
-  pages    = {1119-1126},
-  volume   = {5},
-  doi      = {10.1109/LRA.2020.2967317},
-  priority = {prio1},
-}
-
-@Comment{jabref-meta: databaseType:bibtex;}
+  author    = {Wei, Changyun and Hind
