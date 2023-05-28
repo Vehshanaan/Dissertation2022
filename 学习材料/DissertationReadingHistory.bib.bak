@@ -1,0 +1,193 @@
+@Article{albiero2022swarm,
+  author     = {Albiero, Daniel and Garcia, Angel Pontin and Umezu, Claudio Kiyoshi and de Paulo, Rodrigo Leme},
+  journal    = {Computers and Electronics in Agriculture},
+  title      = {Swarm robots in mechanized agricultural operations: a review about challenges for research},
+  year       = {2022},
+  pages      = {106608},
+  volume     = {193},
+  comment    = {2.14情人节
+我是为了找找蜂群方面的综述而读的这篇。
+太农业应用倾向了，和我的这个基于通讯协议的思路不太相符。
+读读他提到的一些其他东西:},
+  publisher  = {Elsevier},
+  ranking    = {rank1},
+  readstatus = {skimmed},
+}
+
+@Article{oh2017bio,
+  author     = {Oh, Hyondong and Shirazi, Ataollah Ramezan and Sun, Chaoli and Jin, Yaochu},
+  journal    = {Robotics and Autonomous Systems},
+  title      = {Bio-inspired self-organising multi-robot pattern formation: A review},
+  year       = {2017},
+  pages      = {83--100},
+  volume     = {91},
+  comment    = {开始找一些综述，为了能写研究目标的文献综述部分。
+
+我想到，我的愿景与传统蜂群的不同之处：  
+就是，只能用于已知结构的环境。也就是说，只专注于资源共享，且资源的位置等等都已知。  
+且：需要一个共同的信道。
+
+在这篇综述中，我们处理了移动群体机器人背景下的自组织模式形成问题。通过模式形成，我们指的是模式生成和模式维护  
+现有的多代理/机器人系统模式形成算法可以分为许多不同的方法 。其中，本文特别关注仿生算法，因为大自然为自适应模式形成提供了丰富而优秀的分布式自组织系统示例。  
+本文将相关的生物启发模式形成算法分为两组：（1）宏观集体行为启发和（2）微观多细胞生物启发模式形成。
+
+宏观-结构化1：一个领导者+若干追随者，在本地实现追随功能。  
+宏观-结构化2：虚拟的结构：要求机器人在网格中保持一定的相对位置。
+
+宏观-行为法1：势场法。势场法的基本思想是每个机器人根据势场梯度的方向移动，势场梯度由虚拟吸引力和排斥力之和产生。
+宏观-行为法2：基于共识的控制。agent之间通过信息交换来达到共识。  这个共识有点意思。  
+
+提到了大规模蜂群中存在的通讯延迟问题。  
+
+多细胞机制1-形态原扩散：在生物学中，形态发生素代表在胚胎阶段扩散到发育组织中的信号分子。形态发生素的浓度随着远离其来源而降低，并形成相应的梯度。细胞对它们相对于该梯度的位置有一个相对的了解，并相应地调整它们的行为和反应。细胞生长、细胞分化、细胞运动、其他基因和形态发生素的产生或抑制是这些作用的例子  
+多细胞机制2-反应扩散机制：当一个细胞中的几种形态发生素开始与其他相邻细胞中的形态发生素发生反应时，它们能够创造出有趣的模式
+多细胞机制3-基因调控网络  
+多细胞机制4-趋化性 ：趋化性是一种引导细胞运动的机制，其中细胞向周围环境释放化学物质，其他细胞通过移向或远离它来对此作出反应
+
+挑战与展望：  
+1.现实世界的问题：大多数研究都是在模拟中展开，带来了以下问题：
+ 	- 难以模拟机器人之间以及与模拟环境之间的交互  
+	- 机器人动力学很难纳入模拟  
+	- 网络问题很难纳入模拟，如延迟，丢包等。},
+  publisher  = {Elsevier},
+  ranking    = {rank5},
+  readstatus = {read},
+}
+
+@InProceedings{cheraghi2022past,
+  author       = {Cheraghi, Ahmad Reza and Shahzad, Sahdia and Graffi, Kalman},
+  booktitle    = {Intelligent Systems and Applications: Proceedings of the 2021 Intelligent Systems Conference (IntelliSys) Volume 3},
+  title        = {Past, present, and future of swarm robotics},
+  year         = {2022},
+  organization = {Springer},
+  pages        = {190--233},
+  comment      = {没有新鲜玩意儿——正确的废话。},
+  ranking      = {rank3},
+  readstatus   = {skimmed},
+}
+
+@InProceedings{giordani2010distributed,
+  author       = {Giordani, Stefano and Lujak, Marin and Martinelli, Francesco},
+  booktitle    = {Trends in Applied Intelligent Systems: 23rd International Conference on Industrial Engineering and Other Applications of Applied Intelligent Systems, IEA/AIE 2010, Cordoba, Spain, June 1-4, 2010, Proceedings, Part I 23},
+  title        = {A distributed algorithm for the multi-robot task allocation problem},
+  year         = {2010},
+  organization = {Springer},
+  pages        = {721--730},
+  comment      = {从图论的角度做的任务分配},
+  ranking      = {rank3},
+  readstatus   = {skimmed},
+}
+
+@Article{5230846,
+  author     = {Schmidt, David A. and Shi, Changxin and Berry, Randall A. and Honig, Michael L. and Utschick, Wolfgang},
+  journal    = {IEEE Signal Processing Magazine},
+  title      = {Distributed resource allocation schemes},
+  year       = {2009},
+  number     = {5},
+  pages      = {53-63},
+  volume     = {26},
+  comment    = {第四周老师出的第一篇
+
+他说他主要受这个的启发：https://scholar.google.com/scholar?as_q=Notice+of+proposed+rule+making+and+order&as_occt=title&hl=en&as_sdt=0%2C31
+一会读一下
+
+这篇开篇讲的是这样一个问题：在共用一个无线电信道的情况下，各个个体如何通过调节自己的发送功率来最小化群体的信噪比，博弈论可以作为一个处理此问题时有效的工具。
+
+这是一篇用博弈论工具分析资源共享问题的论文。},
+  doi        = {10.1109/MSRP.2009.933371},
+  ranking    = {rank3},
+  readstatus = {read},
+}
+
+@Article{asadi2018scalable,
+  author     = {Asadi, Elham Fatemeh and Richards, Arthur},
+  journal    = {Automatica},
+  title      = {Scalable distributed model predictive control for constrained systems},
+  year       = {2018},
+  pages      = {407--414},
+  volume     = {93},
+  comment    = {老师的第二篇论文},
+  publisher  = {Elsevier},
+  ranking    = {rank4},
+  readstatus = {read},
+}
+
+@InProceedings{6737593,
+  author     = {Gaugel, Tristan and Mittag, Jens and Hartenstein, Hannes and Papanastasiou, Stylianos and Ström, Erik G.},
+  booktitle  = {2013 IEEE Vehicular Networking Conference},
+  title      = {In-depth analysis and evaluation of Self-organizing TDMA},
+  year       = {2013},
+  pages      = {79-86},
+  comment    = {对STDMA的解释},
+  doi        = {10.1109/VNC.2013.6737593},
+  ranking    = {rank5},
+  readstatus = {read},
+}
+
+@InProceedings{9981353,
+  author     = {Agrawal, Aakriti and Hariharan, Senthil and Bedi, Amrit Singh and Manocha, Dinesh},
+  booktitle  = {2022 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  title      = {DC-MRTA: Decentralized Multi-Robot Task Allocation and Navigation in Complex Environments},
+  year       = {2022},
+  pages      = {11711-11718},
+  comment    = {启发我找到了MAPF这个关键词和MRTA这个关键词},
+  doi        = {10.1109/IROS47612.2022.9981353},
+  priority   = {prio1},
+  readstatus = {skimmed},
+}
+
+@Article{stern2019multi,
+  author     = {Stern, Roni},
+  journal    = {Artificial Intelligence: 5th RAAI Summer School, Dolgoprudny, Russia, July 4--7, 2019, Tutorial Lectures},
+  title      = {Multi-agent path finding--an overview},
+  year       = {2019},
+  pages      = {96--115},
+  publisher  = {Springer},
+  ranking    = {rank4},
+  readstatus = {skimmed},
+}
+
+@Article{raibail2022decentralized,
+  author    = {Raibail, Mehak and Rahman, Abdul Hadi Abd and AL-Anizy, Ghassan Jasim and Nasrudin, Mohammad Faidzul and Nadzir, Mohd Shahrul Mohd and Noraini, Nor Mohd Razif and Yee, Tan Siok},
+  journal   = {Symmetry},
+  title     = {Decentralized Multi-Robot Collision Avoidance: A Systematic Review from 2015 to 2021},
+  year      = {2022},
+  number    = {3},
+  pages     = {610},
+  volume    = {14},
+  publisher = {MDPI},
+}
+
+@Article{wei2016altruistic,
+  author    = {Wei, Changyun and Hindriks, Koen V and Jonker, Catholijn M},
+  journal   = {Applied Intelligence},
+  title     = {Altruistic coordination for multi-robot cooperative pathfinding},
+  year      = {2016},
+  pages     = {269--281},
+  volume    = {44},
+  publisher = {Springer},
+}
+
+@InProceedings{salzman2020research,
+  author     = {Salzman, Oren and Stern, Roni},
+  booktitle  = {Proceedings of the 19th International Conference on Autonomous Agents and MultiAgent Systems},
+  title      = {Research challenges and opportunities in multi-agent path finding and multi-agent pickup and delivery problems},
+  year       = {2020},
+  pages      = {1711--1715},
+  ranking    = {rank4},
+  readstatus = {skimmed},
+}
+
+@Article{8962201,
+  author   = {Wang, Hanlin and Rubenstein, Michael},
+  journal  = {IEEE Robotics and Automation Letters},
+  title    = {Walk, Stop, Count, and Swap: Decentralized Multi-Agent Path Finding With Theoretical Guarantees},
+  year     = {2020},
+  number   = {2},
+  pages    = {1119-1126},
+  volume   = {5},
+  doi      = {10.1109/LRA.2020.2967317},
+  priority = {prio1},
+}
+
+@Comment{jabref-meta: databaseType:bibtex;}
