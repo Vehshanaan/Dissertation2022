@@ -8,6 +8,7 @@
   <license>TODO: License declaration</license>
 
   <depend>rclpy</depend>
+  <depend>prototype_interfaces</depend>  <!--对服务接口的依赖-->
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

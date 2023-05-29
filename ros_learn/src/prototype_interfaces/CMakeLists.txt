@@ -18,13 +18,16 @@ find_package(rosidl_default_generators REQUIRED) # 应该是默认必须要有�
 
 rosidl_generate_interfaces(${PROJECT_NAME}
 
-  "msg/Prototype.msg"
+  "msg/Prototype.msg" 
+  "srv/PrototypeSrv.srv"  # 这一行是为了srv加的
   DEPENDENCIES sensor_msgs
   DEPENDENCIES std_msgs
   # 这里的dependencies如果没加上的话编译可以通过但是运行时会报错
 )
 
 # 弄完这个就去修改package.xml
+
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

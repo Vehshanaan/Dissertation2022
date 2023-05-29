@@ -27,6 +27,7 @@ setup(
             "Talker = prototype.talker:main",
             "Listener = prototype.listener:main",
             "customMsg = prototype.customMsg:main",
+            "customServer = prototype.customServer:main",
         ],
     },
 )

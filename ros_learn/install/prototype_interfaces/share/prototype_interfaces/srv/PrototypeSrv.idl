@@ -1,0 +1,30 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from prototype_interfaces/srv/PrototypeSrv.srv
+// generated code does not contain a copyright notice
+
+
+module prototype_interfaces {
+  module srv {
+    @verbatim (language="comment", text=
+      "先是客户端调用服务时发送的信息格式")
+    struct PrototypeSrv_Request {
+      @verbatim (language="comment", text=
+        "借钱者名字")
+      string name;
+
+      @verbatim (language="comment", text=
+        "想借多少钱")
+      int32 borrow;
+    };
+    struct PrototypeSrv_Response {
+      @verbatim (language="comment", text=
+        "再是服务端返回的结果格式" "\n"
+        "借不借？")
+      boolean lend_or_not;
+
+      @verbatim (language="comment", text=
+        "借多少钱")
+      int32 lend;
+    };
+  };
+};

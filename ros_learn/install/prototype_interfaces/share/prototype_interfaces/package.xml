@@ -12,12 +12,14 @@
 
 <!--
   他这个注释格式有点脑损伤
+  以下是对新建srv和msg通用的格式
+  只要引用里面用到的数据类型的包就可以了
   这里不加也可以通过编译，他说加这个主要是为了编译时有一个检查作用
 -->
 
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
-  <exec_depend>rosldl_default_runtime</exec_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
   <member_of_group>rosidl_interface_packages</member_of_group>
 
 
