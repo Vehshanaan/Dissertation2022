@@ -26,6 +26,7 @@ setup(
             "OOPNode = prototype.node_oop:main",
             "Talker = prototype.talker:main",
             "Listener = prototype.listener:main",
+            "customMsg = prototype.customMsg:main",
         ],
     },
 )

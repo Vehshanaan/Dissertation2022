@@ -1,0 +1,22 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from prototype_interfaces/msg/Prototype.msg
+// generated code does not contain a copyright notice
+
+#include "sensor_msgs/msg/Image.idl"
+#include "std_msgs/msg/String.idl"
+
+module prototype_interfaces {
+  module msg {
+    @verbatim (language="comment", text=
+      "在此文件中可以用井号插入注释")
+    struct Prototype {
+      @verbatim (language="comment", text=
+        "加入一个标准消息接口std_mags 下的string")
+      std_msgs::msg::String content;
+
+      @verbatim (language="comment", text=
+        "加入一个Image类型")
+      sensor_msgs::msg::Image image;
+    };
+  };
+};
