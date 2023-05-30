@@ -28,6 +28,8 @@ setup(
             "Listener = prototype.listener:main",
             "customMsg = prototype.customMsg:main",
             "customServer = prototype.customServer:main",
+            "customClient = prototype.customClient:main",
+            "parameter = prototype.parameters:main",
         ],
     },
 )

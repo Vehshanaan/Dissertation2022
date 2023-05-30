@@ -26,20 +26,22 @@ class MyServer(Node):
         self.get_logger().info("收到来自%s的借款申请，目前账户中有：%d，此人想借%d" %
                                (request.name, self.account, request.borrow))
         # response: 服务后的返回值
-        
+
         response.lend_or_not = True
         # 没钱不借
-        if(request.borrow >= self.account*0.1):
+        if (request.borrow >= self.account*0.1):
             response.lend_or_not = False
             self.get_logger().info("不借，爬吧")
-        
+
         # 出账
-        if(response.lend_or_not):
+        if (response.lend_or_not):
             self.account -= request.borrow
-            self.get_logger().info("借出%d，还剩%d。"%(request.borrow,self.account))
-        
+            response.lend = request.borrow
+            self.get_logger().info("借出%d，还剩%d。" % (request.borrow, self.account))
+
         return response
-    
+
+
 def main(args=None):
 
     rclpy.init(args=args)
@@ -49,4 +51,3 @@ def main(args=None):
     rclpy.spin(server)
 
     rclpy.shutdown()
-        
