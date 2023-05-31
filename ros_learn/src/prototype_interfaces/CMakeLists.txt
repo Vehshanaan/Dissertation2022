@@ -18,8 +18,9 @@ find_package(rosidl_default_generators REQUIRED) # 应该是默认必须要有�
 
 rosidl_generate_interfaces(${PROJECT_NAME}
 
-  "msg/Prototype.msg" 
+  "msg/Prototype.msg"  # 这一行是为了话题加的
   "srv/PrototypeSrv.srv"  # 这一行是为了srv加的
+  "action/PrototypeAction.action" # 这一行是为了action加的
   DEPENDENCIES sensor_msgs
   DEPENDENCIES std_msgs
   # 这里的dependencies如果没加上的话编译可以通过但是运行时会报错

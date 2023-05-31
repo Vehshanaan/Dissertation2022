@@ -1,0 +1,28 @@
+// generated from rosidl_adapter/resource/action.idl.em
+// with input from prototype_interfaces/action/PrototypeAction.action
+// generated code does not contain a copyright notice
+
+
+module prototype_interfaces {
+  module action {
+    @verbatim (language="comment", text=
+      "请求：从动作客户端发送到服务端，表明新目标")
+    struct PrototypeAction_Goal {
+      @verbatim (language="comment", text=
+        "目标：斐波那契数列的order")
+      int32 order;
+    };
+    struct PrototypeAction_Result {
+      @verbatim (language="comment", text=
+        "结果： 当目标完成时，从服务器向客户端返回执行的结果" "\n"
+        "结果：生成的对应order的斐波那契数列")
+      sequence<int32> sequence;
+    };
+    struct PrototypeAction_Feedback {
+      @verbatim (language="comment", text=
+        "反馈：从服务器向客户端定时发送的数据，内容是关于执行任务的过程信息" "\n"
+        "反馈： 当前已生成的数列部分")
+      sequence<int32> partial_sequence;
+    };
+  };
+};

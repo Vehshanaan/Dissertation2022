@@ -1,3 +1,5 @@
+action/PrototypeAction.action
+action/PrototypeAction.idl
 msg/Prototype.idl
 msg/Prototype.msg
 srv/PrototypeSrv.idl

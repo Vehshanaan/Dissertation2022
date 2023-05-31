@@ -30,6 +30,8 @@ setup(
             "customServer = prototype.customServer:main",
             "customClient = prototype.customClient:main",
             "parameter = prototype.parameters:main",
+            "customActionServer = prototype.customActionServer:main",
+            "customActionClient = prototype.customActionClient:main",
         ],
     },
 )
