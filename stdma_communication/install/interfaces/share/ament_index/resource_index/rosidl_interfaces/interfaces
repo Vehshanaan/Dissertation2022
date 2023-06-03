@@ -1,2 +1,6 @@
 msg/Slot.idl
 msg/Slot.msg
+srv/ApplyForSending.idl
+srv/ApplyForSending.srv
+srv/ApplyForSending_Request.msg
+srv/ApplyForSending_Response.msg

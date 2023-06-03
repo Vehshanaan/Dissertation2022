@@ -27,7 +27,8 @@ setup(
     entry_points={
         'console_scripts': [
 
-            "site = sites.site:main"
+            "site = sites.site:main",
+            "channel = sites.channel:main"
         ],
     },
 )
