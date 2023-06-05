@@ -10,6 +10,10 @@
 
 #include "rcutils/allocator.h"
 
+// Include directives for member types
+// Member `data`
+#include "rosidl_runtime_c/string_functions.h"
+
 bool
 interfaces__srv__ApplyForSending_Request__init(interfaces__srv__ApplyForSending_Request * msg)
 {
@@ -18,6 +22,11 @@ interfaces__srv__ApplyForSending_Request__init(interfaces__srv__ApplyForSending_
   }
   // applicant
   // apply_slot
+  // data
+  if (!rosidl_runtime_c__String__init(&msg->data)) {
+    interfaces__srv__ApplyForSending_Request__fini(msg);
+    return false;
+  }
   return true;
 }
 
@@ -29,6 +38,8 @@ interfaces__srv__ApplyForSending_Request__fini(interfaces__srv__ApplyForSending_
   }
   // applicant
   // apply_slot
+  // data
+  rosidl_runtime_c__String__fini(&msg->data);
 }
 
 bool
@@ -43,6 +54,12 @@ interfaces__srv__ApplyForSending_Request__are_equal(const interfaces__srv__Apply
   }
   // apply_slot
   if (lhs->apply_slot != rhs->apply_slot) {
+    return false;
+  }
+  // data
+  if (!rosidl_runtime_c__String__are_equal(
+      &(lhs->data), &(rhs->data)))
+  {
     return false;
   }
   return true;
@@ -60,6 +77,12 @@ interfaces__srv__ApplyForSending_Request__copy(
   output->applicant = input->applicant;
   // apply_slot
   output->apply_slot = input->apply_slot;
+  // data
+  if (!rosidl_runtime_c__String__copy(
+      &(input->data), &(output->data)))
+  {
+    return false;
+  }
   return true;
 }
 

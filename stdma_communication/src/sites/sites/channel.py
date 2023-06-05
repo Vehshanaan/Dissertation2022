@@ -60,8 +60,12 @@ class Channel(Node):
         Returns:
             bool : 成功了吗
         '''
-        self.get_logger().info("收到来自节点%d的申请：申请slot %d" %
-                               (request.applicant, request.apply_slot))
+        if self.occupation_[request.apply_slot-1] != request.applicant:
+            self.get_logger().info("收到来自节点%d的申请：申请slot %d" %
+                                   (request.applicant, request.apply_slot))
+        else:
+            self.get_logger().info("收到来自节点%d的数据：在slot %d 发送 %s " %
+                                   (request.applicant, request.apply_slot, request.data))
 
         # 每次收到申请，增加一个申请人计数器
         self.applicant_amount_for_current_slot_ += 1
@@ -69,7 +73,7 @@ class Channel(Node):
         # 卡在这里了。spin_once如果没有接到东西的话会无限地等下去
 
         # 看看半秒内有没有接到新的服务请求
-        rclpy.spin_once(self, timeout_sec=0.5)
+        # rclpy.spin_once(self, timeout_sec=0.5)
 
         if self.applicant_amount_for_current_slot_ != 1:  # 如果有多个申请者要在下一槽发信息
             # 告诉申请者发生了冲撞
@@ -98,7 +102,7 @@ class Channel(Node):
         '''
         if (not self.next_slot_ready_) and (self.occupation_[self.current_slot_-1] != -1):
             self.next_slot_ready_ = False
-            
+            print("还没收到该收到的此节点信息")
             return  # 如果还没准备好发送：不发送，直接返回
 
         # 初始化要广播的信息

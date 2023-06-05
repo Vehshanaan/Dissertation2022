@@ -21,16 +21,32 @@ namespace srv
 namespace builder
 {
 
+class Init_ApplyForSending_Request_data
+{
+public:
+  explicit Init_ApplyForSending_Request_data(::interfaces::srv::ApplyForSending_Request & msg)
+  : msg_(msg)
+  {}
+  ::interfaces::srv::ApplyForSending_Request data(::interfaces::srv::ApplyForSending_Request::_data_type arg)
+  {
+    msg_.data = std::move(arg);
+    return std::move(msg_);
+  }
+
+private:
+  ::interfaces::srv::ApplyForSending_Request msg_;
+};
+
 class Init_ApplyForSending_Request_apply_slot
 {
 public:
   explicit Init_ApplyForSending_Request_apply_slot(::interfaces::srv::ApplyForSending_Request & msg)
   : msg_(msg)
   {}
-  ::interfaces::srv::ApplyForSending_Request apply_slot(::interfaces::srv::ApplyForSending_Request::_apply_slot_type arg)
+  Init_ApplyForSending_Request_data apply_slot(::interfaces::srv::ApplyForSending_Request::_apply_slot_type arg)
   {
     msg_.apply_slot = std::move(arg);
-    return std::move(msg_);
+    return Init_ApplyForSending_Request_data(msg_);
   }
 
 private:

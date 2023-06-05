@@ -34,12 +34,28 @@ class Site(Node):
         # 此节点的槽位编号是
         self.slot_no_ = not_joined  # not_joined = -100 代表还未加入网络
 
-    # 从stdma通信层信道topic接收到信息时运行的回调函数
+    # 在获得位置后向信道发送消息用的函数
+    def apply_for_sending(self,data):
+        # 当信道还不在线的时候，打印一个不在线
+        while not self.client_apply_slot_.wait_for_service(1):
+            self.get_logger().warn("信道还没开，信道还没开")
 
+        # 构造请求的内容
+        request = ApplyForSending.Request()
+        request.applicant = int(self.get_name()[-1])
+        request.apply_slot = self.slot_no_
+        request.data = data
+
+        # 发送请求
+        self.client_apply_slot_.call_async(request)
+
+
+
+    # 从stdma通信层信道topic接收到信息时运行的回调函数
     def subscriber_callback(self, msg):
         self.received_msg = msg
-        self.get_logger().info("msg received: slot %d/%d from site %d." %
-                               (self.received_msg.slot_no, self.received_msg.slot_total, self.received_msg.sender_no))
+        #self.get_logger().info("msg received: slot %d/%d from site %d." %
+        #                       (self.received_msg.slot_no, self.received_msg.slot_total, self.received_msg.sender_no))
 
         # 保存收到的信道信息
         self.frame_length_ = msg.slot_total
@@ -50,6 +66,12 @@ class Site(Node):
         self.occupied_[self.current_slot_-1] = msg.occupied
 
         # 当轮到自己说话的时候，说话。
+        if not hasattr(self, "slot_no_"):
+            return
+        if (self.current_slot_ == self.slot_no_ - 1) or (self.slot_no_ == 1 and self.current_slot_ == self.frame_length_):
+            # 轮到自己了，说话。
+            self.apply_for_sending("我是"+str(self.get_name()))
+
 
     # 用来申请加入网络
     def apply_for_slot(self, slot_desired):
@@ -74,8 +96,7 @@ class Site(Node):
         else:
             return False
 
-    # 应在main里调用。在spin以前。
-
+    # 应在main里调用。在spin以前。 加入网络的函数。
     def join_network(self):
 
         # 先检查自己是否已经加入网络，若已加入则直接return
@@ -119,7 +140,7 @@ class Site(Node):
                     self.slot_no_ = apply_for
                     return success
                 else:
-                    # 随机找一个自己可以用的槽位
+                    # 随机换一个自己可以用的槽位
                     candidates = [
                         i+1 for i in range(len(self.occupied_)) if self.occupied_[i] == False]
                     apply_for = random.choice(candidates)

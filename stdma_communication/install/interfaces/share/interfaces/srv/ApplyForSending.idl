@@ -13,6 +13,10 @@ module interfaces {
       @verbatim (language="comment", text=
         "申请哪个槽")
       int16 apply_slot;
+
+      @verbatim (language="comment", text=
+        "待发送的数据")
+      string data;
     };
     struct ApplyForSending_Response {
       @verbatim (language="comment", text=

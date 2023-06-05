@@ -40,17 +40,19 @@ struct ApplyForSending_Request_
     {
       this->applicant = 0;
       this->apply_slot = 0;
+      this->data = "";
     }
   }
 
   explicit ApplyForSending_Request_(const ContainerAllocator & _alloc, rosidl_runtime_cpp::MessageInitialization _init = rosidl_runtime_cpp::MessageInitialization::ALL)
+  : data(_alloc)
   {
-    (void)_alloc;
     if (rosidl_runtime_cpp::MessageInitialization::ALL == _init ||
       rosidl_runtime_cpp::MessageInitialization::ZERO == _init)
     {
       this->applicant = 0;
       this->apply_slot = 0;
+      this->data = "";
     }
   }
 
@@ -61,6 +63,9 @@ struct ApplyForSending_Request_
   using _apply_slot_type =
     int16_t;
   _apply_slot_type apply_slot;
+  using _data_type =
+    std::basic_string<char, std::char_traits<char>, typename std::allocator_traits<ContainerAllocator>::template rebind_alloc<char>>;
+  _data_type data;
 
   // setters for named parameter idiom
   Type & set__applicant(
@@ -73,6 +78,12 @@ struct ApplyForSending_Request_
     const int16_t & _arg)
   {
     this->apply_slot = _arg;
+    return *this;
+  }
+  Type & set__data(
+    const std::basic_string<char, std::char_traits<char>, typename std::allocator_traits<ContainerAllocator>::template rebind_alloc<char>> & _arg)
+  {
+    this->data = _arg;
     return *this;
   }
 
@@ -122,6 +133,9 @@ struct ApplyForSending_Request_
       return false;
     }
     if (this->apply_slot != other.apply_slot) {
+      return false;
+    }
+    if (this->data != other.data) {
       return false;
     }
     return true;

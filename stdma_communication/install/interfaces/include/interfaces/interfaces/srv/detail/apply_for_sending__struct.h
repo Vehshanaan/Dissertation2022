@@ -18,6 +18,10 @@ extern "C"
 
 // Constants defined in the message
 
+// Include directives for member types
+// Member 'data'
+#include "rosidl_runtime_c/string.h"
+
 /// Struct defined in srv/ApplyForSending in the package interfaces.
 typedef struct interfaces__srv__ApplyForSending_Request
 {
@@ -25,6 +29,8 @@ typedef struct interfaces__srv__ApplyForSending_Request
   int16_t applicant;
   /// 申请哪个槽
   int16_t apply_slot;
+  /// 待发送的数据
+  rosidl_runtime_c__String data;
 } interfaces__srv__ApplyForSending_Request;
 
 // Struct for a sequence of interfaces__srv__ApplyForSending_Request.

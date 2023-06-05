@@ -7,6 +7,12 @@ def generate_launch_description():
         Node(
             package="sites",
             namespace="sites",
+            executable="channel",
+            name="ChannelNode",
+        ),
+        Node(
+            package="sites",
+            namespace="sites",
             executable="site",
             name="node1",
         ),
@@ -15,5 +21,23 @@ def generate_launch_description():
             namespace="sites",
             executable="site",
             name="node2",
-        )
+        ),
+        Node(
+            package="sites",
+            namespace="sites",
+            executable="site",
+            name="node3",
+        ),
+        Node(
+            package="sites",
+            namespace="sites",
+            executable="site",
+            name="node4",
+        ),
+        Node(
+            package="sites",
+            namespace="sites",
+            executable="site",
+            name="node5",
+        ),
     ])
