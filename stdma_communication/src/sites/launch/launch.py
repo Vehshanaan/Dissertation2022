@@ -40,4 +40,10 @@ def generate_launch_description():
             executable="site",
             name="node5",
         ),
+        Node(
+            package="sites",
+            namespace="sites",
+            executable="visualiser",
+            name="visualizer",
+        )       
     ])

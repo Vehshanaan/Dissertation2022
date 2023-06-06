@@ -17,10 +17,15 @@ item = QTableWidgetItem("Content for cell ({}, {})".format(0, 4))
 item.setBackground(QtGui.QColor(255, 0, 0)) # set background color to red
 table.setItem(0, 4, item)
 
-table.setItem(0, 4, QTableWidgetItem('Item (0,4)'))
+
+item = QTableWidgetItem(str(-1))
+item.setBackground(QtGui.QColor(255,0,0))
+
+table.setItem(0, 4, item)
 # Set the window size to fit the table
 table.resizeColumnsToContents()
 table.resizeRowsToContents()
 table.show()
 
 app.exec()
+
