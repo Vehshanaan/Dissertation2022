@@ -1,0 +1,28 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from interfaces/msg/Slot.msg
+// generated code does not contain a copyright notice
+
+
+module interfaces {
+  module msg {
+    @verbatim (language="comment", text=
+      "slot数据的格式，采用topic进行此类数据的传输")
+    struct Slot {
+      @verbatim (language="comment", text=
+        "当前slot的编号，从1开始")
+      int16 slot_no;
+
+      @verbatim (language="comment", text=
+        "一帧有多少个slot")
+      int16 slot_total;
+
+      @verbatim (language="comment", text=
+        "当前发送者编号（“node几的那个几”）")
+      int16 sender_no;
+
+      @verbatim (language="comment", text=
+        "此slot是否有主")
+      boolean occupied;
+    };
+  };
+};

@@ -1,0 +1,27 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from interfaces/srv/ApplyForSending.srv
+// generated code does not contain a copyright notice
+
+
+module interfaces {
+  module srv {
+    struct ApplyForSending_Request {
+      @verbatim (language="comment", text=
+        "申请者编号")
+      int16 applicant;
+
+      @verbatim (language="comment", text=
+        "申请哪个槽")
+      int16 apply_slot;
+
+      @verbatim (language="comment", text=
+        "待发送的数据")
+      string data;
+    };
+    struct ApplyForSending_Response {
+      @verbatim (language="comment", text=
+        "成功了吗")
+      boolean result;
+    };
+  };
+};
