@@ -30,6 +30,8 @@ setup(
             "site = sites.site:main",
             "channel = sites.channel:main",
             "visualiser = sites.channelVIsualiser:main",
+            "map = sites.map:main",
+            "test_site = sites.test_site:main",
         ],
     },
 )

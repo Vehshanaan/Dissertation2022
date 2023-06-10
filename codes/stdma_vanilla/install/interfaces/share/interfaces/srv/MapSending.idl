@@ -1,0 +1,19 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from interfaces/srv/MapSending.srv
+// generated code does not contain a copyright notice
+
+
+module interfaces {
+  module srv {
+    @verbatim (language="comment", text=
+      "申请者编号")
+    struct MapSending_Request {
+      int16 applicant;
+    };
+    struct MapSending_Response {
+      @verbatim (language="comment", text=
+        "返回地图数据")
+      sequence<int16> map_data;
+    };
+  };
+};

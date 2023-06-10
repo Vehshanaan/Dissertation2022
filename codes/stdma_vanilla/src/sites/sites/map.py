@@ -12,8 +12,10 @@
 '''
 
 
+from interfaces.srv import MapSending
+from rclpy.node import Node
+import rclpy
 from PIL import Image
-import numpy as np
 
 map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/map_builder/map1.png"
 
@@ -28,16 +30,16 @@ def map_reader(map_path):
         list: 二维数组，其中地图图片中白色的地方是True，黑色像素的地方是False
     '''
     with Image.open(map_path) as img:
-       width, height = img.size
-       pixels = img.load()
-       bool_array = [[False for _ in range(width)] for _ in range(height)]
-       for i in range(height):
-           for j in range(width):
-               if pixels[j, i] == (255, 255, 255):
-                   bool_array[i][j] = True
-       return bool_array
+        width, height = img.size
+        pixels = img.load()
+        bool_array = [[False for _ in range(width)] for _ in range(height)]
+        for i in range(height):
+            for j in range(width):
+                if pixels[j, i] == (255, 255, 255):
+                    bool_array[i][j] = True
+        return bool_array
 
-def map_condenser(map_list_2d):    
+def map_condenser(map_list_2d):
     '''
     将二维的数组压缩为一维的函数，压缩后在开头附上宽高数据，以便接收端恢复
 
@@ -52,8 +54,8 @@ def map_condenser(map_list_2d):
 
     flattened = [_ for row in map_list_2d for _ in row]
 
-    flattened.insert(0,width)
-    flattened.insert(1,height)
+    flattened.insert(0, width)
+    flattened.insert(1, height)
 
     return flattened
 
@@ -72,16 +74,40 @@ def map_uncondenser(map_list_1d):
 
     del map_list_1d[:2]
 
-    map_list_2d = [map_list_1d[i:i+width] for i in range(0,len(map_list_1d),width)]
+    map_list_2d = [map_list_1d[i:i+width]
+                   for i in range(0, len(map_list_1d), width)]
 
     return map_list_2d
 
-map_list = map_reader(map_path)
+class MapNode(Node):
+    def __init__(self, name):
+        super().__init__(name)
 
-flattened_map = map_condenser(map_list)
+        self.get_logger().info("物理世界地图结点已启动")
 
-resumed_map = map_uncondenser(flattened_map)
+        # 地图的固有参数
+        self.physical_map_ = map_reader(map_path)
+
+        # 向节点发送地图的服务
+        self.map_sender_ = self.create_service(
+            MapSending, "MapSender", self.map_init_sending_callback)
+
+    def map_init_sending_callback(self, request, response):
+        '''
+        服务回调函数：返回压缩为一维的地图，起始两位是地图宽，高。
+        '''
+        condensed_map = map_condenser(self.physical_map_)
+        response.map_data = condensed_map
+        print(response.map_data)
+        return response
 
 
-print(map_list==resumed_map)
+def main(args=None):
 
+    rclpy.init(args=args)
+
+    map = MapNode("MapNode")
+
+    rclpy.spin(map)
+
+    rclpy.shutdown()
