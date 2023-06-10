@@ -13,19 +13,17 @@ class TesterNode(Node):
 
         self.client_ = self.create_client(MapSending,"MapSender")
 
-        
+        self.map_data_ = None
 
-        self.create_timer(self.timer_period_,self.timer_callback)
+        self.load_map()
 
-    def timer_callback(self):
-        '''
-        索要地图信息
-        '''
+    def load_map(self):
         request = MapSending.Request()
-        request.applicant = -1
-
-
-        self.map_received_ = None
+        future = self.client_.call_async(request)
+        rclpy.spin_until_future_complete(self,future)
+        self.map_data_ = future.result()
+        print(self.map_data_)
+        
 
 
 def main(args=None):
