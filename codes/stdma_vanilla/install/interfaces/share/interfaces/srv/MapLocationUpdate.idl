@@ -1,0 +1,28 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from interfaces/srv/MapLocationUpdate.srv
+// generated code does not contain a copyright notice
+
+
+module interfaces {
+  module srv {
+    @verbatim (language="comment", text=
+      "申请者编号")
+    struct MapLocationUpdate_Request {
+      int16 applicant;
+
+      @verbatim (language="comment", text=
+        "x y是要移动到的坐标位置，左上为0，0" "\n"
+        "申请者要移动到的位置 横坐标")
+      int16 x;
+
+      @verbatim (language="comment", text=
+        "申请者要移动到的位置 纵坐标")
+      int16 y;
+    };
+    struct MapLocationUpdate_Response {
+      @verbatim (language="comment", text=
+        "成功了吗")
+      boolean success;
+    };
+  };
+};

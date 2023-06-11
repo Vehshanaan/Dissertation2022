@@ -12,7 +12,7 @@
 '''
 
 
-from interfaces.srv import MapSending
+from interfaces.srv import MapSending, MapLocationUpdate 
 from rclpy.node import Node
 import rclpy
 from PIL import Image
@@ -85,12 +85,39 @@ class MapNode(Node):
 
         self.get_logger().info("物理世界地图结点已启动")
 
-        # 地图的固有参数
+        # 物理地图
         self.physical_map_ = map_reader(map_path)
+
+        # 站点在地图中的位置，起始为空。
+        self.sites_in_map_ = [[None for _ in row] for row in self.physical_map_]
 
         # 向节点发送地图的服务
         self.map_sender_ = self.create_service(
             MapSending, "MapSender", self.map_init_sending_callback)
+
+        self.site_loaction_updater_ = self.create_service(MapLocationUpdate, "MapLocationUpdater", self.map_location_update_callback)
+
+    def map_location_update_callback(self, request, response):
+        # 检查目的地是否是阻挡物，如果是则直接返回False
+        x = request.x
+        y = request.y
+        node = request.applicant
+        # 检查目标位置是否超出范围。
+        if y>=len(self.physical_map_) or x>=len(self.physical_map_[0]): 
+            response.success=False
+            return response # 移动失败：目标位置出界了
+        # 检查目标位置是否被阻挡
+        if self.sites_in_map_[y][x]!=None or not self.physical_map_[y][x]: 
+            response.success=False
+            return response # 移动失败：有障碍物或其他agent在目标位置上
+        # 将图中所有此发送者占有的地方清空
+        self.sites_in_map_ =  [[None if element == node else element for element in sublist] for sublist in self.sites_in_map_]
+        # 将新位置赋为发送者标号
+        self.sites_in_map_[y][x]=node
+        # 返回True
+        response.success = True
+        return response
+
 
     def map_init_sending_callback(self, request, response):
         '''

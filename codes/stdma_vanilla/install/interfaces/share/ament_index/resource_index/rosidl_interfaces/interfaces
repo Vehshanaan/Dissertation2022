@@ -4,6 +4,10 @@ srv/ApplyForSending.idl
 srv/ApplyForSending.srv
 srv/ApplyForSending_Request.msg
 srv/ApplyForSending_Response.msg
+srv/MapLocationUpdate.idl
+srv/MapLocationUpdate.srv
+srv/MapLocationUpdate_Request.msg
+srv/MapLocationUpdate_Response.msg
 srv/MapSending.idl
 srv/MapSending.srv
 srv/MapSending_Request.msg
