@@ -12,12 +12,13 @@
 '''
 
 
-from interfaces.srv import MapSending, MapLocationUpdate 
+from interfaces.srv import MapSending, MapLocationUpdate
 from rclpy.node import Node
 import rclpy
 from PIL import Image
 
 map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/map_builder/map1.png"
+
 
 def map_reader(map_path):
     '''
@@ -39,6 +40,7 @@ def map_reader(map_path):
                     bool_array[i][j] = True
         return bool_array
 
+
 def map_condenser(map_list_2d):
     '''
     将二维的数组压缩为一维的函数，压缩后在开头附上宽高数据，以便接收端恢复
@@ -58,6 +60,7 @@ def map_condenser(map_list_2d):
     flattened.insert(1, height)
 
     return flattened
+
 
 def map_uncondenser(map_list_1d):
     '''
@@ -79,6 +82,7 @@ def map_uncondenser(map_list_1d):
 
     return map_list_2d
 
+
 class MapNode(Node):
     def __init__(self, name):
         super().__init__(name)
@@ -89,13 +93,15 @@ class MapNode(Node):
         self.physical_map_ = map_reader(map_path)
 
         # 站点在地图中的位置，起始为空。
-        self.sites_in_map_ = [[None for _ in row] for row in self.physical_map_]
+        self.sites_in_map_ = [[None for _ in row]
+                              for row in self.physical_map_]
 
         # 向节点发送地图的服务
         self.map_sender_ = self.create_service(
             MapSending, "MapSender", self.map_init_sending_callback)
 
-        self.site_loaction_updater_ = self.create_service(MapLocationUpdate, "MapLocationUpdater", self.map_location_update_callback)
+        self.site_loaction_updater_ = self.create_service(
+            MapLocationUpdate, "MapLocationUpdater", self.map_location_update_callback)
 
     def map_location_update_callback(self, request, response):
         # 检查目的地是否是阻挡物，如果是则直接返回False
@@ -103,21 +109,21 @@ class MapNode(Node):
         y = request.y
         node = request.applicant
         # 检查目标位置是否超出范围。
-        if y>=len(self.physical_map_) or x>=len(self.physical_map_[0]): 
-            response.success=False
-            return response # 移动失败：目标位置出界了
+        if y >= len(self.physical_map_) or x >= len(self.physical_map_[0]):
+            response.success = False
+            return response  # 移动失败：目标位置出界了
         # 检查目标位置是否被阻挡
-        if self.sites_in_map_[y][x]!=None or not self.physical_map_[y][x]: 
-            response.success=False
-            return response # 移动失败：有障碍物或其他agent在目标位置上
+        if (self.sites_in_map_[y][x] != None and self.sites_in_map_[y][x] != node) or not self.physical_map_[y][x]:
+            response.success = False
+            return response  # 移动失败：有障碍物或其他agent在目标位置上
         # 将图中所有此发送者占有的地方清空
-        self.sites_in_map_ =  [[None if element == node else element for element in sublist] for sublist in self.sites_in_map_]
+        self.sites_in_map_ = [
+            [None if element == node else element for element in sublist] for sublist in self.sites_in_map_]
         # 将新位置赋为发送者标号
-        self.sites_in_map_[y][x]=node
+        self.sites_in_map_[y][x] = node
         # 返回True
         response.success = True
         return response
-
 
     def map_init_sending_callback(self, request, response):
         '''
@@ -125,7 +131,7 @@ class MapNode(Node):
         '''
         condensed_map = map_condenser(self.physical_map_)
         response.map_data = condensed_map
-        print(response.map_data)
+        print("进行了一次地图初始化服务")
         return response
 
 

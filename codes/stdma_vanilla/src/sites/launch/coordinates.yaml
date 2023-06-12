@@ -1,0 +1,15 @@
+test_node1:
+  x: 1
+  y: 1
+test_node2:
+  x: 1
+  y: 2
+test_node3:
+  x: 2
+  y: 3
+test_node4:
+  x: 4
+  y: 4
+test_node5:
+  x: 0
+  y: 3
