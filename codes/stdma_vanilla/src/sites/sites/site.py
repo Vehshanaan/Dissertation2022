@@ -4,7 +4,7 @@ from rclpy.node import Node
 
 from interfaces.msg import Slot
 
-from interfaces.srv import ApplyForSending
+from interfaces.srv import ApplyForSending, MapSending, MapLocationUpdate
 
 import random
 
@@ -12,30 +12,116 @@ import random
 # 给stdma通信层的信道topic的名字
 name_for_stdma_channel = "STDMA_Channel"
 
+# 初始化地图信息的服务名称
+name_for_map_init_service = "MapSender"
+
+# 向地图更新自己位置的服务名称
+name_for_map_location_update = "MapLocationUpdater"
+
+# 如果节点没有加入网络，它的槽位就是这个值：
 not_joined = -100
 
 
 class Site(Node):
     def __init__(self, name):
         super().__init__(name)
-        self.get_logger().info("站点启动！此节点的名字是%s" % self.get_name())
 
         # 话题接收者部分
-        self.received_msg = Slot()
-        self.subscriber_ = self.create_subscription(
-            Slot, name_for_stdma_channel, self.subscriber_callback, 10)
+        self.received_stdma_msg_ = Slot()
+        self.stdma_receiver_client_ = self.create_subscription(
+            Slot, name_for_stdma_channel, self.stdma_subscriber_callback, 10)
 
         # 向信道申请位置部分
         self.client_apply_slot_ = self.create_client(
             ApplyForSending, "ApplyForSending")
 
-        # 一些参数和标志位
+        # 站点的编号
+        self.site_no = int(self.get_name()[-1])
 
-        # 此节点的槽位编号是
+        # 此节点占有的slot槽位编号是
         self.slot_no_ = not_joined  # not_joined = -100 代表还未加入网络
 
-    # 在获得位置后向信道发送消息用的函数
-    def apply_for_sending(self,data):
+        # 地图的物理信息
+        self.map_ = None
+
+        # 初始化时接收地图信息的客户端
+        self.map_init_client_ = self.create_client(
+            MapSending, name_for_map_init_service)
+
+        # 移动时向地图发送信息的客户端
+        self.map_move_client_ = self.create_client(
+            MapLocationUpdate, name_for_map_location_update)
+
+        # 站点在地图中的物理位置
+        # 左上为（0，0），x横y纵
+        self.declare_parameter("x", 1)
+        self.declare_parameter("y", 1)
+
+        self.get_logger().info("站点，启动！此节点的名字是%s, 初始坐标为(x = %d, y = %d)" %
+                               (self.get_name(), self.get_local_location()[0], self.get_local_location()[1]))
+
+        # 初始化地图信息
+        self.load_map_()
+
+        # 加入网络
+        self.join_network()
+
+    def load_map_(self):
+        '''
+        应在节点初始化阶段调用，从地图节点中读取地图物理信息的函数
+        '''
+        while not self.map_init_client_.wait_for_service(1):
+            self.get_logger().info("地图节点还妹开呢。")
+        request = MapSending.Request()
+        request.applicant = self.site_no
+        future = self.map_init_client_.call_async(request)
+        rclpy.spin_until_future_complete(self, future)
+        self.map_ = future.result()
+        self.get_logger().info("名为%s的节点地图加载成功。" % self.get_name())
+
+    def set_local_location(self, x, y):
+        '''
+        更新以参数形式保存在本地的自身位置数据。也就是self.x,self.y
+
+        Args:
+            x (int): 横坐标
+            y (int): 纵坐标
+        '''
+        x_new = rclpy.parameter.Parameter(
+            "x",
+            rclpy.Parameter.Type.INTEGER,
+            x
+        )
+
+        y_new = rclpy.parameter.Parameter(
+            "y",
+            rclpy.Parameter.Type.INTEGER,
+            y
+        )
+
+        all_new_params = [x_new, y_new]
+
+        self.set_parameters(all_new_params)
+
+    def get_local_location(self):
+        '''
+        获得本地保存的自身位置
+
+        Returns:
+            [x,y]:[横坐标，纵坐标]
+        '''
+        x = self.get_parameter("x").get_parameter_value().integer_value
+        y = self.get_parameter("y").get_parameter_value().integer_value
+
+        return [x, y]
+
+    def apply_for_sending(self, data):
+        '''
+        在获得位置后向信道发送消息用的函数
+
+        Args:
+            data (string): 此信息的类型要想更改记得改srv里的数据类型现在暂时是字符串
+        '''
         # 当信道还不在线的时候，打印一个不在线
         while not self.client_apply_slot_.wait_for_service(1):
             self.get_logger().warn("信道还没开，信道还没开")
@@ -49,12 +135,12 @@ class Site(Node):
         # 发送请求
         self.client_apply_slot_.call_async(request)
 
-
-
-    # 从stdma通信层信道topic接收到信息时运行的回调函数
-    def subscriber_callback(self, msg):
-        self.received_msg = msg
-        #self.get_logger().info("msg received: slot %d/%d from site %d." %
+    def stdma_subscriber_callback(self, msg):
+        '''
+        从stdma通信层信道topic接收到信息时运行的回调函数
+        '''
+        self.received_stdma_msg_ = msg
+        # self.get_logger().info("msg received: slot %d/%d from site %d." %
         #                       (self.received_msg.slot_no, self.received_msg.slot_total, self.received_msg.sender_no))
 
         # 保存收到的信道信息
@@ -65,6 +151,11 @@ class Site(Node):
 
         self.occupied_[self.current_slot_-1] = msg.occupied
 
+        # 每个时间格中一移动一次
+        x = self.get_local_location()[0]
+        y = self.get_local_location()[1]
+        self.move_to(x, y) # 暂时是原地踏步，测试一下系统可用性
+
         # 当轮到自己说话的时候，说话。
         if not hasattr(self, "slot_no_"):
             return
@@ -72,9 +163,15 @@ class Site(Node):
             # 轮到自己了，说话。
             self.apply_for_sending("我是"+str(self.get_name()))
 
-
-    # 用来申请加入网络
     def apply_for_slot(self, slot_desired):
+        '''
+        用来申请加入网络
+        Args:
+            slot_desired (int): 申请的位置编号，slot的编号从1开始
+
+        Returns:
+            _type_: _description_
+        '''
 
         # 当信道还不在线的时候，打印一个不在线
         while not self.client_apply_slot_.wait_for_service(1):
@@ -83,7 +180,7 @@ class Site(Node):
         # 构造请求的内容
 
         request = ApplyForSending.Request()
-        request.applicant = int(self.get_name()[-1])
+        request.applicant = self.site_no
         request.apply_slot = slot_desired
 
         # 发送请求
@@ -96,8 +193,10 @@ class Site(Node):
         else:
             return False
 
-    # 应在main里调用。在spin以前。 加入网络的函数。
     def join_network(self):
+        '''
+        应在节点初始化函数里调用。用来加入网络的函数。
+        '''
 
         # 先检查自己是否已经加入网络，若已加入则直接return
         if self.slot_no_ != not_joined:
@@ -145,14 +244,36 @@ class Site(Node):
                         i+1 for i in range(len(self.occupied_)) if self.occupied_[i] == False]
                     apply_for = random.choice(candidates)
 
+    def move_to(self, x, y):
+        '''
+        将自己的目标位置发送给地图，申请移动。如果地图端判断无物理碰撞，服务会返回true，此时更新本地位置记录。
+
+        Args:
+            x (int16): 横坐标
+            y (int16): 纵坐标
+        '''
+        request = MapLocationUpdate.Request()
+        request.applicant = self.site_no
+        request.x = x
+        request.y = y
+        self.map_move_client_.call_async(
+            request).add_done_callback(self.move_finish_callback)
+
+    def move_finish_callback(self, future):
+        result = future.result()
+        if result.success:
+            self.get_logger().info("%s成功移动，当前位置为%d,%d" %
+                                   (self.get_name(), self.get_local_location()[0], self.get_local_location()[1]))
+        else:
+            self.get_logger().info("%s移动失败，目标位置为%d,%d" %
+                                   (self.get_name(), self.get_local_location()[0], self.get_local_location()[1]))
+
 
 def main(args=None):
 
     rclpy.init(args=args)
 
     site = Site("node1")
-
-    site.join_network()
 
     rclpy.spin(site)
 
