@@ -13,6 +13,7 @@
 
 
 from interfaces.srv import MapSending, MapLocationUpdate
+from interfaces.msg import MapVisualiserSiteMoves
 from rclpy.node import Node
 import rclpy
 from PIL import Image
@@ -100,29 +101,40 @@ class MapNode(Node):
         self.map_sender_ = self.create_service(
             MapSending, "MapSender", self.map_init_sending_callback)
 
+        # 节点申请移动的服务
         self.site_loaction_updater_ = self.create_service(
             MapLocationUpdate, "MapLocationUpdater", self.map_location_update_callback)
+
+        # 每次有节点移动后告诉可视化器新消息的话题发布者
+        self.site_moves_to_visualiser_publisher_ = self.create_publisher(
+            MapVisualiserSiteMoves, "SiteMoves", 10)
 
     def map_location_update_callback(self, request, response):
         # 检查目的地是否是阻挡物，如果是则直接返回False
         x = request.x
         y = request.y
         node = request.applicant
+        response.success = True  # 先初始化一个True, 后续根据条件结果修改
         # 检查目标位置是否超出范围。
         if y >= len(self.physical_map_) or x >= len(self.physical_map_[0]):
-            response.success = False
-            return response  # 移动失败：目标位置出界了
+            response.success = False  # 目标位置出界了
         # 检查目标位置是否被阻挡
         if (self.sites_in_map_[y][x] != None and self.sites_in_map_[y][x] != node) or not self.physical_map_[y][x]:
-            response.success = False
-            return response  # 移动失败：有障碍物或其他agent在目标位置上
-        # 将图中所有此发送者占有的地方清空
-        self.sites_in_map_ = [
-            [None if element == node else element for element in sublist] for sublist in self.sites_in_map_]
-        # 将新位置赋为发送者标号
-        self.sites_in_map_[y][x] = node
-        # 返回True
-        response.success = True
+            response.success = False  # 目标位置有别人或者有墙
+        if response.success:  # 以下操作仅在成功移动时进行
+            # 将图中所有此发送者占有的地方清空
+            self.sites_in_map_ = [
+                [None if element == node else element for element in sublist] for sublist in self.sites_in_map_]
+            # 将新位置赋为发送者标号
+            self.sites_in_map_[y][x] = node
+
+            # 每有节点成功完成一次移动请求：向可视化节点发送移动情况。
+            msg = MapVisualiserSiteMoves()  # 实例化信息对象
+            msg.site_no = node
+            msg.x = x
+            msg.y = y
+            self.site_moves_to_visualiser_publisher_.publish(msg)
+
         return response
 
     def map_init_sending_callback(self, request, response):

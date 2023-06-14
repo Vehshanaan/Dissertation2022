@@ -1,3 +1,5 @@
+msg/MapVisualiserSiteMoves.idl
+msg/MapVisualiserSiteMoves.msg
 msg/Slot.idl
 msg/Slot.msg
 srv/ApplyForSending.idl

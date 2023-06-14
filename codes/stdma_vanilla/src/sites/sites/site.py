@@ -21,6 +21,26 @@ name_for_map_location_update = "MapLocationUpdater"
 # 如果节点没有加入网络，它的槽位就是这个值：
 not_joined = -100
 
+def map_uncondenser(map_list_1d):
+    '''
+    将输入的一维数组恢复为二维数组的函数，输入的一维数组第一位是原数组宽，第二位是原数组高
+
+    Args:
+        map_list_1d (list): 输入的一维数组第一位是原数组宽，第二位是原数组高
+
+    Returns:
+        list[list[]]: 恢复的二维数组
+    '''
+    width = map_list_1d[0]
+    height = map_list_1d[1]
+
+    del map_list_1d[:2]
+
+    map_list_2d = [map_list_1d[i:i+width]
+                   for i in range(0, len(map_list_1d), width)]
+
+    return map_list_2d
+
 
 class Site(Node):
     def __init__(self, name):
@@ -76,7 +96,7 @@ class Site(Node):
         request.applicant = self.site_no
         future = self.map_init_client_.call_async(request)
         rclpy.spin_until_future_complete(self, future)
-        self.map_ = future.result()
+        self.map_ = map_uncondenser(future.result().map_data)
         self.get_logger().info("名为%s的节点地图加载成功。" % self.get_name())
 
     def set_local_location(self, x, y):

@@ -17,6 +17,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/ApplyForSending.srv"
   "srv/MapSending.srv"
   "srv/MapLocationUpdate.srv"
+  "msg/MapVisualiserSiteMoves.msg"
 )
 
 

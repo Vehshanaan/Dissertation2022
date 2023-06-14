@@ -31,6 +31,13 @@ def generate_launch_description():
         name="map",
     )
 
+    # 启动地图可视化
+    activate_map_visualiser = Node(
+        package = package_name,
+        executable = "map_visualiser",
+        name = "map_visualiser",
+    )
+
     # 启动信道
     activate_channel= Node(
         package = package_name,
@@ -46,6 +53,7 @@ def generate_launch_description():
     )
 
     ld.add_action(activate_map)
+    ld.add_action(activate_map_visualiser)
     ld.add_action(activate_channel)
     ld.add_action(activate_channel_visualiser)
 
