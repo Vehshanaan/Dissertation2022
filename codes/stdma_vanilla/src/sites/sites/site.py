@@ -8,6 +8,11 @@ from interfaces.srv import ApplyForSending, MapSending, MapLocationUpdate
 
 import random
 
+import os, sys
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_dir)
+from pathfinding_test import find_path # 导入临时瞎写的寻路包。此处的寻路是用A*实现的。
+
 
 # 给stdma通信层的信道topic的名字
 name_for_stdma_channel = "STDMA_Channel"
@@ -74,14 +79,25 @@ class Site(Node):
 
         # 站点在地图中的物理位置
         # 左上为（0，0），x横y纵
-        self.declare_parameter("x", 1)
-        self.declare_parameter("y", 1)
+        self.declare_parameter("start_x", 1)
+        self.declare_parameter("start_y", 1)
+
+        # 站点的目标位置
+        self.declare_parameter("target_x",2)
+        self.declare_parameter("target_y",2)
+
+
 
         self.get_logger().info("站点，启动！此节点的名字是%s, 初始坐标为(x = %d, y = %d)" %
                                (self.get_name(), self.get_local_location()[0], self.get_local_location()[1]))
 
         # 初始化地图信息
         self.load_map_()
+
+        # 站点的移动计划
+        self.plan_ =  find_path(self.map_, self.get_local_location(), self.get_target_location())
+
+        
 
         # 加入网络
         self.join_network()
@@ -108,13 +124,13 @@ class Site(Node):
             y (int): 纵坐标
         '''
         x_new = rclpy.parameter.Parameter(
-            "x",
+            "start_x",
             rclpy.Parameter.Type.INTEGER,
             x
         )
 
         y_new = rclpy.parameter.Parameter(
-            "y",
+            "start_y",
             rclpy.Parameter.Type.INTEGER,
             y
         )
@@ -130,11 +146,20 @@ class Site(Node):
         Returns:
             [x,y]:[横坐标，纵坐标]
         '''
-        x = self.get_parameter("x").get_parameter_value().integer_value
-        y = self.get_parameter("y").get_parameter_value().integer_value
+        x = self.get_parameter("start_x").get_parameter_value().integer_value
+        y = self.get_parameter("start_y").get_parameter_value().integer_value
 
         return [x, y]
+    
+    def get_target_location(self):
+        '''
+        获得本地保存的目标位置
+        '''
+        x = self.get_parameter("target_x").get_parameter_value().integer_value
+        y = self.get_parameter("target_y").get_parameter_value().integer_value
 
+        return [x, y]
+        
     def apply_for_sending(self, data):
         '''
         在获得位置后向信道发送消息用的函数

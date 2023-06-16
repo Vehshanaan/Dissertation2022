@@ -13,7 +13,6 @@ def read_yaml_file(file_path):
         return yaml_content
 
 
-
 def generate_launch_description():
 
     package_name = "sites"
@@ -26,30 +25,30 @@ def generate_launch_description():
 
     # 启动地图
     activate_map = Node(
-        package = package_name,
+        package=package_name,
         executable="map",
         name="map",
     )
 
     # 启动地图可视化
     activate_map_visualiser = Node(
-        package = package_name,
-        executable = "map_visualiser",
-        name = "map_visualiser",
+        package=package_name,
+        executable="map_visualiser",
+        name="map_visualiser",
     )
 
     # 启动信道
-    activate_channel= Node(
-        package = package_name,
+    activate_channel = Node(
+        package=package_name,
         executable="channel",
-        name = "channel",
+        name="channel",
     )
 
     # 启动信道可视化
     activate_channel_visualiser = Node(
         package=package_name,
         executable="visualiser",
-        name = "channel_visualiser",
+        name="channel_visualiser",
     )
 
     ld.add_action(activate_map)
@@ -60,15 +59,18 @@ def generate_launch_description():
     # 启动站点
     for node_name, params in yaml_params.items():
         # 获取文件中设定的横纵坐标
-        x = params["x"]
-        y = params["y"]
+        start_x = params["start_x"]
+        start_y = params["start_y"]
+        target_x = params["target_x"]
+        target_y = params["target_y"]
 
         # 创建节点
         activate_sites = Node(
             package=package_name,
             executable="site",
             name=node_name,
-            parameters=[{"x":x, "y":y}],
+            parameters=[{"start_x": start_x, "start_y": start_y,
+                         "target_x": target_x, "target_y": target_y}],
         )
 
         ld.add_action(activate_sites)
