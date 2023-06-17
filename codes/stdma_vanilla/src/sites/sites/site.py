@@ -8,10 +8,12 @@ from interfaces.srv import ApplyForSending, MapSending, MapLocationUpdate
 
 import random
 
-import os, sys
+import os
+import sys
+
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
-from pathfinding_test import find_path # 导入临时瞎写的寻路包。此处的寻路是用A*实现的。
+from pathfinding_test import find_path  # 导入临时瞎写的寻路包。此处的寻路是用A*实现的。
 
 
 # 给stdma通信层的信道topic的名字
@@ -25,6 +27,7 @@ name_for_map_location_update = "MapLocationUpdater"
 
 # 如果节点没有加入网络，它的槽位就是这个值：
 not_joined = -100
+
 
 def map_uncondenser(map_list_1d):
     '''
@@ -83,10 +86,8 @@ class Site(Node):
         self.declare_parameter("start_y", 1)
 
         # 站点的目标位置
-        self.declare_parameter("target_x",2)
-        self.declare_parameter("target_y",2)
-
-
+        self.declare_parameter("target_x", 2)
+        self.declare_parameter("target_y", 2)
 
         self.get_logger().info("站点，启动！此节点的名字是%s, 初始坐标为(x = %d, y = %d)" %
                                (self.get_name(), self.get_local_location()[0], self.get_local_location()[1]))
@@ -95,7 +96,8 @@ class Site(Node):
         self.load_map_()
 
         # 站点的移动计划
-        self.plan_ =  find_path(self.map_, self.get_local_location(), self.get_target_location())
+        self.plan_ =  [self.get_local_location()]+ find_path(
+            self.map_, self.get_local_location(), self.get_target_location())
 
         
 
@@ -150,7 +152,7 @@ class Site(Node):
         y = self.get_parameter("start_y").get_parameter_value().integer_value
 
         return [x, y]
-    
+
     def get_target_location(self):
         '''
         获得本地保存的目标位置
@@ -159,7 +161,7 @@ class Site(Node):
         y = self.get_parameter("target_y").get_parameter_value().integer_value
 
         return [x, y]
-        
+
     def apply_for_sending(self, data):
         '''
         在获得位置后向信道发送消息用的函数
@@ -180,6 +182,7 @@ class Site(Node):
         # 发送请求
         self.client_apply_slot_.call_async(request)
 
+
     def stdma_subscriber_callback(self, msg):
         '''
         从stdma通信层信道topic接收到信息时运行的回调函数
@@ -196,10 +199,16 @@ class Site(Node):
 
         self.occupied_[self.current_slot_-1] = msg.occupied
 
-        # 每个时间格中一移动一次
-        x = self.get_local_location()[0]
-        y = self.get_local_location()[1]
-        self.move_to(x, y) # 暂时是原地踏步，测试一下系统可用性
+        # 取计划中的第一个格子。
+        if self.plan_:  # 如果计划不为空：向计划中的下一个点移动
+            next_pos = self.plan_[0]
+            next_x = next_pos[0]
+            next_y = next_pos[1]
+
+            self.move_to(next_x, next_y)
+            # 已到达的目标点的删除是在move的完成回调中进行。
+        else: self.get_logger().info("%s的计划为空。"%self.get_name())
+
 
         # 当轮到自己说话的时候，说话。
         if not hasattr(self, "slot_no_"):
@@ -223,7 +232,6 @@ class Site(Node):
             self.get_logger().warn("信道还没开，信道还没开")
 
         # 构造请求的内容
-
         request = ApplyForSending.Request()
         request.applicant = self.site_no
         request.apply_slot = slot_desired
@@ -281,7 +289,9 @@ class Site(Node):
                 # 申请槽位
                 success = self.apply_for_slot(apply_for)
                 if success:
-                    self.slot_no_ = apply_for
+                    self.slot_no_ = apply_for  # 保存自己的槽位
+                    self.move_to(self.get_local_location()[
+                                 0], self.get_local_location()[1])  # 初始化自身起始位置
                     return success
                 else:
                     # 随机换一个自己可以用的槽位
@@ -307,9 +317,14 @@ class Site(Node):
     def move_finish_callback(self, future):
         result = future.result()
         if result.success:
+            # 如果成功移动：删除计划中的第一个点
+            if self.plan_: del self.plan_[0]
+            else: self.get_logger().info("%s已经没有下一步计划了！"%self.get_name())
             self.get_logger().info("%s成功移动，当前位置为%d,%d" %
                                    (self.get_name(), self.get_local_location()[0], self.get_local_location()[1]))
+
         else:
+            # 不然：啥也不干
             self.get_logger().info("%s移动失败，目标位置为%d,%d" %
                                    (self.get_name(), self.get_local_location()[0], self.get_local_location()[1]))
 

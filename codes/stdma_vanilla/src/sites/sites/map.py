@@ -111,22 +111,22 @@ class MapNode(Node):
 
     def map_location_update_callback(self, request, response):
         # 检查目的地是否是阻挡物，如果是则直接返回False
-        x = request.x
-        y = request.y
+        x = request.x # 行号（纵坐标）
+        y = request.y  # 列号（横坐标）
         node = request.applicant
         response.success = True  # 先初始化一个True, 后续根据条件结果修改
         # 检查目标位置是否超出范围。
         if y >= len(self.physical_map_) or x >= len(self.physical_map_[0]):
             response.success = False  # 目标位置出界了
         # 检查目标位置是否被阻挡
-        if (self.sites_in_map_[y][x] != None and self.sites_in_map_[y][x] != node) or not self.physical_map_[y][x]:
+        if (self.sites_in_map_[x][y] != None and self.sites_in_map_[x][y] != node) or not self.physical_map_[x][y]:
             response.success = False  # 目标位置有别人或者有墙
         if response.success:  # 以下操作仅在成功移动时进行
             # 将图中所有此发送者占有的地方清空
             self.sites_in_map_ = [
                 [None if element == node else element for element in sublist] for sublist in self.sites_in_map_]
             # 将新位置赋为发送者标号
-            self.sites_in_map_[y][x] = node
+            self.sites_in_map_[x][y] = node
 
             # 每有节点成功完成一次移动请求：向可视化节点发送移动情况。
             msg = MapVisualiserSiteMoves()  # 实例化信息对象

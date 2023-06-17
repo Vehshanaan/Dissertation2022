@@ -121,7 +121,7 @@ class MapVisualiser(Node):
 
         pygame.display.flip()
 
-    def map_cell_update(self,col,row,value,color):
+    def map_cell_update(self,row,col,value,color):
         '''
         根据给定的颜色和坐标更新地图的格子颜色
 

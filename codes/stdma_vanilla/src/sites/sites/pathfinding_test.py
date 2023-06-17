@@ -47,7 +47,7 @@ def find_path(grid, start, target):
             next_y = current_node.y + direction[1]
 
             # 忽略越界和障碍物
-            if next_x < 0 or next_x >= rows or next_y < 0 or next_y >= cols or grid[next_x][next_y] == 1:
+            if next_x < 0 or next_x >= rows or next_y < 0 or next_y >= cols or grid[next_x][next_y] == 0:
                 continue
 
             neighbor = Node(next_x, next_y)
@@ -88,5 +88,8 @@ target_pos = (4, 4)
 path = find_path(grid, start_pos, target_pos)
 if path:
     print("最优路径：", path)
+
+
+
 else:
     print("无法找到路径")
