@@ -121,6 +121,7 @@ class MapNode(Node):
         # 检查目标位置是否被阻挡
         if (self.sites_in_map_[x][y] != None and self.sites_in_map_[x][y] != node) or not self.physical_map_[x][y]:
             response.success = False  # 目标位置有别人或者有墙
+            
         if response.success:  # 以下操作仅在成功移动时进行
             # 将图中所有此发送者占有的地方清空
             self.sites_in_map_ = [

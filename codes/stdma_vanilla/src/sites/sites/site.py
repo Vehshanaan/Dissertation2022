@@ -63,6 +63,9 @@ class Site(Node):
         self.client_apply_slot_ = self.create_client(
             ApplyForSending, "ApplyForSending")
 
+        # 站点是否已经加入网络
+        self.inited_ = False
+
         # 站点的编号
         self.site_no = int(self.get_name()[-1])
 
@@ -103,6 +106,7 @@ class Site(Node):
 
         # 加入网络
         self.join_network()
+
 
     def load_map_(self):
         '''
@@ -199,6 +203,8 @@ class Site(Node):
 
         self.occupied_[self.current_slot_-1] = msg.occupied
 
+        if not self.inited_: return # 等待入网，不然不进行移动之类的活动。
+
         # 取计划中的第一个格子。
         if self.plan_:  # 如果计划不为空：向计划中的下一个点移动
             next_pos = self.plan_[0]
@@ -255,6 +261,9 @@ class Site(Node):
         if self.slot_no_ != not_joined:
             return
 
+        # 把自己摆进地图里
+        self.move_to(self.plan_[0][0],self.plan_[0][1])
+
         # 先听一帧。
         while 1:
 
@@ -292,6 +301,7 @@ class Site(Node):
                     self.slot_no_ = apply_for  # 保存自己的槽位
                     self.move_to(self.get_local_location()[
                                  0], self.get_local_location()[1])  # 初始化自身起始位置
+                    self.inited_ = True
                     return success
                 else:
                     # 随机换一个自己可以用的槽位
@@ -307,6 +317,7 @@ class Site(Node):
             x (int16): 横坐标
             y (int16): 纵坐标
         '''
+        if not self.plan_: return
         request = MapLocationUpdate.Request()
         request.applicant = self.site_no
         request.x = x
@@ -318,15 +329,16 @@ class Site(Node):
         result = future.result()
         if result.success:
             # 如果成功移动：删除计划中的第一个点
-            if self.plan_: del self.plan_[0]
-            else: self.get_logger().info("%s已经没有下一步计划了！"%self.get_name())
-            self.get_logger().info("%s成功移动，当前位置为%d,%d" %
-                                   (self.get_name(), self.get_local_location()[0], self.get_local_location()[1]))
+            if self.plan_: 
+                self.get_logger().info("%s成功移动，当前位置为%d,%d" %
+                                   (self.get_name(), self.plan_[0][0], self.plan_[0][1]))
+                del self.plan_[0]
+            else: self.get_logger().info("%s已经没有下一步计划了！这一行出现说明在计划为空的时候执行了一次移动且移动成功了，有问题"%self.get_name())
 
         else:
             # 不然：啥也不干
             self.get_logger().info("%s移动失败，目标位置为%d,%d" %
-                                   (self.get_name(), self.get_local_location()[0], self.get_local_location()[1]))
+                                   (self.get_name(), self.plan_[0][0], self.plan_[0][1]))
 
 
 def main(args=None):

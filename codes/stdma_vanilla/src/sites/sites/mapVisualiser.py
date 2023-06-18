@@ -47,25 +47,29 @@ class MapVisualiser(Node):
         self.map_ = None
 
 
-        # 地图上的节点物理位置保存
-        self.site_loactions_ = None
+        # 站点编号
+        self.site_no_ = -1
+
+
 
         # 初始化时接收地图信息的客户端
         self.map_init_client_ = self.create_client(
             MapSending, name_for_map_init_service)
-
-        # 初始化地图有人移动时接收信息的客户端
-        self.site_move_subscriber_ = self.create_subscription(
-            MapVisualiserSiteMoves, "SiteMoves", self.site_moves_callback, 10)
-
-        # 站点编号
-        self.site_no_ = -1
 
         # 向地图站点申请地图的物理信息
         self.load_map_()
 
         # 根据物理地图信息绘制地图
         self.draw_map_init()
+
+        # 初始化地图有人移动时接收信息的客户端
+        self.site_move_subscriber_ = self.create_subscription(
+            MapVisualiserSiteMoves, "SiteMoves", self.site_moves_callback, 10)
+
+
+        # 节点的位置记录，删除残迹用
+        # 地图上的节点物理位置保存
+        self.site_prev_pos = {}
 
         # 写数字时用的字体
         pygame.font.init()
@@ -122,6 +126,7 @@ class MapVisualiser(Node):
         pygame.display.flip()
 
     def map_cell_update(self,row,col,value,color):
+        self.get_logger().info("受理请求：%s节点已迁往（%d, %d）"% (str(value),row,col))
         '''
         根据给定的颜色和坐标更新地图的格子颜色
 
@@ -131,6 +136,34 @@ class MapVisualiser(Node):
             value (int): 节点标号
             color ((int,int,int)): RGB颜色
         '''
+        # 根据位置记录把原先的格子涂白
+        if str(value) in self.site_prev_pos: # 如果此站点存在被记录过的前一位置：
+            # 将前一位置涂白
+            r,c = self.site_prev_pos[str(value)] # 提取行列值
+            # 画白格子
+            pygame.draw.rect(
+            self.window,
+            WHITE,
+            (c * GRID_SIZE, r * GRID_SIZE, GRID_SIZE, GRID_SIZE)
+            )
+            # 重绘被白色盖掉的网格线
+            for _ in range(self.height):
+                pygame.draw.line(
+                    self.window,
+                    BLACK,
+                    (0, _ * GRID_SIZE),
+                    (self.width*GRID_SIZE, _ * GRID_SIZE)
+                )
+            for _ in range(self.width):
+                pygame.draw.line(
+                    self.window,
+                    BLACK,
+                    (_ * GRID_SIZE, 0),
+                    (_ * GRID_SIZE, self.height*GRID_SIZE)
+                )
+
+
+        # 画新格子
         pygame.draw.rect(
             self.window,
             color,
@@ -141,7 +174,11 @@ class MapVisualiser(Node):
         number_text = self.font.render(str(value), True, GREEN)
         text_rect = number_text.get_rect(center=(center_x, center_y))
         self.window.blit(number_text, text_rect)
+
         pygame.display.flip()
+
+        # 更新位置记录。
+        self.site_prev_pos[str(value)]=[row,col]
 
 
         

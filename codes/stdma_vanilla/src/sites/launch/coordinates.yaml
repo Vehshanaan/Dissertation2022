@@ -1,6 +1,6 @@
 test_node1:
   start_x: 0
-  start_y: 3
+  start_y: 0
   target_x: 0
   target_y: 5
 test_node2:
@@ -11,15 +11,15 @@ test_node2:
 test_node3:
   start_x: 2
   start_y: 0
-  target_x: 1
-  target_y: 2
+  target_x: 2
+  target_y: 5
 test_node4:
   start_x: 3
   start_y: 0
-  target_x: 1
-  target_y: 3
+  target_x: 3
+  target_y: 5
 test_node5:
   start_x: 4
   start_y: 0
-  target_x: 1
-  target_y: 4
+  target_x: 4
+  target_y: 5
