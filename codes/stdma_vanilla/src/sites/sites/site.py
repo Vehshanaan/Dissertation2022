@@ -7,6 +7,7 @@ from interfaces.msg import Slot
 from interfaces.srv import ApplyForSending, MapSending, MapLocationUpdate
 
 import random
+import copy
 
 import os
 import sys
@@ -53,6 +54,9 @@ def map_uncondenser(map_list_1d):
 class Site(Node):
     def __init__(self, name):
         super().__init__(name)
+
+        # makespan
+        self.makespan = 0
 
         # 话题接收者部分
         self.received_stdma_msg_ = Slot()
@@ -102,7 +106,6 @@ class Site(Node):
         self.plan_ =  [self.get_local_location()]+ find_path(
             self.map_, self.get_local_location(), self.get_target_location())
 
-        
 
         # 加入网络
         self.join_network()
@@ -203,7 +206,13 @@ class Site(Node):
 
         self.occupied_[self.current_slot_-1] = msg.occupied
 
+        # 统计makespan
+        if hasattr(self,"plan_") and self.plan_:
+            self.makespan+=1
+
         if not self.inited_: return # 等待入网，不然不进行移动之类的活动。
+
+        
 
         # 取计划中的第一个格子。
         if self.plan_:  # 如果计划不为空：向计划中的下一个点移动
@@ -213,7 +222,7 @@ class Site(Node):
 
             self.move_to(next_x, next_y)
             # 已到达的目标点的删除是在move的完成回调中进行。
-        else: self.get_logger().info("%s的计划为空。"%self.get_name())
+        else: self.get_logger().info("%s的计划为空。makespan = %d"%(self.get_name(),self.makespan))
 
 
         # 当轮到自己说话的时候，说话。
@@ -328,17 +337,31 @@ class Site(Node):
     def move_finish_callback(self, future):
         result = future.result()
         if result.success:
-            # 如果成功移动：删除计划中的第一个点
+            # 如果成功移动：删除计划中的第一个点，更新自身位置
             if self.plan_: 
+                self.set_local_location(self.plan_[0][0],self.plan_[0][1])
                 self.get_logger().info("%s成功移动，当前位置为%d,%d" %
-                                   (self.get_name(), self.plan_[0][0], self.plan_[0][1]))
+                                   (self.get_name(), self.get_local_location()[0], self.get_local_location()[1]))
                 del self.plan_[0]
             else: self.get_logger().info("%s已经没有下一步计划了！这一行出现说明在计划为空的时候执行了一次移动且移动成功了，有问题"%self.get_name())
 
         else:
-            # 不然：啥也不干
             self.get_logger().info("%s移动失败，目标位置为%d,%d" %
                                    (self.get_name(), self.plan_[0][0], self.plan_[0][1]))
+            
+            # 不然：移动失败。修改计划。
+
+            # 获取当前计划的第一步，知道是在哪里有遮挡物
+            x_,y_ = self.plan_[0]
+            # 用地图生成一个那一步阻挡物存在的临时数组，修改一下计划
+            temp_map = copy.deepcopy(self.map_)
+            temp_map[x_][y_] = 0
+
+            new_plan = find_path(temp_map,self.get_local_location(),self.get_target_location()) # 修改计划
+            if new_plan:
+                self.plan_=new_plan
+
+            
 
 
 def main(args=None):

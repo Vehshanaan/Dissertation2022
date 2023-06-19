@@ -76,14 +76,14 @@ def find_path(grid, start, target):
 
 # 示例用法
 grid = [
-    [0, 0, 0, 0, 0],
+    [1, 1, 1, 1, 1],
     [1, 1, 1, 1, 0],
     [0, 0, 0, 0, 0],
     [1, 1, 1, 0, 1],
     [0, 0, 0, 0, 0]
 ]
-start_pos = (0, 0)
-target_pos = (4, 4)
+start_pos = (0, 5)
+target_pos = (0, 0)
 
 path = find_path(grid, start_pos, target_pos)
 if path:
