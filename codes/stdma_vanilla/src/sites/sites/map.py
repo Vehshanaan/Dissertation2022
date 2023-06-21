@@ -18,7 +18,10 @@ from rclpy.node import Node
 import rclpy
 from PIL import Image
 
-map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/map_builder/map1.png"
+
+collision_on  = True # 是否打开节点间碰撞体积
+
+map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/map_builder/map3.png"
 
 
 def map_reader(map_path):
@@ -119,8 +122,17 @@ class MapNode(Node):
         if y >= len(self.physical_map_) or x >= len(self.physical_map_[0]):
             response.success = False  # 目标位置出界了
         # 检查目标位置是否被阻挡
+
+        if not self.physical_map_[x][y]:
+            response.success = False
+        
+        if (self.sites_in_map_[x][y] != None and self.sites_in_map_[x][y] != node) and collision_on:
+            response.success = False
+
+        '''
         if (self.sites_in_map_[x][y] != None and self.sites_in_map_[x][y] != node) or not self.physical_map_[x][y]:
             response.success = False  # 目标位置有别人或者有墙
+        '''
             
         if response.success:  # 以下操作仅在成功移动时进行
             # 将图中所有此发送者占有的地方清空

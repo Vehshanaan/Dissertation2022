@@ -79,6 +79,9 @@ class Site(Node):
         # 地图的物理信息
         self.map_ = None
 
+        # 计划执行失败时的阻拦者列表
+        self.blockers_ = []
+
         # 初始化时接收地图信息的客户端
         self.map_init_client_ = self.create_client(
             MapSending, name_for_map_init_service)
@@ -337,6 +340,7 @@ class Site(Node):
     def move_finish_callback(self, future):
         result = future.result()
         if result.success:
+            self.blockers_ = []
             # 如果成功移动：删除计划中的第一个点，更新自身位置
             if self.plan_: 
                 self.set_local_location(self.plan_[0][0],self.plan_[0][1])
@@ -353,9 +357,11 @@ class Site(Node):
 
             # 获取当前计划的第一步，知道是在哪里有遮挡物
             x_,y_ = self.plan_[0]
+            self.blockers_.append([x_,y_])
             # 用地图生成一个那一步阻挡物存在的临时数组，修改一下计划
             temp_map = copy.deepcopy(self.map_)
-            temp_map[x_][y_] = 0
+            for x,y in self.blockers_:
+                temp_map[x][y] = 0
 
             new_plan = find_path(temp_map,self.get_local_location(),self.get_target_location()) # 修改计划
             if new_plan:

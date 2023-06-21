@@ -1,12 +1,12 @@
 test_node1:
   start_x: 0
   start_y: 0
-  target_x: 3
+  target_x: 4
   target_y: 10
 test_node2:
   start_x: 1
   start_y: 0
-  target_x: 4
+  target_x: 3
   target_y: 10
 test_node3:
   start_x: 2
