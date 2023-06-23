@@ -14,6 +14,14 @@ def generate_launch_description():
     # 定义Launch描述符
     ld = LaunchDescription()
 
+    # 启动信道可视化
+    activate_channel_visualiser = Node(
+        package=package_name,
+        executable="channel_visualiser",
+    )
+
+    ld.add_action(activate_channel_visualiser)
+
     activate_timer = Node(
         package=package_name,
         executable="timer",

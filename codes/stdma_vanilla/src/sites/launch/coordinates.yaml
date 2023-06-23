@@ -11,7 +11,7 @@ test_node2:
 test_node3:
   start_x: 2
   start_y: 0
-  target_x: 0
+  target_x: 2
   target_y: 10
 test_node4:
   start_x: 3
@@ -21,5 +21,5 @@ test_node4:
 test_node5:
   start_x: 4
   start_y: 0
-  target_x: 2
+  target_x: 0
   target_y: 10

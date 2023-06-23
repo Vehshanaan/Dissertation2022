@@ -16,14 +16,122 @@
 stdma通讯节点的代码，这个只管通讯
 '''
 
-import os
-import random
-import rclpy
-from rclpy.node import Node
-
+from PIL import Image  # 读取地图用的
 from std_msgs.msg import Int32, Bool
+from rclpy.node import Node
+import rclpy
+from numpy import outer
+import random
+import os
 
+import sys
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_dir)
+from path_finding import find_path  # 导入寻路的函数
+
+
+# 是否显示简化版的信息，即减少大量关于信道的日志信息
 simplified_info = True
+
+# 地图的绝对文件路径
+map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/map_builder/map2.png"
+
+
+def map_reader(map_path) -> list[list]:
+    '''
+    将地图图片读取为二维数组的函数
+
+    Args:
+        map_path (string): 地图图片的路径，编写此函数时用的是绝对路径。不推荐相对路径，因为ros2功能包里的src路径不太适合放图片吧 
+
+    Returns:
+        list: 二维数组，其中地图图片中白色的地方是True，黑色像素的地方是False
+    '''
+    with Image.open(map_path) as img:
+        width, height = img.size
+        pixels = img.load()
+        bool_array = [[False for _ in range(width)] for _ in range(height)]
+        for i in range(height):
+            for j in range(width):
+                if pixels[j, i] == (255, 255, 255):  # 如果像素为全白：
+                    bool_array[i][j] = True
+        return bool_array
+
+
+def spawn_pos_generate(pid, map) -> list:
+    '''
+    返回一个位于地图边界外一圈不包含四角的起始位置。
+
+    Args:
+
+        pid (int): os.getpid()
+
+        map (list): 详见地图加载函数。
+
+
+    Returns:
+        list: [横坐标，纵坐标]，注意其中的值可能为负。初始寻路的时候需要注意。
+    '''
+
+    # 生成地图外围一圈除四角位置的坐标的列表：
+    map_width = len(map[0])
+    map_height = len(map)
+
+    outer_boundary = []  # 外围坐标
+
+    # 将外围点一个个填进外围坐标列表里去
+    for col in range(map_width):
+        outer_boundary.append([col, -1])
+        outer_boundary.append([col, map_height])
+    for row in range(map_height):
+        outer_boundary.append([-1, row])
+        outer_boundary.append([map_width, row])
+
+    # 用进程id选取一个唯一的外围点
+    index = pid % len(outer_boundary)
+
+    return outer_boundary[index]
+
+
+def coordinates_compressor(plan2d) -> list:
+    '''
+    将[[x1,y1],[x2,y2],...]格式的二维数组压缩成一维的函数
+
+    Args:
+        plan (list[list]): [[x1,y1],[x2,y2],...]格式的二维数组
+
+    Returns:
+        result: 格式为[x1,y1,x2,y2,...]的一维数组
+    '''
+    if not plan2d:  # 如果输入为空列表
+        return []  # 返回空列表
+    else:
+        plan1d = []
+        for _ in plan2d:
+            plan1d.append(_[0])
+            plan1d.append(-[1])
+
+    return plan1d
+
+
+def coordiantes_decompressor(plan1d) -> list[list]:
+    '''
+    将格式为[x1,y1,x2,y2...]格式的数组还原为[[x1,y1],[x2,y2],...]
+
+    Args:
+        plan1d (list): [x1,y1,x2,y2...]格式的一维数组
+
+    Returns:
+        plan2d: [[x1,y1],[x2,y2],...]格式的二维数组
+    '''
+    if not plan1d:
+        return [[]]  # 如果输入为空，返回空
+    else:
+        plan2d = []
+        for i in range(0, len(plan1d), 2):
+            plan2d.append([plan1d[i], plan1d[i+1]])
+    return plan2d
 
 
 class StdmaTalker(Node):
@@ -39,6 +147,12 @@ class StdmaTalker(Node):
         self.my_slot = -2
         self.slot_allocations = [None]*self.num_slots  # 初始化槽位分配情况保存列表
         self.inbox = []
+
+        self.map = map_reader(map_path=map_path)  # 加载地图
+        self.position = spawn_pos_generate(
+            self.node_id, self.map)  # 根据进程pid获得一个唯一的起始位置。[横坐标，纵坐标]
+        self.target = [len(self.map[0])//2, len(self.map)//2]  # 将地图中心点设为目标位置
+
         self.control_sub = self.create_subscription(
             Int32,
             'stdma/control',
@@ -69,7 +183,7 @@ class StdmaTalker(Node):
 
     def timer_callback(self, msg):  # 收到时钟信号时的callback分流
         if msg.data:
-            # rising edge - start/end of slot
+            # rising edge - start/end of slot 上升沿标志着slot的结束
             self.end_slot_callback()
         else:
             # falling edge - middle of slot
@@ -82,28 +196,33 @@ class StdmaTalker(Node):
         if self.slot == -1:
             # first ever run - need to wait for end of first slot
             self.slot = 0
-            self.get_logger().info('Start of slot 0 frame 0')
+            if not simplified_info:
+                self.get_logger().info('Start of slot 0 frame 0')
         else:
-            if not simplified_info: self.get_logger().info('End of slot %d frame %d' % (self.slot, self.frame))
+            if not simplified_info:
+                self.get_logger().info('End of slot %d frame %d' % (self.slot, self.frame))
             # end of slot - check received messages
             received_messages = self.get_messages()
             num_messages = len(received_messages)
 
             # 如果此slot内没收到任何东西：槽为空
             if num_messages == 0:
-                if not simplified_info: self.get_logger().info('Slot %d looks empty' % self.slot)
+                if not simplified_info:
+                    self.get_logger().info('Slot %d looks empty' % self.slot)
                 self.slot_allocations[self.slot] = None  # 登记本槽为空
 
             # 如果本slot内仅收到一条消息: 槽已有主
             elif num_messages == 1:
                 msg = received_messages[0]
                 sender = msg.data
-                if not simplified_info: self.get_logger().info('Slot %d allocated to %d' % (self.slot, sender))
+                if not simplified_info:
+                    self.get_logger().info('Slot %d allocated to %d' % (self.slot, sender))
                 self.slot_allocations[self.slot] = sender  # 登记槽位分配情况
                 if sender == self.node_id:  # 如果此时发现发送者就自己一个：
                     # my own message - means successfully in channel
                     self.state = 'in'  # 自己已经成功拿下一个槽
-                    if not simplified_info: self.get_logger().info('Secured my own slot')  # 说出来高兴一下
+                    if not simplified_info:
+                        self.get_logger().info('Secured my own slot')  # 说出来高兴一下
 
             # 如果本槽内收到多条消息：碰撞
             elif num_messages > 1:
@@ -117,8 +236,9 @@ class StdmaTalker(Node):
                     self.get_logger().warning('Lost my slot due to collision')
                     self.state = 'listen'  # 注意，站点初始化时状态就是listen
                     self.my_slot = -2
-                    if self.state =="in":
-                        self.get_logger().warning("\n\n\nCollision between secured and joining!\n\n\n")
+                    if self.state == "in":
+                        self.get_logger().warning(
+                            "\n\n\nCollision between secured and joining! NEVER SHOULD HAPEN! \n\n\n")
             if self.state == 'check':
                 # successful join would have changed state to 'in'
                 # collision would have changed to 'listen'
@@ -127,7 +247,7 @@ class StdmaTalker(Node):
                 self.my_slot = -2
             # update for next slot
             self.slot += 1
-            if self.slot == self.num_slots: # 超限归零
+            if self.slot == self.num_slots:  # 超限归零
                 self.slot = 0
                 self.frame += 1
                 if self.state == 'listen':
@@ -136,25 +256,36 @@ class StdmaTalker(Node):
                     self.state = 'enter'
                     available_slots = [ii for ii in range(
                         self.num_slots) if self.slot_allocations[ii] == None]
-                    self.my_slot = random.sample(available_slots, 1)[0]
-                    self.get_logger().info('Will try to enter at slot %d' % self.my_slot)
-            if self.slot == self.my_slot: self.get_logger().info('Slot allocations: %s' %
-                                   self.slot_allocations.__str__())
-            if not simplified_info: self.get_logger().info('State: "%s" my slot: %d' % (self.state, self.my_slot))
+                    if available_slots:
+                        self.my_slot = random.sample(available_slots, 1)[0]
+                        self.get_logger().info('Will try to enter at slot %d' % self.my_slot)
+                    else:
+                        self.get_logger().info("No avaliable slots in the channel.")
+            if self.slot == self.my_slot:
+                self.get_logger().info('Slot allocations: %s' %
+                                       self.slot_allocations.__str__())
+            if not simplified_info:
+                self.get_logger().info('State: "%s" my slot: %d' % (self.state, self.my_slot))
 
     def mid_slot_callback(self):
         '''
         收到时钟信号且为下降沿，槽中被调用的函数
         说话是在这个时机进行的。
+        计划也是在这个时机进行的
         '''
-        if self.slot >= 0: # 如果当前槽计数值>=0 这是防止刚初始化的站点掺和进流程里头的判断
-            if not simplified_info: self.get_logger().info('Middle of slot %d frame %d' % (self.slot, self.frame))
-            if self.slot == self.my_slot: # 如果觉得该自己说话：说话
+        if self.slot >= 0:  # 如果当前槽计数值>=0 这是防止刚初始化的站点掺和进流程里头的判断
+            if not simplified_info:
+                self.get_logger().info('Middle of slot %d frame %d' % (self.slot, self.frame))
+            if self.slot == self.my_slot:  # 如果觉得该自己说话：说话
                 msg = Int32()
                 msg.data = self.node_id
                 self.control_pub.publish(msg)
                 self.state = 'check'
                 self.get_logger().info('Sent my control message')
+
+                # 做一下计划
+                self.plan = find_path(map=self.map, max_steps=self.num_slots,
+                                      start=self.position, goal=self.target)  # 测试一下计划生成函数,成了
 
     def rubbish():
         '''

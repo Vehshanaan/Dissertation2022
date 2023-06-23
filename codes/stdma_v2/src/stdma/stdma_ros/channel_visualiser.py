@@ -1,11 +1,11 @@
+import rclpy
+import pygame
 import os
 import sys
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
 import stdma_talker
-import pygame
-import rclpy
 
 # 定义颜色
 BLACK = (0, 0, 0)
@@ -39,7 +39,7 @@ class ChannelVisualiser(stdma_talker.StdmaTalker):
 
     def end_slot_callback(self):
         super().end_slot_callback()
-        self.my_slot = -1  # 将自己想要的槽位锁死在-1。这样阻止节点入网
+        self.my_slot = -2  # 将自己想要的槽位锁死在-2。这样阻止节点入网
         self.state = "listen"  # 锁死在侦听状态
 
     def timer_callback(self, msg):
@@ -79,9 +79,7 @@ class ChannelVisualiser(stdma_talker.StdmaTalker):
             center=(cell_x + self.cell_width / 2, cell_y + self.cell_height / 2))
         self.screen.blit(text, text_rect)
 
-
         pygame.display.flip()
-
 
 
 def main(args=None):

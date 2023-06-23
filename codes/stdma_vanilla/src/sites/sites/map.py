@@ -11,6 +11,8 @@
              - 输出：真地图，但是打成一维，开头附上宽高数据，方便恢复。
 '''
 
+# map3: 有碰撞时：大约在25-30
+      # 无碰撞时：大约在20-23
 
 from interfaces.srv import MapSending, MapLocationUpdate
 from interfaces.msg import MapVisualiserSiteMoves
@@ -21,7 +23,7 @@ from PIL import Image
 
 collision_on  = True # 是否打开节点间碰撞体积
 
-map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/map_builder/map3.png"
+map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/map_builder/map2.png"
 
 
 def map_reader(map_path):
