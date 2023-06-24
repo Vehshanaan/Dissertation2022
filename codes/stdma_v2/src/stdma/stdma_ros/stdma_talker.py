@@ -17,12 +17,13 @@ stdma通讯节点的代码，这个只管通讯
 '''
 
 from PIL import Image  # 读取地图用的
-from std_msgs.msg import Int32, Bool
+from std_msgs.msg import Int32, Bool, Int32MultiArray
 from rclpy.node import Node
 import rclpy
 from numpy import outer
 import random
 import os
+from rclpy.logging import LoggingSeverity
 
 import sys
 
@@ -31,8 +32,6 @@ sys.path.append(current_dir)
 from path_finding import find_path  # 导入寻路的函数
 
 
-# 是否显示简化版的信息，即减少大量关于信道的日志信息
-simplified_info = True
 
 # 地图的绝对文件路径
 map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/map_builder/map2.png"
@@ -94,9 +93,9 @@ def spawn_pos_generate(pid, map) -> list:
     return outer_boundary[index]
 
 
-def coordinates_compressor(plan2d) -> list:
+def plan_compressor(plan2d) -> list:
     '''
-    将[[x1,y1],[x2,y2],...]格式的二维数组压缩成一维的函数
+    将[节点id,[x1,y1],[x2,y2],...]格式的二维数组压缩成一维的函数
 
     Args:
         plan (list[list]): [[x1,y1],[x2,y2],...]格式的二维数组
@@ -110,14 +109,14 @@ def coordinates_compressor(plan2d) -> list:
         plan1d = []
         for _ in plan2d:
             plan1d.append(_[0])
-            plan1d.append(-[1])
+            plan1d.append(_[1])
 
     return plan1d
 
 
-def coordiantes_decompressor(plan1d) -> list[list]:
+def plan_decompressor(plan1d) -> list[list]:
     '''
-    将格式为[x1,y1,x2,y2...]格式的数组还原为[[x1,y1],[x2,y2],...]
+    将格式为[节点id,x1,y1,x2,y2...]格式的数组还原为[[x1,y1],[x2,y2],...]
 
     Args:
         plan1d (list): [x1,y1,x2,y2...]格式的一维数组
@@ -130,8 +129,9 @@ def coordiantes_decompressor(plan1d) -> list[list]:
     else:
         plan2d = []
         for i in range(0, len(plan1d), 2):
-            plan2d.append([plan1d[i], plan1d[i+1]])
+            plan2d.append((plan1d[i], plan1d[i+1]))
     return plan2d
+
 
 
 class StdmaTalker(Node):
@@ -139,7 +139,12 @@ class StdmaTalker(Node):
     def __init__(self):
         self.node_id = os.getpid()  # 返回一个int, 是操作系统分配的每个进程唯一的标识符
         random.seed(self.node_id)
+
         super().__init__('stdma_talker_%d' % self.node_id)
+
+        # 尽可能少显示控制台日志信息。设置级别以下的东西不会被打印出来 例程见https://github.com/ros2/rclpy/blob/humble/rclpy/test/test_logging.py
+        self.get_logger().set_level(LoggingSeverity.WARN) # 可以在继承此节点的节点类初始化函数中修改此等级，使其发送全部消息
+
         self.frame = 0  # 帧计数
         self.slot = -1  # 当前所处的slot。站点初始化时这是-1，此变量的修改详见self.end_slot_callback
         self.num_slots = 10  # 帧长度
@@ -147,6 +152,7 @@ class StdmaTalker(Node):
         self.my_slot = -2
         self.slot_allocations = [None]*self.num_slots  # 初始化槽位分配情况保存列表
         self.inbox = []
+        self.inbox_plan = [] # 储存别人发过来的计划
 
         self.map = map_reader(map_path=map_path)  # 加载地图
         self.position = spawn_pos_generate(
@@ -159,6 +165,11 @@ class StdmaTalker(Node):
             self.control_callback,
             10)
         self.control_pub = self.create_publisher(Int32, 'stdma/control', 10)
+
+        self.message_pub = self.create_publisher(Int32MultiArray,"stdma/message", 10)
+
+        self.message_sub = self.create_subscription(Int32MultiArray,"stdma/message",self.message_callback, 10)
+
         self.timer_sub = self.create_subscription(
             Bool,
             'stdma/timer',
@@ -166,7 +177,24 @@ class StdmaTalker(Node):
             10)
 
     def control_callback(self, msg):
+        '''
+        用来分享信道占用情况（槽位使用权）的STDMA话题
+        '''
         self.inbox.append(msg)
+
+    def message_callback(self,msg):
+        '''
+        真正传输信息的STDMA话题
+        '''
+        data = plan_decompressor(msg.data)
+        
+        if hasattr(self,"plan") and data == self.plan: return # 如果是自己发的：跳过
+        else: self.inbox_plan.append(data) # 加入收到的计划中
+        '''        
+        if hasattr(self,"plan"):
+            if data == self.plan:
+                self.get_logger().warning("收到自己的了")
+        '''
 
     def get_messages(self):
         '''
@@ -184,7 +212,7 @@ class StdmaTalker(Node):
     def timer_callback(self, msg):  # 收到时钟信号时的callback分流
         if msg.data:
             # rising edge - start/end of slot 上升沿标志着slot的结束
-            self.end_slot_callback()
+            self.end_slot_callback() 
         else:
             # falling edge - middle of slot
             self.mid_slot_callback()
@@ -192,37 +220,36 @@ class StdmaTalker(Node):
     def end_slot_callback(self):
         '''
         收到时钟信号且为上升沿，slot结束时自动调用的callback
+        记录当前槽位和帧数
+        更新信道使用情况
+        选择自己的槽位编号
+        检测是否碰撞
         '''
         if self.slot == -1:
             # first ever run - need to wait for end of first slot
             self.slot = 0
-            if not simplified_info:
-                self.get_logger().info('Start of slot 0 frame 0')
+            self.get_logger().info('Start of slot 0 frame 0')
         else:
-            if not simplified_info:
-                self.get_logger().info('End of slot %d frame %d' % (self.slot, self.frame))
+            self.get_logger().info('End of slot %d frame %d' % (self.slot, self.frame))
             # end of slot - check received messages
             received_messages = self.get_messages()
             num_messages = len(received_messages)
 
             # 如果此slot内没收到任何东西：槽为空
             if num_messages == 0:
-                if not simplified_info:
-                    self.get_logger().info('Slot %d looks empty' % self.slot)
+                self.get_logger().info('Slot %d looks empty' % self.slot)
                 self.slot_allocations[self.slot] = None  # 登记本槽为空
 
             # 如果本slot内仅收到一条消息: 槽已有主
             elif num_messages == 1:
                 msg = received_messages[0]
                 sender = msg.data
-                if not simplified_info:
-                    self.get_logger().info('Slot %d allocated to %d' % (self.slot, sender))
+                self.get_logger().info('Slot %d allocated to %d' % (self.slot, sender))
                 self.slot_allocations[self.slot] = sender  # 登记槽位分配情况
                 if sender == self.node_id:  # 如果此时发现发送者就自己一个：
                     # my own message - means successfully in channel
                     self.state = 'in'  # 自己已经成功拿下一个槽
-                    if not simplified_info:
-                        self.get_logger().info('Secured my own slot')  # 说出来高兴一下
+                    self.get_logger().info('Secured my own slot')  # 说出来高兴一下
 
             # 如果本槽内收到多条消息：碰撞
             elif num_messages > 1:
@@ -233,7 +260,7 @@ class StdmaTalker(Node):
                 self.slot_allocations[self.slot] = None  # 本槽归0，清空所有权
                 # 如果哥们自己也撞了：接着听吧, 没宣称成功
                 if self.node_id in colliding_ids:
-                    self.get_logger().warning('Lost my slot due to collision')
+                    self.get_logger().warning('%s lost slot due to collision' % self.get_name())
                     self.state = 'listen'  # 注意，站点初始化时状态就是listen
                     self.my_slot = -2
                     if self.state == "in":
@@ -245,7 +272,7 @@ class StdmaTalker(Node):
                 # so this must mean lost data 到这就是有问题，恢复成'listen'状态吧
                 self.state = 'listen'
                 self.my_slot = -2
-            # update for next slot
+            # update for next slot 更新当前槽位编号，到下一个槽位编号。
             self.slot += 1
             if self.slot == self.num_slots:  # 超限归零
                 self.slot = 0
@@ -264,18 +291,32 @@ class StdmaTalker(Node):
             if self.slot == self.my_slot:
                 self.get_logger().info('Slot allocations: %s' %
                                        self.slot_allocations.__str__())
-            if not simplified_info:
-                self.get_logger().info('State: "%s" my slot: %d' % (self.state, self.my_slot))
+
+            self.get_logger().info('State: "%s" my slot: %d' % (self.state, self.my_slot))
+
+            # 在筹谋前：清理一下别人执行过的计划
+            if self.inbox_plan:
+                i = len(self.inbox_plan)-1
+                while i>=0:
+                    if self.inbox_plan[i]: self.inbox_plan[i].pop(0) # 清除一个
+                    else: del self.inbox_plan[i] # 如果已经为空，消灭此计划。
+                    i-=1
+                self.get_logger().info(self.inbox_plan.__str__())
+
+            #TODO: 如果下一槽位是自己的且自己已经加入网络：筹谋。
+            if self.state == "in":
+                if self.slot == self.my_slot:
+                    self.plan = find_path(map = self.map, max_steps=self.num_slots, start = self.position, goal = self.target)
+            
 
     def mid_slot_callback(self):
         '''
         收到时钟信号且为下降沿，槽中被调用的函数
         说话是在这个时机进行的。
-        计划也是在这个时机进行的
+        计划的发送是在这个时机进行的
         '''
         if self.slot >= 0:  # 如果当前槽计数值>=0 这是防止刚初始化的站点掺和进流程里头的判断
-            if not simplified_info:
-                self.get_logger().info('Middle of slot %d frame %d' % (self.slot, self.frame))
+            self.get_logger().info('Middle of slot %d frame %d' % (self.slot, self.frame))
             if self.slot == self.my_slot:  # 如果觉得该自己说话：说话
                 msg = Int32()
                 msg.data = self.node_id
@@ -283,9 +324,14 @@ class StdmaTalker(Node):
                 self.state = 'check'
                 self.get_logger().info('Sent my control message')
 
-                # 做一下计划
-                self.plan = find_path(map=self.map, max_steps=self.num_slots,
-                                      start=self.position, goal=self.target)  # 测试一下计划生成函数,成了
+
+                # TODO: 发送计划
+                if not hasattr(self, "plan") or not self.plan : return # 如果没有计划或者计划为空：跳过计划广播
+                msg = Int32MultiArray()
+                msg.data = plan_compressor(self.plan)
+                self.message_pub.publish(msg)
+
+
 
     def rubbish():
         '''

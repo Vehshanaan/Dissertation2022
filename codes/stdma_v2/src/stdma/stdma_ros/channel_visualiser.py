@@ -13,11 +13,17 @@ WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 
+from rclpy.logging import LoggingSeverity
 
 class ChannelVisualiser(stdma_talker.StdmaTalker):
 
     def __init__(self):
+
+        
+
         super().__init__()
+        # 显示所有信息
+        self.get_logger().set_level(LoggingSeverity.INFO) 
 
         # 初始化pygame
         pygame.init()
