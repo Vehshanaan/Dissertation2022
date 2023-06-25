@@ -57,24 +57,29 @@ def heuristic(pos, goal):
     return abs(pos[0] - goal[0]) + abs(pos[1] - goal[1])
 
 
-# 创建一个示例地图
-map = [
-    [True, True, False, True],
-    [True, True, True, True],
-    [True, True, False, False],
-    [True, True, False, True],
-    [True, True, False, True],
-]
+def main():
+    
+    # 创建一个示例地图
+    map = [
+        [True, True, False, True],
+        [True, True, True, True],
+        [True, True, False, False],
+        [True, True, False, True],
+        [True, True, True, True],
+    ]
 
-max_steps = 2  # 限制路径最大长度为5
+    max_steps = 8  # 限制路径最大长度为5
 
-# 使用算法寻找路径
-path = find_path(map, max_steps)
+    # 使用算法寻找路径
+    path = find_path(map, max_steps)
 
-# 打印路径
-if path:
-    print("路径：")
-    for step in path:
-        print(step)
-else:
-    print("找不到路径。")
+    # 打印路径
+    if path:
+        print("路径：")
+        for step in path:
+            print(step)
+    else:
+        print("找不到路径。")
+        
+if __name__ == "__main__":
+    main()

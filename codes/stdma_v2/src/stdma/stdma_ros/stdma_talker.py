@@ -32,12 +32,11 @@ sys.path.append(current_dir)
 from path_finding import find_path  # 导入寻路的函数
 
 
-
 # 地图的绝对文件路径
 map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/map_builder/map2.png"
 
 
-def map_reader(map_path) -> list[list]:
+def map_reader(map_path = map_path) -> list[list]:
     '''
     将地图图片读取为二维数组的函数
 
@@ -133,7 +132,6 @@ def plan_decompressor(plan1d) -> list[list]:
     return plan2d
 
 
-
 class StdmaTalker(Node):
 
     def __init__(self):
@@ -143,7 +141,8 @@ class StdmaTalker(Node):
         super().__init__('stdma_talker_%d' % self.node_id)
 
         # 尽可能少显示控制台日志信息。设置级别以下的东西不会被打印出来 例程见https://github.com/ros2/rclpy/blob/humble/rclpy/test/test_logging.py
-        self.get_logger().set_level(LoggingSeverity.WARN) # 可以在继承此节点的节点类初始化函数中修改此等级，使其发送全部消息
+        # 可以在继承此节点的节点类初始化函数中修改此等级，使其发送全部消息
+        self.get_logger().set_level(LoggingSeverity.WARN)
 
         self.frame = 0  # 帧计数
         self.slot = -1  # 当前所处的slot。站点初始化时这是-1，此变量的修改详见self.end_slot_callback
@@ -152,13 +151,23 @@ class StdmaTalker(Node):
         self.my_slot = -2
         self.slot_allocations = [None]*self.num_slots  # 初始化槽位分配情况保存列表
         self.inbox = []
-        self.inbox_plan = [] # 储存别人发过来的计划
+        self.inbox_plan = []  # 储存别人发过来的计划
 
+        # 初始化关于地图和移动的一些东西
+        self.move_pub = self.create_publisher(
+            Int32MultiArray, "stdma/move", 10)
         self.map = map_reader(map_path=map_path)  # 加载地图
         self.position = spawn_pos_generate(
             self.node_id, self.map)  # 根据进程pid获得一个唯一的起始位置。[横坐标，纵坐标]
-        self.target = [len(self.map[0])//2, len(self.map)//2]  # 将地图中心点设为目标位置
+        
+        # 告诉地图自己的初始化位置
+        init_pos_msg = Int32MultiArray()
+        init_pos_msg.data = self.position + [self.node_id]
+        self.move_pub.publish(init_pos_msg)
 
+        self.target = [0,0]#[len(self.map[0])//2, len(self.map)//2]  # 将地图中心点设为目标位置
+
+        # 信道管理的话题
         self.control_sub = self.create_subscription(
             Int32,
             'stdma/control',
@@ -166,9 +175,13 @@ class StdmaTalker(Node):
             10)
         self.control_pub = self.create_publisher(Int32, 'stdma/control', 10)
 
-        self.message_pub = self.create_publisher(Int32MultiArray,"stdma/message", 10)
+        # 实际传输信息的话题
+        self.message_pub = self.create_publisher(
+            Int32MultiArray, "stdma/message", 10)
 
-        self.message_sub = self.create_subscription(Int32MultiArray,"stdma/message",self.message_callback, 10)
+        self.message_sub = self.create_subscription(
+            Int32MultiArray, "stdma/message", self.message_callback, 10)
+
 
         self.timer_sub = self.create_subscription(
             Bool,
@@ -182,14 +195,16 @@ class StdmaTalker(Node):
         '''
         self.inbox.append(msg)
 
-    def message_callback(self,msg):
+    def message_callback(self, msg):
         '''
         真正传输信息的STDMA话题
         '''
         data = plan_decompressor(msg.data)
-        
-        if hasattr(self,"plan") and data == self.plan: return # 如果是自己发的：跳过
-        else: self.inbox_plan.append(data) # 加入收到的计划中
+
+        if hasattr(self, "plan") and data == self.plan:
+            return  # 如果是自己发的：跳过
+        else:
+            self.inbox_plan.append(data)  # 加入收到的计划中
         '''        
         if hasattr(self,"plan"):
             if data == self.plan:
@@ -212,7 +227,7 @@ class StdmaTalker(Node):
     def timer_callback(self, msg):  # 收到时钟信号时的callback分流
         if msg.data:
             # rising edge - start/end of slot 上升沿标志着slot的结束
-            self.end_slot_callback() 
+            self.end_slot_callback()
         else:
             # falling edge - middle of slot
             self.mid_slot_callback()
@@ -223,7 +238,11 @@ class StdmaTalker(Node):
         记录当前槽位和帧数
         更新信道使用情况
         选择自己的槽位编号
-        检测是否碰撞
+        - 根据自己的计划移动一格
+        - 将收到的所有计划删除一位（已被执行）
+        - 如果下一slot是自己的：筹谋
+        - 这样实现了实际上的在前半槽筹谋。因为前半槽的开始实际上也是end标注的（end就是start嘛。）
+        - 移动和清除一格计划是同时就进行的，唯一迷惑的地方就在于筹谋和这俩的先后顺序。
         '''
         if self.slot == -1:
             # first ever run - need to wait for end of first slot
@@ -294,20 +313,36 @@ class StdmaTalker(Node):
 
             self.get_logger().info('State: "%s" my slot: %d' % (self.state, self.my_slot))
 
-            # 在筹谋前：清理一下别人执行过的计划
+            # TODO: 执行一次移动
+            if hasattr(self, "plan") and self.plan:  # 如果有计划且计划不为空：
+                next_pos = list(self.plan.pop(0))  # 取自己计划中的第一个
+                self.position = next_pos
+                msg = Int32MultiArray()
+                msg.data = next_pos + [self.node_id]
+                self.move_pub.publish(msg)
+
+            else: # 如果没有计划：只宣布自己现在的位置, 即原地不动
+                msg = Int32MultiArray()
+                msg.data = self.position + [self.node_id]
+                self.move_pub.publish(msg)
+                
+
+            # 在筹谋前：每个槽结束把执行过的计划删除
             if self.inbox_plan:
                 i = len(self.inbox_plan)-1
-                while i>=0:
-                    if self.inbox_plan[i]: self.inbox_plan[i].pop(0) # 清除一个
-                    else: del self.inbox_plan[i] # 如果已经为空，消灭此计划。
-                    i-=1
+                while i >= 0:
+                    if self.inbox_plan[i]:
+                        self.inbox_plan[i].pop(0)  # 清除一个
+                    else:
+                        del self.inbox_plan[i]  # 如果已经为空，消灭此计划。
+                    i -= 1
                 self.get_logger().info(self.inbox_plan.__str__())
 
-            #TODO: 如果下一槽位是自己的且自己已经加入网络：筹谋。
+            # TODO: 如果下一槽位是自己的且自己已经加入网络：筹谋。
             if self.state == "in":
                 if self.slot == self.my_slot:
-                    self.plan = find_path(map = self.map, max_steps=self.num_slots, start = self.position, goal = self.target)
-            
+                    self.plan = find_path(
+                        map=self.map, max_steps=self.num_slots, start=self.position, goal=self.target)
 
     def mid_slot_callback(self):
         '''
@@ -324,14 +359,11 @@ class StdmaTalker(Node):
                 self.state = 'check'
                 self.get_logger().info('Sent my control message')
 
-
                 # TODO: 发送计划
-                if not hasattr(self, "plan") or not self.plan : return # 如果没有计划或者计划为空：跳过计划广播
-                msg = Int32MultiArray()
-                msg.data = plan_compressor(self.plan)
-                self.message_pub.publish(msg)
-
-
+                if hasattr(self, "plan") and self.plan:  # 如果有计划且计划不为空：广播计划
+                    msg = Int32MultiArray()
+                    msg.data = plan_compressor(self.plan)
+                    self.message_pub.publish(msg)
 
     def rubbish():
         '''
