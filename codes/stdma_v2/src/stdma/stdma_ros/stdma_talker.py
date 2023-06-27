@@ -142,7 +142,7 @@ class StdmaTalker(Node):
 
         # 尽可能少显示控制台日志信息。设置级别以下的东西不会被打印出来 例程见https://github.com/ros2/rclpy/blob/humble/rclpy/test/test_logging.py
         # 可以在继承此节点的节点类初始化函数中修改此等级，使其发送全部消息
-        self.get_logger().set_level(LoggingSeverity.WARN)
+        self.get_logger().set_level(LoggingSeverity.FATAL)
 
         self.frame = 0  # 帧计数
         self.slot = -1  # 当前所处的slot。站点初始化时这是-1，此变量的修改详见self.end_slot_callback
@@ -157,15 +157,14 @@ class StdmaTalker(Node):
         self.move_pub = self.create_publisher(
             Int32MultiArray, "stdma/move", 10)
         self.map = map_reader(map_path=map_path)  # 加载地图
-        self.position = spawn_pos_generate(
-            self.node_id, self.map)  # 根据进程pid获得一个唯一的起始位置。[横坐标，纵坐标]
+        self.position = spawn_pos_generate(self.node_id, self.map)  # 根据进程pid获得一个唯一的起始位置。[横坐标，纵坐标]
         
         # 告诉地图自己的初始化位置
         init_pos_msg = Int32MultiArray()
         init_pos_msg.data = self.position + [self.node_id]
         self.move_pub.publish(init_pos_msg)
 
-        self.target = [0,0]#[len(self.map[0])//2, len(self.map)//2]  # 将地图中心点设为目标位置
+        self.target = [len(self.map[0])//2, len(self.map)//2]  # 将地图中心点设为目标位置
 
         # 信道管理的话题
         self.control_sub = self.create_subscription(
@@ -313,7 +312,7 @@ class StdmaTalker(Node):
 
             self.get_logger().info('State: "%s" my slot: %d' % (self.state, self.my_slot))
 
-            # TODO: 执行一次移动
+            # 执行一次移动
             if hasattr(self, "plan") and self.plan:  # 如果有计划且计划不为空：
                 next_pos = list(self.plan.pop(0))  # 取自己计划中的第一个
                 self.position = next_pos
@@ -325,7 +324,6 @@ class StdmaTalker(Node):
                 msg = Int32MultiArray()
                 msg.data = self.position + [self.node_id]
                 self.move_pub.publish(msg)
-                
 
             # 在筹谋前：每个槽结束把执行过的计划删除
             if self.inbox_plan:
@@ -336,13 +334,22 @@ class StdmaTalker(Node):
                     else:
                         del self.inbox_plan[i]  # 如果已经为空，消灭此计划。
                     i -= 1
-                self.get_logger().info(self.inbox_plan.__str__())
-
-            # TODO: 如果下一槽位是自己的且自己已经加入网络：筹谋。
+                
+            # 如果下一槽位是自己的且自己已经加入网络：筹谋。
             if self.state == "in":
                 if self.slot == self.my_slot:
                     self.plan = find_path(
-                        map=self.map, max_steps=self.num_slots, start=self.position, goal=self.target)
+                        map=self.map, max_steps=2*self.num_slots, start=self.position, goal=self.target,plan = self.inbox_plan)
+                    if not self.plan: self.plan = [self.position]*2*self.num_slots
+
+                    '''
+                    self.get_logger().warning(str(self.node_id)+"的计划："+self.plan.__str__())
+                    self.get_logger().warning(str(self.node_id)+"收到的计划:"+self.inbox_plan.__str__())
+                    '''
+
+            
+
+
 
     def mid_slot_callback(self):
         '''

@@ -14,6 +14,14 @@ def generate_launch_description():
     # 定义Launch描述符
     ld = LaunchDescription()
 
+    # 启动地图
+    activate_map = Node(
+        package=package_name,
+        executable="map",
+    )
+
+    ld.add_action(activate_map)
+
     # 启动信道可视化
     activate_channel_visualiser = Node(
         package=package_name,

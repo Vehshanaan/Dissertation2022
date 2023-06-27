@@ -23,7 +23,7 @@ class ChannelVisualiser(stdma_talker.StdmaTalker):
 
         super().__init__()
         # 显示所有信息
-        self.get_logger().set_level(LoggingSeverity.INFO) 
+        self.get_logger().set_level(LoggingSeverity.FATAL) 
 
         # 初始化pygame
         pygame.init()

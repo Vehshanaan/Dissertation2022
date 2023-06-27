@@ -27,6 +27,7 @@ setup(
                 'talker = stdma_ros.stdma_talker:main',
                 'timer = stdma_ros.stdma_timer:main',
                 'channel_visualiser = stdma_ros.channel_visualiser:main',
+                "map = stdma_ros.map:main",
         ],
     },
 )

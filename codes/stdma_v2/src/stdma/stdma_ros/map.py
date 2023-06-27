@@ -60,6 +60,7 @@ class Map(Node):
         self.height = len(map)
         self.width = len(map[0])
 
+        self.inbox_plan = [] # 记录各节点计划
         self.node_positions = {} # 记录节点占有位置。 键值对为：节点编号：[坐标x,y]
 
         # 初始化可视化地图窗口
@@ -67,7 +68,7 @@ class Map(Node):
 
         # 写数字时用的字体
         pygame.font.init()
-        self.font = pygame.font.Font(None, int(GRID_SIZE * 0.8))
+        self.font = pygame.font.Font(None, int(GRID_SIZE * 0.5))
 
         self.timer_sub = self.create_subscription(
             Bool,
@@ -78,6 +79,9 @@ class Map(Node):
         # 订阅节点发出的的移动信号
         self.move_sub = self.create_subscription(
             Int32MultiArray, "stdma/move", self.move_callback, 10)
+
+        # 订阅节点发出的自身计划
+        self.message_sub = self.create_subscription(Int32MultiArray, "stdma/message", self.message_callback, 10)
 
     def map_reset(self):
         '''
@@ -94,6 +98,16 @@ class Map(Node):
                     cell_color,
                     (col * GRID_SIZE, row * GRID_SIZE, GRID_SIZE, GRID_SIZE),
                 )
+
+        # 绘制外侧安全区
+        for row in range(self.height):
+            for col in range(self.width):
+                if row == 0 or row == self.height-1 or col == 0 or col == self.width-1:
+                    pygame.draw.rect(
+                        self.window,
+                        GREEN,
+                        (col*GRID_SIZE, row*GRID_SIZE, GRID_SIZE, GRID_SIZE),
+                    )
 
         # 绘制网格线
         for row in range(self.height):
@@ -124,10 +138,26 @@ class Map(Node):
     def timer_callback(self,msg):
         if msg.data:
             # 上升沿：槽的开始或结束
-            pass
+                        # 每个槽结束把执行过的计划删除
+            if self.inbox_plan:
+                i = len(self.inbox_plan)-1
+                while i >= 0:
+                    if self.inbox_plan[i]:
+                        self.inbox_plan[i].pop(0)  # 清除一个
+                    else:
+                        del self.inbox_plan[i]  # 如果已经为空，消灭此计划。
+                    i -= 1
         else:
             # 下降沿：槽的中间：更新地图。之所以不在槽的结束处更新是为了防止一边移动一边更新的情况
             self.map_update()
+
+    def message_callback(self,msg):
+        '''
+        真正传输信息的STDMA话题
+        '''
+        data = stdma_talker.plan_decompressor(msg.data)
+
+        self.inbox_plan.append(data)  # 加入收到的计划中
 
     def move_callback(self, msg):
         '''
@@ -161,19 +191,37 @@ class Map(Node):
             
             center_x = x*GRID_SIZE+GRID_SIZE//2
             center_y = y*GRID_SIZE+GRID_SIZE//2
-            number_text = self.font.render(str(key), True, GREEN)
+            number_text = self.font.render(str(node_id), True, GREEN)
             text_rect = number_text.get_rect(center=(center_x, center_y))
             self.window.blit(number_text,text_rect)
-            pygame.display.flip()
+            #pygame.display.flip()
 
 
         # 根据字典value唯一性判断是否有碰撞
         collisions = find_keys_with_same_value(self.node_positions) # [[具有相同位置的节点的id]]
         if collisions:
-            self.get_logger().warning("检测到碰撞。发生碰撞的是%s"%collisions.__str__())
 
-        # 将发生碰撞的位置画成红色，里面填上碰撞的是谁
-        # TODO:        
+            # 将发生碰撞的位置画成红色，里面填上碰撞的是谁
+            for collision in collisions:
+                collision_pos = self.node_positions[collision[0]]
+                # 格子涂红
+                pygame.draw.rect(
+                    self.window,
+                    RED,
+                    (collision_pos[0]*GRID_SIZE,collision_pos[1]*GRID_SIZE,GRID_SIZE,GRID_SIZE)
+                )
+                # 里面写上撞车的是谁
+                center_x = collision_pos[0]*GRID_SIZE+GRID_SIZE//2
+                center_y = collision_pos[1]*GRID_SIZE+GRID_SIZE//2
+                number_text = self.font.render(collision.__str__(),True,GREEN)
+                text_rect = number_text.get_rect(center=(center_x,center_y))
+                self.get_logger().warning("在（%d, %d）处，%s之间发生碰撞"%(collision_pos[0]-1,collision_pos[1]-1,collision.__str__()))
+                self.get_logger().warning("发生碰撞时的计划如下：")
+                for _ in self.inbox_plan:
+                    self.get_logger().warning(_.__str__())
+                self.window.blit(number_text, text_rect)
+
+
 
         # 重新绘制网格线,因为绘制格子内内容把线盖掉了
         for row in range(self.height):
