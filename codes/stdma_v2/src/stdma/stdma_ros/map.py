@@ -60,7 +60,7 @@ class Map(Node):
         self.height = len(map)
         self.width = len(map[0])
 
-        self.inbox_plan = [] # 记录各节点计划
+        self.inbox_plan = {} # 记录各节点计划
         self.node_positions = {} # 记录节点占有位置。 键值对为：节点编号：[坐标x,y]
 
         # 初始化可视化地图窗口
@@ -138,15 +138,17 @@ class Map(Node):
     def timer_callback(self,msg):
         if msg.data:
             # 上升沿：槽的开始或结束
-                        # 每个槽结束把执行过的计划删除
+
+            # 每个槽结束把执行过的计划删除
             if self.inbox_plan:
-                i = len(self.inbox_plan)-1
-                while i >= 0:
-                    if self.inbox_plan[i]:
-                        self.inbox_plan[i].pop(0)  # 清除一个
-                    else:
-                        del self.inbox_plan[i]  # 如果已经为空，消灭此计划。
-                    i -= 1
+                for key, value in self.inbox_plan.items():
+                    if not value: # 如果计划为空：删除计划
+                        del self.inbox_plan[key]
+                        continue
+                    value.pop(0) # 弹掉计划的头一个
+                    if not value: # 如果删完计划为空:删除计划键值对
+                        del self.inbox_plan[key]
+                        continue
         else:
             # 下降沿：槽的中间：更新地图。之所以不在槽的结束处更新是为了防止一边移动一边更新的情况
             self.map_update()
@@ -155,9 +157,9 @@ class Map(Node):
         '''
         真正传输信息的STDMA话题
         '''
-        data = stdma_talker.plan_decompressor(msg.data)
+        node_id, data = stdma_talker.plan_decompressor(msg.data)
 
-        self.inbox_plan.append(data)  # 加入收到的计划中
+        self.inbox_plan[node_id] = data  # 加入收到的计划中
 
     def move_callback(self, msg):
         '''
@@ -216,9 +218,6 @@ class Map(Node):
                 number_text = self.font.render(collision.__str__(),True,GREEN)
                 text_rect = number_text.get_rect(center=(center_x,center_y))
                 self.get_logger().warning("在（%d, %d）处，%s之间发生碰撞"%(collision_pos[0]-1,collision_pos[1]-1,collision.__str__()))
-                self.get_logger().warning("发生碰撞时的计划如下：")
-                for _ in self.inbox_plan:
-                    self.get_logger().warning(_.__str__())
                 self.window.blit(number_text, text_rect)
 
 

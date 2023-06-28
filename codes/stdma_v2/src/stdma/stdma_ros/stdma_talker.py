@@ -92,44 +92,49 @@ def spawn_pos_generate(pid, map) -> list:
     return outer_boundary[index]
 
 
-def plan_compressor(plan2d) -> list:
+def plan_compressor(node_id, plan2d) -> list:
     '''
-    将[节点id,[x1,y1],[x2,y2],...]格式的二维数组压缩成一维的函数
+    将[[x1,y1],[x2,y2],...]格式的二维数组压缩成一维的函数
 
     Args:
+        node_id: 发送者编号
         plan (list[list]): [[x1,y1],[x2,y2],...]格式的二维数组
 
     Returns:
-        result: 格式为[x1,y1,x2,y2,...]的一维数组
+        result: 格式为[node_id,x1,y1,x2,y2,...]的一维数组
     '''
     if not plan2d:  # 如果输入为空列表
-        return []  # 返回空列表
+        return [node_id]  # 返回无计划的列表
     else:
-        plan1d = []
+        plan1d = [node_id]
         for _ in plan2d:
             plan1d.append(_[0])
             plan1d.append(_[1])
 
+
     return plan1d
 
 
-def plan_decompressor(plan1d) -> list[list]:
+def plan_decompressor(plan1d):
     '''
-    将格式为[节点id,x1,y1,x2,y2...]格式的数组还原为[[x1,y1],[x2,y2],...]
+    将格式为[节点id, x1,y1,x2,y2...]格式的数组还原为 发送者id，[[x1,y1],[x2,y2],...] 的两个输出
 
     Args:
-        plan1d (list): [x1,y1,x2,y2...]格式的一维数组
+        plan1d (list): [节点id,x1,y1,x2,y2...]格式的一维数组
 
     Returns:
+        node_id: 发送者id
+
         plan2d: [[x1,y1],[x2,y2],...]格式的二维数组
     '''
     if not plan1d:
-        return [[]]  # 如果输入为空，返回空
+        return -1, [[]]  # 如果输入为空，返回空, id写-1
     else:
         plan2d = []
+        node_id = plan1d.pop(0)
         for i in range(0, len(plan1d), 2):
             plan2d.append((plan1d[i], plan1d[i+1]))
-    return plan2d
+    return node_id, plan2d
 
 
 class StdmaTalker(Node):
@@ -151,7 +156,7 @@ class StdmaTalker(Node):
         self.my_slot = -2
         self.slot_allocations = [None]*self.num_slots  # 初始化槽位分配情况保存列表
         self.inbox = []
-        self.inbox_plan = []  # 储存别人发过来的计划
+        self.inbox_plan = {}  # 储存别人发过来的计划 "id":[计划]
 
         # 初始化关于地图和移动的一些东西
         self.move_pub = self.create_publisher(
@@ -198,12 +203,17 @@ class StdmaTalker(Node):
         '''
         真正传输信息的STDMA话题
         '''
-        data = plan_decompressor(msg.data)
+        id, data = plan_decompressor(msg.data)
 
+        '''
         if hasattr(self, "plan") and data == self.plan:
             return  # 如果是自己发的：跳过
+        '''
+        if id == self.node_id:
+            return # 如果是自己发的：跳过
         else:
-            self.inbox_plan.append(data)  # 加入收到的计划中
+            self.inbox_plan[id] = data  # 加入收到的计划中
+        
         '''        
         if hasattr(self,"plan"):
             if data == self.plan:
@@ -325,6 +335,7 @@ class StdmaTalker(Node):
                 msg.data = self.position + [self.node_id]
                 self.move_pub.publish(msg)
 
+            '''
             # 在筹谋前：每个槽结束把执行过的计划删除
             if self.inbox_plan:
                 i = len(self.inbox_plan)-1
@@ -334,13 +345,27 @@ class StdmaTalker(Node):
                     else:
                         del self.inbox_plan[i]  # 如果已经为空，消灭此计划。
                     i -= 1
+            '''
                 
+            # 在筹谋前：每个槽结束时将已执行的计划删除
+            if self.inbox_plan:
+                for key, value in self.inbox_plan.items():
+                    if not value: # 如果计划为空：删除计划
+                        del self.inbox_plan[key]
+                        continue
+                    value.pop(0) # 弹掉计划的头一个
+                    if not value: # 如果删完计划为空:删除计划键值对
+                        del self.inbox_plan[key]
+                        continue
+
+        
+
             # 如果下一槽位是自己的且自己已经加入网络：筹谋。
             if self.state == "in":
                 if self.slot == self.my_slot:
+
                     self.plan = find_path(
-                        map=self.map, max_steps=2*self.num_slots, start=self.position, goal=self.target,plan = self.inbox_plan)
-                    if not self.plan: self.plan = [self.position]*2*self.num_slots
+                        map=self.map, max_steps=2*self.num_slots, start=self.position, goal=self.target,plan = list(self.inbox_plan.values()))
 
                     '''
                     self.get_logger().warning(str(self.node_id)+"的计划："+self.plan.__str__())
@@ -369,7 +394,7 @@ class StdmaTalker(Node):
                 # TODO: 发送计划
                 if hasattr(self, "plan") and self.plan:  # 如果有计划且计划不为空：广播计划
                     msg = Int32MultiArray()
-                    msg.data = plan_compressor(self.plan)
+                    msg.data = plan_compressor(self.node_id, self.plan)
                     self.message_pub.publish(msg)
 
     def rubbish():
