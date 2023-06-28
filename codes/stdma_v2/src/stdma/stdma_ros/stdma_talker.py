@@ -33,7 +33,7 @@ from path_finding import find_path  # 导入寻路的函数
 
 
 # 地图的绝对文件路径
-map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/map_builder/map2.png"
+map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/map_builder/map4.png"
 
 
 def map_reader(map_path = map_path) -> list[list]:

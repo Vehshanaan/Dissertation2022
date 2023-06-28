@@ -55,8 +55,12 @@ def find_path(map, max_steps, start=(0,0), goal=(3,3), plan  = []):
             return path
 
         if current == goal:
-            return path
+            if len(path)<max_steps:
+                for ii in range(max_steps-len(path)):
+                    path.append(current)
+            return path # 保证即使已经达到终点，计划仍然是那么长
         
+
         if plan and cost < len(plan): # 根据步数提取当前时间点的其他计划
             current_others_plan = plan[cost]
 
@@ -68,13 +72,16 @@ def find_path(map, max_steps, start=(0,0), goal=(3,3), plan  = []):
                 heappush(queue, (new_cost + heuristic(neighbor, goal), new_cost, neighbor, path + [neighbor]))
                 visited.add(neighbor)
 
-        heappush(queue, (_+1, cost+1, current, path+[current])) # 有这行才能有留在原地的选项。不然每一步必须离开原地，影响终点不可达时留在原地的能力
+        if current not in current_others_plan: # 如果留在原地不碍事的话：留在原地
+            heappush(queue, (_+1, cost+1, current, path+[current])) # 有这行才能有留在原地的选项。不然每一步必须离开原地，影响终点不可达时留在原地的能力
         
     # 如果可探索点用完还没能到达终点：就这样吧
     if path:
         return path
 
-    return []
+    else:
+        return [start]*max_steps # 如果产生的路径是空的：呆在原地    
+    
 
 def get_neighbors(pos, map, plan=[]):
     '''
@@ -91,8 +98,13 @@ def get_neighbors(pos, map, plan=[]):
     directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # 上下左右四个方向
     neighbors = []
 
+
+
     for direction in directions:
         new_pos = (pos[0] + direction[0], pos[1] + direction[1])
+
+
+
         if is_valid(new_pos, map) and new_pos not in plan:
             neighbors.append(new_pos)
 
@@ -140,16 +152,20 @@ def main():
         path = path#[:i]
         generated_path.append(path)
 
+    #generated_path = [[(0,0),(0,1)],[(1,1),(0,1)]]
 
+    
     for i in range(len(generated_path[0])):
         pos = set()
         for j in range(len(generated_path)):
             if generated_path[j][i] in pos and generated_path[j][i]!=start:
                 print("碰撞"+str(generated_path[j][i]))
-                print(generated_path[j])
-                print("发生在%d,%d"%(i,j))
+
+                #print(generated_path[j])
+                print("发生在下面数组中的%d,%d"%(i,j))
             else:
                 pos.add(generated_path[j][i])
+    
 
     for _ in generated_path:
         print(_)
