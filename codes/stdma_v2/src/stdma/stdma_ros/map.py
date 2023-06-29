@@ -68,6 +68,7 @@ class Map(Node):
 
         # 写数字时用的字体
         pygame.font.init()
+        
         self.font = pygame.font.Font(None, int(GRID_SIZE * 0.5))
 
         self.timer_sub = self.create_subscription(
@@ -129,6 +130,8 @@ class Map(Node):
         '''
         初始化地图可视化窗口
         '''
+        pygame.init()
+        pygame.display.set_caption('Map')
         self.width = len(self.map[0])
         self.height = len(self.map)
         self.window = pygame.display.set_mode((self.width*GRID_SIZE,self.height*GRID_SIZE))

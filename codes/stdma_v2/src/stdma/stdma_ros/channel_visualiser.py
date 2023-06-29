@@ -29,9 +29,8 @@ class ChannelVisualiser(stdma_talker.StdmaTalker):
         pygame.init()
 
         # 定义窗口和表格参数
-        pygame.init()
         self.screen = pygame.display.set_mode((800, 100))
-        pygame.display.set_caption('Channel Visualization')
+        pygame.display.set_caption('Channel')
 
         # 初始化表格相关变量
         self.cell_width = 50
