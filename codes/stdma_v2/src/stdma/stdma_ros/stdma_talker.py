@@ -289,11 +289,11 @@ class StdmaTalker(Node):
                 # 如果哥们自己也撞了：接着听吧, 没宣称成功
                 if self.node_id in colliding_ids:
                     self.get_logger().warning('%s lost slot due to collision' % self.get_name())
-                    self.state = 'listen'  # 注意，站点初始化时状态就是listen
-                    self.my_slot = -2
                     if self.state == "in":
                         self.get_logger().warning(
                             "\n\n\nCollision between secured and joining! NEVER SHOULD HAPEN! \n\n\n")
+                    self.state = 'listen'  # 注意，站点初始化时状态就是listen
+                    self.my_slot = -2
             if self.state == 'check':
                 # successful join would have changed state to 'in'
                 # collision would have changed to 'listen'
@@ -350,13 +350,14 @@ class StdmaTalker(Node):
             # 在筹谋前：每个槽结束时将已执行的计划删除
             if self.inbox_plan:
                 for key, value in self.inbox_plan.items():
-                    if not value: # 如果计划为空：删除计划
-                        del self.inbox_plan[key]
-                        continue
-                    value.pop(0) # 弹掉计划的头一个
-                    if not value: # 如果删完计划为空:删除计划键值对
-                        del self.inbox_plan[key]
-                        continue
+                    if value: value.pop(0) # 弹掉每个非空计划的头一个
+            
+            # 删除已为空的计划元素
+            empty_plans= []
+            for key in list(self.inbox_plan.keys()):
+                if not self.inbox_plan[key]: empty_plans.append(key)
+            for _ in empty_plans:
+                del self.inbox_plan[_]
 
         
 
@@ -396,57 +397,6 @@ class StdmaTalker(Node):
                     msg = Int32MultiArray()
                     msg.data = plan_compressor(self.node_id, self.plan)
                     self.message_pub.publish(msg)
-
-    def rubbish():
-        '''
-        草稿过程中产生的废物函数。这是垃圾填埋场。
-        '''
-        received_messages = self.get_messages()
-        previous_slot = (self.slot-1) % self.num_slots
-        if len(received_messages) == 1:
-            msg = received_messages[0]
-            sender = re.search('stdma_talker_[0-9]+', msg.data).group()
-            self.slot_allocations[previous_slot] = sender
-            self.get_logger().info('Slot %d belongs to %s, got %s' %
-                                   (previous_slot, sender, msg.data))
-            if sender == self.node_name:
-                # means I've got my own slot
-                self.state = 'in'
-                self.get_logger().info('Got own message back - successful entry')
-        elif len(received_messages) == 0:
-            self.get_logger().info('Slot %d empty' % previous_slot)
-            self.slot_allocations[self.slot] = None
-        else:
-            self.get_logger().info('Slot %d collision' % previous_slot)
-            for msg in received_messages:
-                self.get_logger().info('Got message %s' % msg.data)
-        if self.state == 'check':
-            # means my message didn't get through
-            self.state = 'listen'
-            self.get_logger().info('Collision - back to listening')
-        if self.state != 'listen' and self.slot == self.my_slot:
-            # time to send a message
-            msg = String()
-            msg.data = 'Hello from %s : frame %d slot %d' % (
-                self.node_name, self.frame, self.slot)
-            self.publisher_.publish(msg)
-            if self.state == 'enter':
-                self.state == 'check'
-            self.get_logger().info('Sent: "%s" mode : "%s"' % (msg.data, self.state))
-        self.slot += 1
-        if self.slot == self.num_slots:
-            self.slot = 0
-            self.frame += 1
-            if self.state == 'listen':
-                # have now listened to a whole slot - time to try and get in
-                self.state = 'enter'
-                self.get_logger().info('Listened for whole frame - ready to enter')
-                available_slots = [ii for ii in range(
-                    self.num_slots) if self.slot_allocations[ii] is None]
-                if available_slots:
-                    self.my_slot = available_slots[0]
-        self.get_logger().info('State %s my slot %d allocs %s' %
-                               (self.state, self.my_slot, self.slot_allocations.__str__()))
 
 
 def main(args=None):

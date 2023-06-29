@@ -54,12 +54,13 @@ def find_path(map, max_steps, start=(0,0), goal=(3,3), plan  = []):
         if len(path) >= max_steps:
             return path
 
+        '''
         if current == goal:
             if len(path)<max_steps:
                 for ii in range(max_steps-len(path)):
                     path.append(current)
             return path # 保证即使已经达到终点，计划仍然是那么长
-        
+        '''
 
         if plan and cost < len(plan): # 根据步数提取当前时间点的其他计划
             current_others_plan = plan[cost]
@@ -73,7 +74,7 @@ def find_path(map, max_steps, start=(0,0), goal=(3,3), plan  = []):
                 visited.add(neighbor)
 
         if current not in current_others_plan: # 如果留在原地不碍事的话：留在原地
-            heappush(queue, (_+1, cost+1, current, path+[current])) # 有这行才能有留在原地的选项。不然每一步必须离开原地，影响终点不可达时留在原地的能力
+            heappush(queue, (_+1, cost+1, current, path+[current])) # 有这行才能有留在原地的选项。不然每一步必须离开原地
         
     # 如果可探索点用完还没能到达终点：就这样吧
     if path:
