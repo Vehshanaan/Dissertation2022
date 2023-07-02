@@ -49,11 +49,11 @@ def map_reader(map_path = map_path) -> list[list]:
     with Image.open(map_path) as img:
         width, height = img.size
         pixels = img.load()
-        bool_array = [[False for _ in range(width)] for _ in range(height)]
+        bool_array = [[True for _ in range(width)] for _ in range(height)]
         for i in range(height):
             for j in range(width):
-                if pixels[j, i] == (255, 255, 255):  # 如果像素为全白：
-                    bool_array[i][j] = True
+                if pixels[j, i] == (0, 0, 0):  # 如果像素为全黑：
+                    bool_array[i][j] = False
         return bool_array
 
 
