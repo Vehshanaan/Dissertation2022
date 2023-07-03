@@ -62,7 +62,6 @@ class Map(Node):
 
         map_path = self.get_parameter("map_path").get_parameter_value().string_value
 
-        print(map_path)
 
         # 读取地图
         map = map_load(map_path)

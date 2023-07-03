@@ -47,7 +47,7 @@ def generate_launch_description():
         activate_site = Node(
             package=package_name,
             executable="site",
-            parameters=[{"num_slots":node_number, "start":start, "goal":goal}]
+            parameters=[{"num_slots":node_number, "start":start, "goal":goal, "map_path":map_path}]
         )
         ld.add_action(activate_site)
 

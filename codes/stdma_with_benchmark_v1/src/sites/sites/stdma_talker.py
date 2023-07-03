@@ -170,11 +170,11 @@ class StdmaTalker(Node):
         # 初始化关于地图和移动的一些东西
         self.move_pub = self.create_publisher(
             Int32MultiArray, "stdma/move", 10)
+        
         # 初始化地图
-        map_path = map_path_default
-        self.declare_parameter("map_path",map_path)
+        self.declare_parameter("map_path",map_path_default)
         map_path = self.get_parameter("map_path").get_parameter_value().string_value
-        self.map = map_load(map_path=map_path)  # 加载地图
+        self.map = map_load(map_path)  # 加载地图
 
 
 
