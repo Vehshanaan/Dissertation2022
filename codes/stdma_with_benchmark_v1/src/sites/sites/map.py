@@ -5,9 +5,16 @@ from rclpy.node import Node
 from std_msgs.msg import Int32, Bool, Int32MultiArray
 import pygame
 
+
+import sys, os
+parent_dir = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/stdma_with_benchmark_v1/src/sites"
+sys.path.append(parent_dir)
+# 看来即使被复制走，节点仍然位于同一文件夹下
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
+
 import stdma_talker
+from utils.utils import map_load
 
 # 定义颜色
 BLACK = (0, 0, 0)
@@ -17,7 +24,10 @@ RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 
 # 定义网格大小
-GRID_SIZE = 50
+GRID_SIZE = 8
+
+# 未初始化情况下的默认地图路径
+map_path_default = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-png/Berlin_0_256.png"
 
 def find_keys_with_same_value(dictionary):
     '''
@@ -43,20 +53,22 @@ def find_keys_with_same_value(dictionary):
     
     return keys_with_same_value
 
-
 class Map(Node):
     def __init__(self):
         super().__init__("Map")
 
+        # 从外界初始化地图路径
+        self.declare_parameter("map_path",map_path_default)
+
+        map_path = self.get_parameter("map_path").get_parameter_value().string_value
+
+        print(map_path)
+
         # 读取地图
-        map = stdma_talker.map_reader()
-        # 在地图左右加一圈
-        map = [[True] + row + [True] for row in map]
-        # 添加一行全为0的列表作为新的第一行
-        map.insert(0, [True] * len(map[0]))
-        # 添加一行全为0的列表作为新的最后一行
-        map.append([True] * len(map[0]))
+        map = map_load(map_path)
+
         self.map = map # 录入地图
+
         self.height = len(map)
         self.width = len(map[0])
 
@@ -110,6 +122,7 @@ class Map(Node):
                         (col*GRID_SIZE, row*GRID_SIZE, GRID_SIZE, GRID_SIZE),
                     )
 
+        
         # 绘制网格线
         for row in range(self.height):
             pygame.draw.line(
@@ -125,6 +138,7 @@ class Map(Node):
                 (col * GRID_SIZE, 0),
                 (col * GRID_SIZE, self.height*GRID_SIZE)
             )
+        
 
     def map_init(self):
         '''
@@ -171,10 +185,11 @@ class Map(Node):
         data = msg.data
         node_id = data[2]
         # 发来的无边框地图坐标横纵各+1 = 有边框地图坐标
-        x = data[0]+1 # 横坐标
-        y = data[1]+1 # 纵坐标
+        x = data[0] # 横坐标
+        y = data[1] # 纵坐标
 
         self.node_positions[str(node_id)] = [x,y] # 保存节点对应位置
+
 
         
     def map_update(self):

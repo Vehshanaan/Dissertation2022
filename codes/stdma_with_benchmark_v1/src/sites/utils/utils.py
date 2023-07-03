@@ -19,13 +19,15 @@ def map_load(map_path=map_path):
 
     with Image.open(map_path) as img:
 
+        img = img.resize((150,150)) # 一律重新调整大小
+
         width, height = img.size
         pixels = img.load()
 
         origin_map = [[True for _ in range(width)] for _ in range(height)]
         for i in range(height):
             for j in range(width):
-                if pixels[j, i][0:3] != (229, 229, 229):  # 如果不是代表通路的浅灰色：不通。
+                if pixels[j, i][0:3] == (0, 0, 0):  # 如果不是代表通路的浅灰色：不通。
                     origin_map[i][j] = False
 
         # 将地图扩大五圈
@@ -34,6 +36,9 @@ def map_load(map_path=map_path):
         for i in range(len(origin_map)):
             for j in range(len(origin_map[0])):
                 bigger_map[i+5][j+5] = origin_map[i][j]
+        
+
+        # 将地图外侧五圈改为白色可通过
 
         return bigger_map
 
@@ -100,6 +105,14 @@ def start_goal_generator(node_num, map_path=map_path):
     return starts, goals
 
 def scene_generator(node_number, save_path, map_path = map_path):
+    '''
+    生成情景的函数（主要生成指定数量的起点和终点），并把生成的情景保存成json文件
+
+    Args:
+        node_number (int): 节点数目
+        save_path (str): 生成的情景文件的保存文件夹，不含最后那个/ 
+        map_path (str): 地图文件的路径
+    '''
     starts,goals = start_goal_generator(node_number,map_path)
 
     file_name = os.path.basename(map_path) + str(node_number)+ "nodes" + str(time.time())
@@ -116,21 +129,37 @@ def scene_generator(node_number, save_path, map_path = map_path):
     with open(file_path,"w")as file:
         json.dump(data,file)
 
+def scene_reader(scene_path):
+    '''
+    从文件加载情景档的函数
 
-    with open(file_path,"r") as file:
+    Args:
+        scene_path (str): 情景文件的路径
+
+    Returns:
+        node_number (int): 节点的数目  
+
+        map_path (str): 地图的路径  
+
+        starts ([list]): 起点位置的列表  
+
+        goals ([list]): 终点位置的列表
+    '''
+    with open(scene_path,"r") as file:
         data = json.load(file)
     
-    node_number_check  =  data["node_number"]
-    map_path_check = data["map_path"]
-    starts_check = data["starts"]
-    goals_check = data["goals"]
+    node_number  =  data["node_number"]
+    map_path = data["map_path"]
+    starts = data["starts"]
+    goals = data["goals"]
 
-    print(node_number==node_number_check)
-    print(map_path == map_path_check)
-    print(starts == starts_check)
-    print(goals == goals_check)
-
-scene_generator(10,save_path,map_path)
+    return node_number, map_path, starts, goals
 
 
+# 生成情景档的命令：
+# scene_generator(10,save_path,map_path)
 
+
+
+if __name__ == "__main__":
+    scene_generator(10,save_path,map_path)

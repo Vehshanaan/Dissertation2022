@@ -29,14 +29,17 @@ import sys
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
+parent_dir = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/stdma_with_benchmark_v1/src/sites"
+sys.path.append(parent_dir)
 from path_finding import find_path  # 导入寻路的函数
+from utils.utils import map_load # 导入加载地图的函数
 
 
-# 地图的绝对文件路径
-map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/map_builder/map4.png"
+# 地图的未经外部输入的默认路径
+map_path_default = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/map_builder/map4.png"
 
 
-def map_reader(map_path = map_path) -> list[list]:
+def map_reader(map_path = map_path_default) -> list[list]:
     '''
     将地图图片读取为二维数组的函数
 
@@ -151,7 +154,13 @@ class StdmaTalker(Node):
 
         self.frame = 0  # 帧计数
         self.slot = -1  # 当前所处的slot。站点初始化时这是-1，此变量的修改详见self.end_slot_callback
-        self.num_slots = 10  # 帧长度
+        
+        # 从外部初始化帧长度
+        num_slots = 10  # 帧长度
+        self.declare_parameter("num_slots",num_slots)
+        self.num_slots = self.get_parameter("num_slots").get_parameter_value().integer_value
+        
+        
         self.state = 'listen'
         self.my_slot = -2
         self.slot_allocations = [None]*self.num_slots  # 初始化槽位分配情况保存列表
@@ -161,15 +170,34 @@ class StdmaTalker(Node):
         # 初始化关于地图和移动的一些东西
         self.move_pub = self.create_publisher(
             Int32MultiArray, "stdma/move", 10)
-        self.map = map_reader(map_path=map_path)  # 加载地图
-        self.position = spawn_pos_generate(self.node_id, self.map)  # 根据进程pid获得一个唯一的起始位置。[横坐标，纵坐标]
+        # 初始化地图
+        map_path = map_path_default
+        self.declare_parameter("map_path",map_path)
+        map_path = self.get_parameter("map_path").get_parameter_value().string_value
+        self.map = map_load(map_path=map_path)  # 加载地图
+
+
+
+        # 获得起始位置
+        start = [-1,-1]
+        self.declare_parameter("start",start)
+        self.start = self.get_parameter("start").get_parameter_value().integer_array_value
+        self.start = self.start.tolist()
+
+        # 获得终点位置
+        goal = [-1,-1]
+        self.declare_parameter("goal",goal)
+        self.goal = self.get_parameter("goal").get_parameter_value().integer_array_value
+        self.goal = self.goal.tolist()
+        # 初始化自身位置
+        self.position = self.start
+
         
         # 告诉地图自己的初始化位置
         init_pos_msg = Int32MultiArray()
         init_pos_msg.data = self.position + [self.node_id]
         self.move_pub.publish(init_pos_msg)
 
-        self.target = [len(self.map[0])//2, len(self.map)//2]  # 将地图中心点设为目标位置
 
         # 信道管理的话题
         self.control_sub = self.create_subscription(
@@ -366,17 +394,14 @@ class StdmaTalker(Node):
                 if self.slot == self.my_slot:
 
                     self.plan = find_path(
-                        map=self.map, max_steps=2*self.num_slots, start=self.position, goal=self.target,plan = list(self.inbox_plan.values()))
+                        map=self.map, max_steps=2*self.num_slots, start=self.position, goal=self.goal,plan = list(self.inbox_plan.values()))
 
                     '''
                     self.get_logger().warning(str(self.node_id)+"的计划："+self.plan.__str__())
                     self.get_logger().warning(str(self.node_id)+"收到的计划:"+self.inbox_plan.__str__())
                     '''
 
-            
-
-
-
+        
     def mid_slot_callback(self):
         '''
         收到时钟信号且为下降沿，槽中被调用的函数
