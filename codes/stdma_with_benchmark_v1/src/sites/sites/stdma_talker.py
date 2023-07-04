@@ -24,6 +24,7 @@ from numpy import outer
 import random
 import os
 from rclpy.logging import LoggingSeverity
+import json
 
 import sys
 
@@ -37,62 +38,9 @@ from utils.utils import map_load # 导入加载地图的函数
 
 # 地图的未经外部输入的默认路径
 map_path_default = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/map_builder/map4.png"
+# 记录自身移动轨迹的日志文件
+log_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/experiment_results/log1.log"
 
-
-def map_reader(map_path = map_path_default) -> list[list]:
-    '''
-    将地图图片读取为二维数组的函数
-
-    Args:
-        map_path (string): 地图图片的路径，编写此函数时用的是绝对路径。不推荐相对路径，因为ros2功能包里的src路径不太适合放图片吧 
-
-    Returns:
-        list: 二维数组，其中地图图片中白色的地方是True，黑色像素的地方是False
-    '''
-    with Image.open(map_path) as img:
-        width, height = img.size
-        pixels = img.load()
-        bool_array = [[True for _ in range(width)] for _ in range(height)]
-        for i in range(height):
-            for j in range(width):
-                if pixels[j, i] == (0, 0, 0):  # 如果像素为全黑：
-                    bool_array[i][j] = False
-        return bool_array
-
-
-def spawn_pos_generate(pid, map) -> list:
-    '''
-    返回一个位于地图边界外一圈不包含四角的起始位置。
-
-    Args:
-
-        pid (int): os.getpid()
-
-        map (list): 详见地图加载函数。
-
-
-    Returns:
-        list: [横坐标，纵坐标]，注意其中的值可能为负。初始寻路的时候需要注意。
-    '''
-
-    # 生成地图外围一圈除四角位置的坐标的列表：
-    map_width = len(map[0])
-    map_height = len(map)
-
-    outer_boundary = []  # 外围坐标
-
-    # 将外围点一个个填进外围坐标列表里去
-    for col in range(map_width):
-        outer_boundary.append([col, -1])
-        outer_boundary.append([col, map_height])
-    for row in range(map_height):
-        outer_boundary.append([-1, row])
-        outer_boundary.append([map_width, row])
-
-    # 用进程id选取一个唯一的外围点
-    index = pid % len(outer_boundary)
-
-    return outer_boundary[index]
 
 
 def plan_compressor(node_id, plan2d) -> list:
@@ -169,12 +117,16 @@ class StdmaTalker(Node):
 
         # 初始化关于地图和移动的一些东西
         self.move_pub = self.create_publisher(
-            Int32MultiArray, "stdma/move", 10)
+            Int32MultiArray, "stdma/move", self.num_slots)
+        
+        # 从外界初始化地图大小
+        self.declare_parameter("map_size",(-1,-1))
+        self.map_size = tuple(self.get_parameter("map_size").get_parameter_value().integer_array_value)
         
         # 初始化地图
         self.declare_parameter("map_path",map_path_default)
         map_path = self.get_parameter("map_path").get_parameter_value().string_value
-        self.map = map_load(map_path)  # 加载地图
+        self.map = map_load(map_path,self.map_size)  # 加载地图
 
 
 
@@ -189,14 +141,16 @@ class StdmaTalker(Node):
         self.declare_parameter("goal",goal)
         self.goal = self.get_parameter("goal").get_parameter_value().integer_array_value
         self.goal = self.goal.tolist()
-        # 初始化自身位置
-        self.position = self.start
-
         
+        # 初始化自身位置(其实包含在move方法中了)
+        self.position = self.start
         # 告诉地图自己的初始化位置
+        '''
         init_pos_msg = Int32MultiArray()
         init_pos_msg.data = self.position + [self.node_id]
         self.move_pub.publish(init_pos_msg)
+        '''
+        self.move(self.start)
 
 
         # 信道管理的话题
@@ -205,14 +159,14 @@ class StdmaTalker(Node):
             'stdma/control',
             self.control_callback,
             10)
-        self.control_pub = self.create_publisher(Int32, 'stdma/control', 10)
+        self.control_pub = self.create_publisher(Int32, 'stdma/control', self.num_slots)
 
         # 实际传输信息的话题
         self.message_pub = self.create_publisher(
-            Int32MultiArray, "stdma/message", 10)
+            Int32MultiArray, "stdma/message", self.num_slots)
 
         self.message_sub = self.create_subscription(
-            Int32MultiArray, "stdma/message", self.message_callback, 10)
+            Int32MultiArray, "stdma/message", self.message_callback, self.num_slots)
 
 
         self.timer_sub = self.create_subscription(
@@ -220,6 +174,29 @@ class StdmaTalker(Node):
             'stdma/timer',
             self.timer_callback,
             10)
+
+        self.history = [self.start] # 历史路径记录
+
+    def move(self, pos):
+        '''
+        移动函数，更新自身位置，更新位置历史记录，向地图发送自身新位置
+
+        Args:
+            pos ([x, y]): 下一步位置
+        '''
+        target_pos = list(pos)
+        self.position = target_pos # 更新自身位置
+        self.history.append(target_pos) # 更新自身路径历史
+        # 告诉地图我走了
+        msg = Int32MultiArray()
+        msg.data = target_pos+[self.node_id]
+        self.move_pub.publish(msg)
+
+
+    def log_writer(self,log_path = log_path):
+        with open(log_path,"r") as file:
+            data = json.load(file)
+
 
     def control_callback(self, msg):
         '''
@@ -353,34 +330,19 @@ class StdmaTalker(Node):
             # 执行一次移动
             if hasattr(self, "plan") and self.plan:  # 如果有计划且计划不为空：
                 next_pos = list(self.plan.pop(0))  # 取自己计划中的第一个
-                self.position = next_pos
-                msg = Int32MultiArray()
-                msg.data = next_pos + [self.node_id]
-                self.move_pub.publish(msg)
+                self.move(next_pos)
+
 
             else: # 如果没有计划：只宣布自己现在的位置, 即原地不动
-                msg = Int32MultiArray()
-                msg.data = self.position + [self.node_id]
-                self.move_pub.publish(msg)
+                self.move(self.position)
 
-            '''
-            # 在筹谋前：每个槽结束把执行过的计划删除
-            if self.inbox_plan:
-                i = len(self.inbox_plan)-1
-                while i >= 0:
-                    if self.inbox_plan[i]:
-                        self.inbox_plan[i].pop(0)  # 清除一个
-                    else:
-                        del self.inbox_plan[i]  # 如果已经为空，消灭此计划。
-                    i -= 1
-            '''
                 
             # 在筹谋前：每个槽结束时将已执行的计划删除
             if self.inbox_plan:
                 for key, value in self.inbox_plan.items():
                     if value: value.pop(0) # 弹掉每个非空计划的头一个
             
-            # 删除已为空的计划元素
+            # 清除已为空的计划元素
             empty_plans= []
             for key in list(self.inbox_plan.keys()):
                 if not self.inbox_plan[key]: empty_plans.append(key)
@@ -400,6 +362,11 @@ class StdmaTalker(Node):
                     self.get_logger().warning(str(self.node_id)+"的计划："+self.plan.__str__())
                     self.get_logger().warning(str(self.node_id)+"收到的计划:"+self.inbox_plan.__str__())
                     '''
+
+            # 向日志文件记录自身移动
+            # 记录地图文件路径
+            # 记录地图大小
+            # 记录自身的最新位置
 
         
     def mid_slot_callback(self):

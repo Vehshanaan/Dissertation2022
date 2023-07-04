@@ -23,8 +23,6 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 
-# 定义网格大小
-GRID_SIZE = 8
 
 # 未初始化情况下的默认地图路径
 map_path_default = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-png/Berlin_0_256.png"
@@ -53,6 +51,24 @@ def find_keys_with_same_value(dictionary):
     
     return keys_with_same_value
 
+def id_to_color(code):
+    '''
+    根据输入的编号生成唯一对应RGB颜色
+
+    Args:
+        code (int): 节点编号
+
+    Returns:
+        color (r,g,b): 三通道值
+    '''
+    number = int(code)
+    r = (number * 127) % 256  # 每个通道的取值范围是0-255
+    g = (number * 83) % 256
+    b = (number * 43) % 256
+    return (r, g, b)
+
+
+
 class Map(Node):
     def __init__(self):
         super().__init__("Map")
@@ -62,14 +78,26 @@ class Map(Node):
 
         map_path = self.get_parameter("map_path").get_parameter_value().string_value
 
+        # 从外界初始化打开地图的大小
+        self.declare_parameter("map_size",(-1,-1))
+        self.map_size = tuple(self.get_parameter("map_size").get_parameter_value().integer_array_value)
+
 
         # 读取地图
-        map = map_load(map_path)
+        map = map_load(map_path,self.map_size)
 
         self.map = map # 录入地图
 
         self.height = len(map)
         self.width = len(map[0])
+
+        # 自适应调整GRIDSIZE
+        # 定义网格大小
+        grid_size = 20
+        while grid_size*self.height >1300 or grid_size*self.width>1300:
+            grid_size-=1
+
+        self.grid_size = grid_size
 
         self.inbox_plan = {} # 记录各节点计划
         self.node_positions = {} # 记录节点占有位置。 键值对为：节点编号：[坐标x,y]
@@ -80,7 +108,7 @@ class Map(Node):
         # 写数字时用的字体
         pygame.font.init()
         
-        self.font = pygame.font.Font(None, int(GRID_SIZE * 0.5))
+        self.font = pygame.font.Font(None, int(self.grid_size * 0.5))
 
         self.timer_sub = self.create_subscription(
             Bool,
@@ -90,10 +118,10 @@ class Map(Node):
 
         # 订阅节点发出的的移动信号
         self.move_sub = self.create_subscription(
-            Int32MultiArray, "stdma/move", self.move_callback, 10)
+            Int32MultiArray, "stdma/move", self.move_callback, 100)
 
         # 订阅节点发出的自身计划
-        self.message_sub = self.create_subscription(Int32MultiArray, "stdma/message", self.message_callback, 10)
+        self.message_sub = self.create_subscription(Int32MultiArray, "stdma/message", self.message_callback, 1000)
 
     def map_reset(self):
         '''
@@ -108,7 +136,7 @@ class Map(Node):
                 pygame.draw.rect(
                     self.window,
                     cell_color,
-                    (col * GRID_SIZE, row * GRID_SIZE, GRID_SIZE, GRID_SIZE),
+                    (col * self.grid_size, row * self.grid_size, self.grid_size, self.grid_size),
                 )
 
         # 绘制外侧安全区
@@ -118,26 +146,26 @@ class Map(Node):
                     pygame.draw.rect(
                         self.window,
                         GREEN,
-                        (col*GRID_SIZE, row*GRID_SIZE, GRID_SIZE, GRID_SIZE),
+                        (col*self.grid_size, row*self.grid_size, self.grid_size, self.grid_size),
                     )
 
-        
+        '''
         # 绘制网格线
         for row in range(self.height):
             pygame.draw.line(
                 self.window,
                 BLACK,
-                (0, row * GRID_SIZE),
-                (self.width*GRID_SIZE, row * GRID_SIZE)
+                (0, row * self.grid_size),
+                (self.width*self.grid_size, row * self.grid_size)
             )
         for col in range(self.width):
             pygame.draw.line(
                 self.window,
                 BLACK,
-                (col * GRID_SIZE, 0),
-                (col * GRID_SIZE, self.height*GRID_SIZE)
+                (col * self.grid_size, 0),
+                (col * self.grid_size, self.height*self.grid_size)
             )
-        
+        '''
 
     def map_init(self):
         '''
@@ -147,7 +175,7 @@ class Map(Node):
         pygame.display.set_caption('Map')
         self.width = len(self.map[0])
         self.height = len(self.map)
-        self.window = pygame.display.set_mode((self.width*GRID_SIZE,self.height*GRID_SIZE))
+        self.window = pygame.display.set_mode((self.width*self.grid_size,self.height*self.grid_size))
         self.map_reset()
         pygame.display.flip() # 显示地图可视化窗口
 
@@ -196,7 +224,25 @@ class Map(Node):
         # 先把地图回复全白带格子和障碍物
         self.map_reset()
 
-        # 根据self.node_position更新地图内容
+        # 根据收到的计划画出计划
+        for key,value in self.inbox_plan.items():
+            node_id = key
+            plans = value
+            color = id_to_color(node_id)
+
+            size = self.grid_size/2
+            # 将计划中所有格填上代表色
+            for i in range(len(plans)):
+                x,y = plans[i]
+                x = x*self.grid_size+self.grid_size//2
+                y = y*self.grid_size+self.grid_size//2
+
+                pygame.draw.circle(self.window,color,(x,y),size)
+
+                # 每画一格尺寸缩小一点点
+                size = size*0.97
+                
+        # 根据self.node_position绘制节点当前位置
         for key,value in self.node_positions.items():
             node_id= key # 提取节点名称
             x, y = value # 提取横纵坐标
@@ -204,12 +250,12 @@ class Map(Node):
             # 画节点占用的位置的底色
             pygame.draw.rect(
                 self.window,
-                BLUE,
-                (x*GRID_SIZE,y*GRID_SIZE,GRID_SIZE,GRID_SIZE)
+                id_to_color(node_id),
+                (x*self.grid_size,y*self.grid_size,self.grid_size,self.grid_size)
             )
             
-            center_x = x*GRID_SIZE+GRID_SIZE//2
-            center_y = y*GRID_SIZE+GRID_SIZE//2
+            center_x = x*self.grid_size+self.grid_size//2
+            center_y = y*self.grid_size+self.grid_size//2
             number_text = self.font.render(str(node_id), True, GREEN)
             text_rect = number_text.get_rect(center=(center_x, center_y))
             self.window.blit(number_text,text_rect)
@@ -227,33 +273,34 @@ class Map(Node):
                 pygame.draw.rect(
                     self.window,
                     RED,
-                    (collision_pos[0]*GRID_SIZE,collision_pos[1]*GRID_SIZE,GRID_SIZE,GRID_SIZE)
+                    (collision_pos[0]*self.grid_size,collision_pos[1]*self.grid_size,self.grid_size,self.grid_size)
                 )
                 # 里面写上撞车的是谁
-                center_x = collision_pos[0]*GRID_SIZE+GRID_SIZE//2
-                center_y = collision_pos[1]*GRID_SIZE+GRID_SIZE//2
+                center_x = collision_pos[0]*self.grid_size+self.grid_size//2
+                center_y = collision_pos[1]*self.grid_size+self.grid_size//2
                 number_text = self.font.render(collision.__str__(),True,GREEN)
                 text_rect = number_text.get_rect(center=(center_x,center_y))
-                self.get_logger().warning("在（%d, %d）处，%s之间发生碰撞"%(collision_pos[0]-1,collision_pos[1]-1,collision.__str__()))
+                self.get_logger().warning("在（%d, %d）处，%s之间发生碰撞"%(collision_pos[0],collision_pos[1],collision.__str__()))
                 self.window.blit(number_text, text_rect)
 
 
-
+        '''
         # 重新绘制网格线,因为绘制格子内内容把线盖掉了
         for row in range(self.height):
             pygame.draw.line(
                 self.window,
                 BLACK,
-                (0, row * GRID_SIZE),
-                (self.width*GRID_SIZE, row * GRID_SIZE)
+                (0, row * self.grid_size),
+                (self.width*self.grid_size, row * self.grid_size)
             )
         for col in range(self.width):
             pygame.draw.line(
                 self.window,
                 BLACK,
-                (col * GRID_SIZE, 0),
-                (col * GRID_SIZE, self.height*GRID_SIZE)
+                (col * self.grid_size, 0),
+                (col * self.grid_size, self.height*self.grid_size)
             )
+        '''
         # 更新绘制结果
         pygame.display.flip()
 

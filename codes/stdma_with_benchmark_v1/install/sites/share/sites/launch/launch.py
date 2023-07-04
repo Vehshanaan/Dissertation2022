@@ -13,7 +13,7 @@ from utils.utils import scene_reader
 
 
 
-scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/generated_scenes/Berlin_0_256.png10nodes1688413095.717382"
+scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/generated_scenes/Berlin_0_256.png10nodes1688462793.0501769"
 
 def generate_launch_description():
     package_name = "sites"
@@ -22,13 +22,13 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     # 读取情境
-    node_number, map_path, starts, goals = scene_reader(scene_path=scene_path)
+    node_number, map_path, map_size, starts, goals = scene_reader(scene_path=scene_path)
 
     # 启动地图节点
     activate_map = Node(
         package = package_name,
         executable="map",
-        parameters=[{"map_path":map_path}],
+        parameters=[{"map_path":map_path, "map_size":map_size}],
     )
     ld.add_action(activate_map)
 
@@ -47,7 +47,7 @@ def generate_launch_description():
         activate_site = Node(
             package=package_name,
             executable="site",
-            parameters=[{"num_slots":node_number, "start":start, "goal":goal, "map_path":map_path}]
+            parameters=[{"num_slots":node_number, "start":start, "goal":goal, "map_path":map_path, "map_size":map_size}]
         )
         ld.add_action(activate_site)
 
@@ -65,7 +65,7 @@ def generate_launch_description():
 def main():
 
     # 加载情景设置档
-    node_number, map_path, starts, goals = scene_reader(scene_path=scene_path)
+    node_number, map_path, map_size,  starts, goals = scene_reader(scene_path=scene_path)
 
     print(node_number)
 

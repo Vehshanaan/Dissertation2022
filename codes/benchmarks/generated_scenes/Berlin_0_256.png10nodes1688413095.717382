@@ -1,1 +1,0 @@
-{"node_number": 10, "map_path": "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-png/Berlin_0_256.png", "starts": [[0, 130], [30, 0], [76, 0], [159, 34], [96, 0], [70, 159], [81, 159], [159, 140], [0, 6], [109, 159]], "goals": [[159, 29], [129, 159], [83, 159], [0, 125], [63, 159], [89, 0], [78, 0], [0, 19], [159, 153], [50, 0]]}
