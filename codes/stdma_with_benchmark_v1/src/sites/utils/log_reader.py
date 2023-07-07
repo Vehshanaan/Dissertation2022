@@ -71,9 +71,6 @@ def main():
     
             pure_trace[node_id] = path
             
-
-
-                    
                 
         # makespan: 所有agent完成路径的最大时间
         makespan = [-1,-1] # 最长者id, makespan
