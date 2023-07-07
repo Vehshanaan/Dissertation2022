@@ -4,6 +4,7 @@ import os
 from rclpy.node import Node
 from std_msgs.msg import Int32, Bool, Int32MultiArray
 import pygame
+import json
 
 
 import sys, os
@@ -27,6 +28,8 @@ BLUE = (0, 0, 255)
 # 未初始化情况下的默认地图路径
 map_path_default = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-png/Berlin_0_256.png"
 
+# 日志路径
+log_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/experiment_results/log1.log"
 def find_keys_with_same_value(dictionary):
     '''
     返回字典中拥有相同值的键的列表，这个是用来检查地图中位置冲突用的。
@@ -72,16 +75,28 @@ def id_to_color(code):
 class Map(Node):
     def __init__(self):
         super().__init__("Map")
+        self.move_sub = self.create_subscription(
+            Int32MultiArray, "stdma/move", self.move_callback, 100)
+
+        self.inbox_plan = {} # 记录各节点计划
+        # 订阅节点发出的自身计划
+        self.message_sub = self.create_subscription(Int32MultiArray, "stdma/message", self.message_callback, 1000)
+        self.node_positions = {} # 记录节点占有位置。 键值对为：节点编号：[坐标x,y]
+        # 订阅节点发出的的移动信号
 
         # 从外界初始化地图路径
         self.declare_parameter("map_path",map_path_default)
 
         map_path = self.get_parameter("map_path").get_parameter_value().string_value
-
+        self.map_path = map_path
         # 从外界初始化打开地图的大小
         self.declare_parameter("map_size",(-1,-1))
         self.map_size = tuple(self.get_parameter("map_size").get_parameter_value().integer_array_value)
 
+        # 从外界初始化场景文件路径
+        self.declare_parameter("scene_path","_")
+        scene_path = self.get_parameter("scene_path").get_parameter_value().string_value
+        self.scene_path = scene_path
 
         # 读取地图
         map = map_load(map_path,self.map_size)
@@ -91,6 +106,9 @@ class Map(Node):
         self.height = len(map)
         self.width = len(map[0])
 
+        # 日志路径
+        self.log_path = log_path
+
         # 自适应调整GRIDSIZE
         # 定义网格大小
         grid_size = 20
@@ -99,8 +117,16 @@ class Map(Node):
 
         self.grid_size = grid_size
 
-        self.inbox_plan = {} # 记录各节点计划
-        self.node_positions = {} # 记录节点占有位置。 键值对为：节点编号：[坐标x,y]
+        self.position_history = {} # 记录节点位置的历史，日志和性能评估用 格式：“时间”：[[节点编号，[节点位置] ]]
+        self.time = 0 # 时间戳。历史记录用
+
+        self.timer_sub = self.create_subscription(
+            Bool,
+            'stdma/timer',
+            self.timer_callback,
+            10)
+
+
 
         # 初始化可视化地图窗口
         self.map_init()
@@ -110,18 +136,6 @@ class Map(Node):
         
         self.font = pygame.font.Font(None, int(self.grid_size * 0.5))
 
-        self.timer_sub = self.create_subscription(
-            Bool,
-            'stdma/timer',
-            self.timer_callback,
-            10)
-
-        # 订阅节点发出的的移动信号
-        self.move_sub = self.create_subscription(
-            Int32MultiArray, "stdma/move", self.move_callback, 100)
-
-        # 订阅节点发出的自身计划
-        self.message_sub = self.create_subscription(Int32MultiArray, "stdma/message", self.message_callback, 1000)
 
     def map_reset(self):
         '''
@@ -179,23 +193,66 @@ class Map(Node):
         self.map_reset()
         pygame.display.flip() # 显示地图可视化窗口
 
+    def history_update(self):
+        '''
+        将当前所有的node_position写入历史保存变量
+        '''
+        datas = []
+        for key in list(self.node_positions.keys()):
+            data = [key, self.node_positions[key]]
+            datas.append(data)
+        self.position_history[self.time] = datas
+    
+    def log_write(self):
+        '''
+        将历史保存变量写入日志
+        '''
+        with open(self.log_path,"w") as log:
+            data = {
+                "scene_path":self.scene_path,
+                "map_path":self.map_path,
+                "map_size":[len(self.map[0]),len(self.map)],
+                "history":self.position_history # 字典，内容为“时间”：[[节点编号，[节点位置] ]]
+            }
+            json.dump(data,log)
+
+
     def timer_callback(self,msg):
         if msg.data:
-            # 上升沿：槽的开始或结束
+            # 上升沿：槽的结束/开始
 
-            # 每个槽结束把执行过的计划删除
-            if self.inbox_plan:
-                for key, value in self.inbox_plan.items():
-                    if not value: # 如果计划为空：删除计划
-                        del self.inbox_plan[key]
-                        continue
-                    value.pop(0) # 弹掉计划的头一个
-                    if not value: # 如果删完计划为空:删除计划键值对
-                        del self.inbox_plan[key]
-                        continue
-        else:
-            # 下降沿：槽的中间：更新地图。之所以不在槽的结束处更新是为了防止一边移动一边更新的情况
+            self.time+=1
+            # 用收到的计划更新节点位置
+            self.position_update()
+            # 记录历史
+            self.history_update()
+            # 写入日志文档
+            self.log_write()
+            # 更新地图
             self.map_update()
+
+            '''
+        
+            # 每个槽结束把执行过的计划删除           
+            if self.inbox_plan:
+                for key in list(self.inbox_plan.keys()):
+                    if self.inbox_plan[key]: self.inbox_plan[key].pop(0) # 弹掉非空计划的头一个
+            # 清除已为空的计划元素
+            empty_plans= []
+            for key in list(self.inbox_plan.keys()):
+                if not self.inbox_plan[key]: empty_plans.append(key)
+            for _ in empty_plans:
+                del self.inbox_plan[_]
+            '''
+
+    def position_update(self):
+        '''
+        用计划更新位置：读出各个计划的第一位，保存为此节点位置，注意此函数#不#会弹出计划元素
+        '''
+        if self.inbox_plan:
+            for key in list(self.inbox_plan.keys()):
+                if self.inbox_plan[key]: # 当计划不为空的时候：用计划的头一位更新节点位置 
+                    self.node_positions[str(key)] = self.inbox_plan[key].pop(0)#[0]
 
     def message_callback(self,msg):
         '''
@@ -204,6 +261,7 @@ class Map(Node):
         node_id, data = stdma_talker.plan_decompressor(msg.data)
 
         self.inbox_plan[node_id] = data  # 加入收到的计划中
+        #self.get_logger().info(str(data))
 
     def move_callback(self, msg):
         '''
@@ -216,11 +274,13 @@ class Map(Node):
         y = data[1] # 纵坐标
 
         self.node_positions[str(node_id)] = [x,y] # 保存节点对应位置
-
+        #self.get_logger().info(str(data))
 
         
     def map_update(self):
         
+
+
         # 先把地图回复全白带格子和障碍物
         self.map_reset()
 
@@ -240,7 +300,8 @@ class Map(Node):
                 pygame.draw.circle(self.window,color,(x,y),size)
 
                 # 每画一格尺寸缩小一点点
-                size = size*0.97
+                size = size*0.95
+                if size<1: size = 1
                 
         # 根据self.node_position绘制节点当前位置
         for key,value in self.node_positions.items():

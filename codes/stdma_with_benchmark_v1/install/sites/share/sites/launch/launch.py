@@ -13,7 +13,9 @@ from utils.utils import scene_reader
 
 
 
-scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/generated_scenes/Berlin_0_256.png10nodes1688462793.0501769"
+scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/generated_scenes/Berlin_0_256.png50nodes1688469955.3345485"
+
+log_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/experiment_results"
 
 def generate_launch_description():
     package_name = "sites"
@@ -28,7 +30,7 @@ def generate_launch_description():
     activate_map = Node(
         package = package_name,
         executable="map",
-        parameters=[{"map_path":map_path, "map_size":map_size}],
+        parameters=[{"map_path":map_path, "map_size":map_size, "scene_path":scene_path}],
     )
     ld.add_action(activate_map)
 

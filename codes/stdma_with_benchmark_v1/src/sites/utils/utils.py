@@ -172,4 +172,4 @@ def scene_reader(scene_path):
 
 
 if __name__ == "__main__":
-    scene_generator(100, save_path, map_path, (50,50))
+    scene_generator(1, save_path, map_path, (10,10))

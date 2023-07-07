@@ -38,8 +38,6 @@ from utils.utils import map_load # 导入加载地图的函数
 
 # 地图的未经外部输入的默认路径
 map_path_default = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/map_builder/map4.png"
-# 记录自身移动轨迹的日志文件
-log_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/experiment_results/log1.log"
 
 
 
@@ -117,7 +115,7 @@ class StdmaTalker(Node):
 
         # 初始化关于地图和移动的一些东西
         self.move_pub = self.create_publisher(
-            Int32MultiArray, "stdma/move", self.num_slots)
+            Int32MultiArray, "stdma/move", 10)
         
         # 从外界初始化地图大小
         self.declare_parameter("map_size",(-1,-1))
@@ -142,6 +140,7 @@ class StdmaTalker(Node):
         self.goal = self.get_parameter("goal").get_parameter_value().integer_array_value
         self.goal = self.goal.tolist()
         
+
         # 初始化自身位置(其实包含在move方法中了)
         self.position = self.start
         # 告诉地图自己的初始化位置
@@ -150,8 +149,7 @@ class StdmaTalker(Node):
         init_pos_msg.data = self.position + [self.node_id]
         self.move_pub.publish(init_pos_msg)
         '''
-        self.move(self.start)
-
+        self.move(self.start) # 告诉地图自身位置
 
         # 信道管理的话题
         self.control_sub = self.create_subscription(
@@ -159,14 +157,14 @@ class StdmaTalker(Node):
             'stdma/control',
             self.control_callback,
             10)
-        self.control_pub = self.create_publisher(Int32, 'stdma/control', self.num_slots)
+        self.control_pub = self.create_publisher(Int32, 'stdma/control', 10)
 
         # 实际传输信息的话题
         self.message_pub = self.create_publisher(
-            Int32MultiArray, "stdma/message", self.num_slots)
+            Int32MultiArray, "stdma/message", 10)
 
         self.message_sub = self.create_subscription(
-            Int32MultiArray, "stdma/message", self.message_callback, self.num_slots)
+            Int32MultiArray, "stdma/message", self.message_callback, 10)
 
 
         self.timer_sub = self.create_subscription(
@@ -177,25 +175,23 @@ class StdmaTalker(Node):
 
         self.history = [self.start] # 历史路径记录
 
+
     def move(self, pos):
         '''
         移动函数，更新自身位置，更新位置历史记录，向地图发送自身新位置
+        更新：只在初始化的时候使用一次
 
         Args:
             pos ([x, y]): 下一步位置
         '''
         target_pos = list(pos)
         self.position = target_pos # 更新自身位置
-        self.history.append(target_pos) # 更新自身路径历史
+
         # 告诉地图我走了
         msg = Int32MultiArray()
         msg.data = target_pos+[self.node_id]
         self.move_pub.publish(msg)
 
-
-    def log_writer(self,log_path = log_path):
-        with open(log_path,"r") as file:
-            data = json.load(file)
 
 
     def control_callback(self, msg):
@@ -262,6 +258,7 @@ class StdmaTalker(Node):
             # first ever run - need to wait for end of first slot
             self.slot = 0
             self.get_logger().info('Start of slot 0 frame 0')
+            
         else:
             self.get_logger().info('End of slot %d frame %d' % (self.slot, self.frame))
             # end of slot - check received messages
@@ -295,16 +292,19 @@ class StdmaTalker(Node):
                 if self.node_id in colliding_ids:
                     self.get_logger().warning('%s lost slot due to collision' % self.get_name())
                     if self.state == "in":
-                        self.get_logger().warning(
-                            "\n\n\nCollision between secured and joining! NEVER SHOULD HAPEN! \n\n\n")
+                        self.get_logger().fatal(
+                            "\n\n\nCollision between secured and joining! NEVER SHOULD HAPPEN! \n\n\n")
                     self.state = 'listen'  # 注意，站点初始化时状态就是listen
                     self.my_slot = -2
+            
             if self.state == 'check':
                 # successful join would have changed state to 'in'
                 # collision would have changed to 'listen'
                 # so this must mean lost data 到这就是有问题，恢复成'listen'状态吧
                 self.state = 'listen'
                 self.my_slot = -2
+                self.get_logger().fatal("why?")
+            
             # update for next slot 更新当前槽位编号，到下一个槽位编号。
             self.slot += 1
             if self.slot == self.num_slots:  # 超限归零
@@ -327,6 +327,7 @@ class StdmaTalker(Node):
 
             self.get_logger().info('State: "%s" my slot: %d' % (self.state, self.my_slot))
 
+            ''' # 弃用：每次移动都向地图发送消息对地图的负担太大，地图应该只用计划来预测节点的行动。
             # 执行一次移动
             if hasattr(self, "plan") and self.plan:  # 如果有计划且计划不为空：
                 next_pos = list(self.plan.pop(0))  # 取自己计划中的第一个
@@ -335,13 +336,19 @@ class StdmaTalker(Node):
 
             else: # 如果没有计划：只宣布自己现在的位置, 即原地不动
                 self.move(self.position)
+            '''
+            # 执行移动：自己的位置 = 计划的第一步
+            if hasattr(self, "plan") and self.plan:  # 如果有计划且计划不为空：
+                self.position = list(self.plan.pop(0))
 
-                
             # 在筹谋前：每个槽结束时将已执行的计划删除
             if self.inbox_plan:
+                '''
                 for key, value in self.inbox_plan.items():
                     if value: value.pop(0) # 弹掉每个非空计划的头一个
-            
+                '''
+                for key in list(self.inbox_plan.keys()):
+                    if self.inbox_plan[key]:self.inbox_plan[key].pop(0) # 弹掉非空计划的头一个
             # 清除已为空的计划元素
             empty_plans= []
             for key in list(self.inbox_plan.keys()):
@@ -358,15 +365,7 @@ class StdmaTalker(Node):
                     self.plan = find_path(
                         map=self.map, max_steps=2*self.num_slots, start=self.position, goal=self.goal,plan = list(self.inbox_plan.values()))
 
-                    '''
-                    self.get_logger().warning(str(self.node_id)+"的计划："+self.plan.__str__())
-                    self.get_logger().warning(str(self.node_id)+"收到的计划:"+self.inbox_plan.__str__())
-                    '''
 
-            # 向日志文件记录自身移动
-            # 记录地图文件路径
-            # 记录地图大小
-            # 记录自身的最新位置
 
         
     def mid_slot_callback(self):
@@ -381,14 +380,16 @@ class StdmaTalker(Node):
                 msg = Int32()
                 msg.data = self.node_id
                 self.control_pub.publish(msg)
-                self.state = 'check'
+                self.state = "check"
                 self.get_logger().info('Sent my control message')
 
-                # TODO: 发送计划
                 if hasattr(self, "plan") and self.plan:  # 如果有计划且计划不为空：广播计划
                     msg = Int32MultiArray()
                     msg.data = plan_compressor(self.node_id, self.plan)
                     self.message_pub.publish(msg)
+                elif not hasattr(self,"plan"): # 状态为enter，在第一次试图入网时，会触发此行
+                    self.move(self.start)
+
 
 
 def main(args=None):
