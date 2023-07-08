@@ -380,16 +380,16 @@ class StdmaTalker(Node):
                 msg = Int32()
                 msg.data = self.node_id
                 self.control_pub.publish(msg)
-                self.state = "check"
                 self.get_logger().info('Sent my control message')
 
-                if hasattr(self, "plan") and self.plan:  # 如果有计划且计划不为空：广播计划
+                if hasattr(self, "plan") and self.plan and self.state == "in":  # 如果有计划且计划不为空：广播计划
                     msg = Int32MultiArray()
                     msg.data = plan_compressor(self.node_id, self.plan)
                     self.message_pub.publish(msg)
                 elif not hasattr(self,"plan"): # 状态为enter，在第一次试图入网时，会触发此行
                     self.move(self.start)
 
+                self.state = "check" # 每次发送消息后重置自身状态
 
 
 def main(args=None):

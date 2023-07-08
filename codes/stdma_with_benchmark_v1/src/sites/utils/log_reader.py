@@ -1,4 +1,5 @@
 import json
+from shlex import join
 from turtle import pos
 import utils
 log_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/experiment_results/log1.log"
@@ -12,6 +13,7 @@ def main():
         map_path = data["map_path"]
         map_size = data["map_size"]
         frames = data["history"]
+        network_status = data["joined_node_number"]
 
         node_number, map_path_, map_size_, starts, goals = utils.scene_reader(
             scene_path)
@@ -36,10 +38,7 @@ def main():
                 else:
                     traces[node_id] = [position]
 
-        joined_nodes_num = len(traces.keys())
-        print("入网节点数："+str(joined_nodes_num))
-        unjoined_nodes_num = node_number - joined_nodes_num
-        print("未入网节点数："+str(unjoined_nodes_num))
+        
 
         # 对每个节点，识别其起点终点
         starts_goals = {}  # node_id: start,goal
@@ -99,7 +98,10 @@ def main():
             flowtime+=len(trace)
         print("所有节点的路径（舍去加入网络的时间）总长度为:%d"%flowtime)
         # 全部节点入网耗时
-        
+        joined_node_number_max = -1
+        for time,value in network_status.items():
+            if value>joined_node_number_max:joined_node_number_max = value
+        print("入网（曾发送过计划的）节点：%d / %d"%(joined_node_number_max,node_number))        
         # 50%节点入网耗时
         # 问题：算不算入网的耗时？
 

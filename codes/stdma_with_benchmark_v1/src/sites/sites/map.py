@@ -125,6 +125,9 @@ class Map(Node):
             'stdma/timer',
             self.timer_callback,
             10)
+        
+        self.nodes_with_plans = set([])
+        self.joined_number_history = {}
 
 
 
@@ -202,6 +205,8 @@ class Map(Node):
             data = [key, self.node_positions[key]]
             datas.append(data)
         self.position_history[self.time] = datas
+
+        self.joined_number_history[self.time] = len(self.nodes_with_plans) # 更新有计划的节点的数目
     
     def log_write(self):
         '''
@@ -212,7 +217,8 @@ class Map(Node):
                 "scene_path":self.scene_path,
                 "map_path":self.map_path,
                 "map_size":[len(self.map[0]),len(self.map)],
-                "history":self.position_history # 字典，内容为“时间”：[[节点编号，[节点位置] ]]
+                "history":self.position_history, # 字典，内容为“时间”：[[节点编号，[节点位置] ]]
+                "joined_node_number": self.joined_number_history # 字典，内容为"时间"：已发出第一个计划的节点的数目
             }
             json.dump(data,log)
 
@@ -261,7 +267,9 @@ class Map(Node):
         node_id, data = stdma_talker.plan_decompressor(msg.data)
 
         self.inbox_plan[node_id] = data  # 加入收到的计划中
-        #self.get_logger().info(str(data))
+
+        self.nodes_with_plans.add(node_id) # 有计划的节点增加进去
+
 
     def move_callback(self, msg):
         '''
@@ -274,7 +282,7 @@ class Map(Node):
         y = data[1] # 纵坐标
 
         self.node_positions[str(node_id)] = [x,y] # 保存节点对应位置
-        #self.get_logger().info(str(data))
+
 
         
     def map_update(self):
@@ -320,7 +328,7 @@ class Map(Node):
             number_text = self.font.render(str(node_id), True, GREEN)
             text_rect = number_text.get_rect(center=(center_x, center_y))
             self.window.blit(number_text,text_rect)
-            #pygame.display.flip()
+
 
 
         # 根据字典value唯一性判断是否有碰撞
