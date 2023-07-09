@@ -281,4 +281,4 @@ def find_path_optimal(map, start=(0,0), goal=(3,3),):
     else: return[]
 
 if __name__ == "__main__":
-    scene_generator(1, save_path, map_path, (10,10))
+    scene_generator(10, save_path, map_path, (50,50))

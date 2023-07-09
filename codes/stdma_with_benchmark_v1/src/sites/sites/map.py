@@ -113,8 +113,9 @@ class Map(Node):
         
 
         # 日志路径
-        os.makedirs(log_path+str(os.path.basename(map_path))+"/")
-        self.log_path = log_path+str(os.path.basename(map_path))+"/"+"NodeNum"+str(self.num_slots)+str(self.map_size)+str(time.strftime("%H%M")+".log")
+        dir_path = log_path+str(os.path.basename(map_path))+"/"
+        if not os.path.exists(dir_path):os.makedirs(log_path+str(os.path.basename(map_path))+"/")
+        self.log_path = dir_path+"NodeNum"+str(self.num_slots)+str(self.map_size)+str(time.strftime("%H%M")+".log")
 
         # 自适应调整GRIDSIZE
         # 定义网格大小

@@ -45,7 +45,7 @@ def find_path(map, max_steps, start=(0,0), goal=(3,3), plan  = []):
     queue = [(heuristic(start, goal), 0, start, [])]
     visited = set([start])
 
-
+    
     while queue:
         _, cost, current, path = heappop(queue)
 
@@ -53,14 +53,6 @@ def find_path(map, max_steps, start=(0,0), goal=(3,3), plan  = []):
         
         if len(path) >= max_steps:
             return path
-
-        '''
-        if current == goal:
-            if len(path)<max_steps:
-                for ii in range(max_steps-len(path)):
-                    path.append(current)
-            return path # 保证即使已经达到终点，计划仍然是那么长
-        '''
 
         if plan and cost < len(plan): # 根据步数提取当前时间点的其他计划
             current_others_plan = plan[cost]
@@ -82,6 +74,7 @@ def find_path(map, max_steps, start=(0,0), goal=(3,3), plan  = []):
 
     else:
         return [start]*max_steps # 如果产生的路径是空的：呆在原地    
+
     
 
 def get_neighbors(pos, map, plan=[]):
