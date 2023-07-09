@@ -3,6 +3,7 @@ import random
 import os
 import json
 from PIL import Image
+import cv2
 map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-png/Berlin_0_256.png"
 save_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/generated_scenes"
 
@@ -18,6 +19,7 @@ def map_load(map_path=map_path, size=(-1, -1)):
     Returns:
         bigger_map ([list]): 地图的二维数组，True代表可通行，False代表不可通行
     '''
+    '''
 
     with Image.open(map_path) as img:
 
@@ -29,22 +31,24 @@ def map_load(map_path=map_path, size=(-1, -1)):
         width, height = img.size
         pixels = img.load()
 
-        origin_map = [[True for _ in range(width)] for _ in range(height)]
-        for i in range(height):
-            for j in range(width):
-                if pixels[j, i][0:3] == (0, 0, 0):  # 如果不是代表通路的浅灰色：不通。
-                    origin_map[i][j] = False
-
-        # 将地图扩大五圈
-        bigger_map = [[True for _ in range(width+10)]
-                      for _ in range(height+10)]
-        for i in range(len(origin_map)):
-            for j in range(len(origin_map[0])):
-                bigger_map[i+5][j+5] = origin_map[i][j]
-
-        # 将地图外侧五圈改为白色可通过
-
-        return bigger_map
+    '''
+    img = cv2.imread(map_path,0)
+    if size!=(-1,-1):img = cv2.resize(img,size)
+    _,img = cv2.threshold(img,0,255,cv2.THRESH_BINARY | cv2.THRESH_OTSU) # 大津二值化
+    height,width=img.shape
+    origin_map = [[True for _ in range(width)] for _ in range(height)]
+    for i in range(height): # 纵坐标
+        for j in range(width): # 横坐标
+            if img[i, j] == 0:  # 如果不是代表通路的浅灰色：不通。 # 调用索引是先纵坐标后横坐标
+                origin_map[i][j] = False
+    # 将地图扩大五圈
+    bigger_map = [[True for _ in range(width+10)]
+                  for _ in range(height+10)]
+    for i in range(len(origin_map)):
+        for j in range(len(origin_map[0])):
+            bigger_map[i+5][j+5] = origin_map[i][j]
+    # 将地图外侧五圈改为白色可通过
+    return bigger_map
 
 
 def start_goal_generator(node_num, map_path=map_path, size=(-1, -1)):
@@ -170,6 +174,111 @@ def scene_reader(scene_path):
 # 生成情景档的命令：
 # scene_generator(10,save_path,map_path)
 
+
+# 寻找最优路径的函数
+from gettext import find
+from heapq import heappop, heappush
+from operator import ge
+
+
+def get_neighbors(pos, map):
+    '''
+    获得一个点周围可用的点
+
+    Args:
+        pos (tuple): 当前位置
+        map (list[list]): 地图
+        plan (list[tuple]): 下一步的计划，是主函数根据时间点从计划总保存变量中切割出来的一片。
+
+    Returns:
+        _type_: _description_
+    '''
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # 上下左右四个方向
+    neighbors = []
+
+
+
+    for direction in directions:
+        new_pos = (pos[0] + direction[0], pos[1] + direction[1])
+
+
+
+        if is_valid(new_pos, map):
+            neighbors.append(new_pos)
+
+    return neighbors
+
+def is_valid(pos, map):
+
+    x = pos[0]
+    y = pos[1]
+
+    col_max = len(map)
+    row_max = len(map[0])
+
+    if 0 <= x < row_max and 0 <= y < col_max:
+        if map[y][x]:
+            return True
+
+    return False
+
+def heuristic(pos, goal):
+    # 使用曼哈顿距离作为启发式估计
+    return abs(pos[0] - goal[0]) + abs(pos[1] - goal[1])
+
+def find_path_optimal(map, start=(0,0), goal=(3,3),):
+    '''
+    寻路算法
+
+    Args:
+        map (list[list]): 地图：二维数组，[[行]], 其中True代表可通行，False代表障碍物
+        max_steps (int): 生成计划的最大长度上限
+        start (tuple, optional): 起始位置坐标. Defaults to (0,0).
+        goal (tuple, optional): 终点位置坐标. Defaults to (3,3).
+        plan (list[(x,y)], optional): 计划保存变量, [[计划]] . Defaults to [].
+
+    Returns:
+        生成的计划 (list[tuple]): 生成的计划， [(横坐标，纵坐标)], 越往前越是下一步该执行的计划。此计划不包含起始点（即输入的start）
+    '''
+    start = tuple(start)
+    goal = tuple(goal)
+
+
+
+    # 使用优先级队列来保存待探索的节点，优先级由估计的路径长度决定
+    queue = [(heuristic(start, goal), 0, start, [])]
+    visited = set([start])
+
+
+    while queue:
+        _, cost, current, path = heappop(queue)
+
+        
+        if current == goal:
+            return path
+
+        '''
+        if current == goal:
+            if len(path)<max_steps:
+                for ii in range(max_steps-len(path)):
+                    path.append(current)
+            return path # 保证即使已经达到终点，计划仍然是那么长
+        '''
+
+
+        neighbors = get_neighbors(current, map)
+        for neighbor in neighbors:
+            if neighbor not in visited:
+                new_cost = cost + 1
+                heappush(queue, (new_cost + heuristic(neighbor, goal), new_cost, neighbor, path + [neighbor]))
+                visited.add(neighbor)
+
+        # 每一步必须离开原地
+        
+    # 如果可探索点用完还没能到达终点：就这样吧
+    if path:
+        return path
+    else: return[]
 
 if __name__ == "__main__":
     scene_generator(1, save_path, map_path, (10,10))

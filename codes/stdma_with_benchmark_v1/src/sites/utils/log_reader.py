@@ -2,8 +2,8 @@ import json
 from shlex import join
 from turtle import pos
 import utils
-log_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/experiment_results/log1.log"
-
+log_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/experiment_results/Berlin_0_256.png/NodeNum50(80, 80)1250.log"
+import utils
 
 def main():
     with open(log_path, "r") as log:
@@ -20,7 +20,7 @@ def main():
 
         print(scene_path)
         print(map_path)
-        print(map_path_)
+        if map_path!=map_path_:print("出情况了，从情景文件和日志文件读入的地图路径居然不一样")
 
         # 判断地图对不对得上
         assert map_path_ == map_path
@@ -78,6 +78,7 @@ def main():
                 makespan[1] = len(trace)
                 makespan[0] = node_id
         print("最慢的是%s, 其路径总长为%d（除去起点复读和终点复读，即舍去加入时间）"%(makespan[0],makespan[1]))
+        #print("它的纯净路径看起来是这样的："+str(pure_trace[makespan[0]]))
 
         # 成功率：agent成功找到路径的几率
         success_nodes = []
@@ -102,8 +103,39 @@ def main():
         for time,value in network_status.items():
             if value>joined_node_number_max:joined_node_number_max = value
         print("入网（曾发送过计划的）节点：%d / %d"%(joined_node_number_max,node_number))        
-        # 50%节点入网耗时
-        # 问题：算不算入网的耗时？
+        
+        # 实际路径/最优路径比
+        map = utils.map_load(map_path,map_size)
+
+        # 计算最优路径
+        optimal_paths = {}
+        for node_id, value in starts_goals.items():
+            start = value[0]
+            goal = value[1]
+            optimal_path = utils.find_path_optimal(map,start,goal)
+            optimal_paths[node_id] = optimal_path
+        
+        # 统计最优路径versus实际路径长度的比 这里回来应该用单个节点的场景测试一下
+        versus_optimal_rates = {}
+        for node_id, trace in pure_trace.items():
+            actural_length = len(trace)
+            optimal_length = len(optimal_paths[node_id])
+            if optimal_length == 0:continue
+            rate = optimal_length/actural_length
+            versus_optimal_rates[node_id] = rate
+
+        avg_versus_optimal_rate = 0
+        for rate in versus_optimal_rates.values():
+            avg_versus_optimal_rate+=rate
+
+        avg_versus_optimal_rate=avg_versus_optimal_rate/len(list(versus_optimal_rates.keys()))
+
+        print("对于成功抵达终点的节点，它们的平均 理想路径/实际路径 比例为：%d%%" % (avg_versus_optimal_rate*100) )
+
+        
+        # 入网耗时检测
+        
+
 
         ''' # 跳步检测：是否每一步仅移动一格
         for key, value in traces.items():

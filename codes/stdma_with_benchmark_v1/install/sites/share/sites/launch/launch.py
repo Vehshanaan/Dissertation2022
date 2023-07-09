@@ -30,7 +30,7 @@ def generate_launch_description():
     activate_map = Node(
         package = package_name,
         executable="map",
-        parameters=[{"map_path":map_path, "map_size":map_size, "scene_path":scene_path}],
+        parameters=[{"map_path":map_path, "map_size":map_size, "scene_path":scene_path,"num_slots":node_number}],
     )
     ld.add_action(activate_map)
 

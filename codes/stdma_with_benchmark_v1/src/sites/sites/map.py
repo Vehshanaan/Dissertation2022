@@ -5,6 +5,7 @@ from rclpy.node import Node
 from std_msgs.msg import Int32, Bool, Int32MultiArray
 import pygame
 import json
+import time
 
 
 import sys, os
@@ -28,8 +29,8 @@ BLUE = (0, 0, 255)
 # 未初始化情况下的默认地图路径
 map_path_default = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-png/Berlin_0_256.png"
 
-# 日志路径
-log_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/experiment_results/log1.log"
+# 日志文件夹路径
+log_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/experiment_results/"
 def find_keys_with_same_value(dictionary):
     '''
     返回字典中拥有相同值的键的列表，这个是用来检查地图中位置冲突用的。
@@ -86,7 +87,6 @@ class Map(Node):
 
         # 从外界初始化地图路径
         self.declare_parameter("map_path",map_path_default)
-
         map_path = self.get_parameter("map_path").get_parameter_value().string_value
         self.map_path = map_path
         # 从外界初始化打开地图的大小
@@ -106,8 +106,15 @@ class Map(Node):
         self.height = len(map)
         self.width = len(map[0])
 
+        # 从外部初始化节点数目
+        num_slots = 10  # 帧长度
+        self.declare_parameter("num_slots",num_slots)
+        self.num_slots = self.get_parameter("num_slots").get_parameter_value().integer_value
+        
+
         # 日志路径
-        self.log_path = log_path
+        os.makedirs(log_path+str(os.path.basename(map_path))+"/")
+        self.log_path = log_path+str(os.path.basename(map_path))+"/"+"NodeNum"+str(self.num_slots)+str(self.map_size)+str(time.strftime("%H%M")+".log")
 
         # 自适应调整GRIDSIZE
         # 定义网格大小
@@ -268,7 +275,7 @@ class Map(Node):
 
         self.inbox_plan[node_id] = data  # 加入收到的计划中
 
-        self.nodes_with_plans.add(node_id) # 有计划的节点增加进去
+        self.nodes_with_plans.add(node_id) # 有计划的节点增加进去 # 这玩意儿怎么突破上限了
 
 
     def move_callback(self, msg):
