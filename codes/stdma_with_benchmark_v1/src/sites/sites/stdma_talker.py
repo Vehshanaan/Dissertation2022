@@ -363,7 +363,7 @@ class StdmaTalker(Node):
                 if self.slot == self.my_slot:
 
                     self.plan = find_path(
-                        map=self.map, max_steps=2*self.num_slots, start=self.position, goal=self.goal,plan = list(self.inbox_plan.values()))
+                        map=self.map, max_steps=2*self.num_slots, self_id= self.node_id, start=self.position, goal=self.goal,plan_dict = self.inbox_plan)
 
 
 

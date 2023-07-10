@@ -288,6 +288,7 @@ class Map(Node):
         # 发来的无边框地图坐标横纵各+1 = 有边框地图坐标
         x = data[0] # 横坐标
         y = data[1] # 纵坐标
+        if x == -1 and y == -1:return
 
         self.node_positions[str(node_id)] = [x,y] # 保存节点对应位置
 

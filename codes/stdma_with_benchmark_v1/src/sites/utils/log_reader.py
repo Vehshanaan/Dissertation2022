@@ -1,8 +1,9 @@
 import json
 from shlex import join
+import stat
 from turtle import pos
 import utils
-log_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/experiment_results/Berlin_0_256.png/NodeNum50(80, 80)1250.log"
+log_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/experiment_results/Berlin_0_256.png/NodeNum10(50, 50)1309.log"
 import utils
 
 def main():
@@ -51,7 +52,7 @@ def main():
 
         # 计算性能指标：
         # 先做出每个节点的路径（不包含起点处的重复和结尾处的重复）
-        pure_trace = {} # node_id: [[位置]] 不包含起始的复读起点和终点的复读终点
+        pure_traces = {} # node_id: [[位置]] 不包含起始的复读起点和终点的复读终点
         # 去尾
         for node_id,trace in traces.items():
             path = []
@@ -60,20 +61,21 @@ def main():
             # 去尾
             for pos in trace: # 如果我==终点：从我掐掉
                 path.append(pos)
-                path.append(pos)
-                if pos == goal: break
+                if pos == goal: 
+                    path.append(goal)
+                    break
             # 掐头
             for i in range(len(path)):
                 if path[i]==start and i+1<len(path) and path[i+1]!=start: # 如果自己=起点且后一个！=起点：从我把前面掐掉
                     path = path[i:-1]
+                    #path = [start]+path
                     break
-    
-            pure_trace[node_id] = path
-            
+            pure_traces[node_id] = path
+
                 
         # makespan: 所有agent完成路径的最大时间
         makespan = [-1,-1] # 最长者id, makespan
-        for node_id, trace in pure_trace.items():
+        for node_id, trace in pure_traces.items():
             if len(trace)>makespan[1]:
                 makespan[1] = len(trace)
                 makespan[0] = node_id
@@ -83,7 +85,7 @@ def main():
         # 成功率：agent成功找到路径的几率
         success_nodes = []
         failed_nodes = []
-        for node_id,value in pure_trace.items():
+        for node_id,value in pure_traces.items():
             if value[-1]==starts_goals[node_id][1]:
                 success_nodes.append(node_id)
 
@@ -95,7 +97,7 @@ def main():
         
         # flowtime: 所有agent完成路径的总时间
         flowtime = 0
-        for trace in pure_trace.values():
+        for trace in pure_traces.values():
             flowtime+=len(trace)
         print("所有节点的路径（舍去加入网络的时间）总长度为:%d"%flowtime)
         # 全部节点入网耗时
@@ -108,18 +110,19 @@ def main():
         map = utils.map_load(map_path,map_size)
 
         # 计算最优路径
-        optimal_paths = {}
+        optimal_traces = {}
         for node_id, value in starts_goals.items():
             start = value[0]
             goal = value[1]
-            optimal_path = utils.find_path_optimal(map,start,goal)
-            optimal_paths[node_id] = optimal_path
+            optimal_trace = [start]+utils.find_path_optimal(map,start,goal)
+            optimal_traces[node_id] = optimal_trace
+
         
         # 统计最优路径versus实际路径长度的比 这里回来应该用单个节点的场景测试一下
         versus_optimal_rates = {}
-        for node_id, trace in pure_trace.items():
+        for node_id, trace in pure_traces.items():
             actural_length = len(trace)
-            optimal_length = len(optimal_paths[node_id])
+            optimal_length = len(optimal_traces[node_id])
             if optimal_length == 0:continue
             rate = optimal_length/actural_length
             versus_optimal_rates[node_id] = rate

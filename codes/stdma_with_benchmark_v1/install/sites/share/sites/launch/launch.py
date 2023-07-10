@@ -13,7 +13,7 @@ from utils.utils import scene_reader
 
 
 
-scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/generated_scenes/Berlin_0_256.png10nodes1688931472.8021681"
+scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/generated_scenes/Berlin_0_256.png10nodes1307.scene"
 
 log_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/experiment_results"
 

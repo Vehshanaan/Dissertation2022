@@ -126,7 +126,7 @@ def scene_generator(node_number, save_path, map_path=map_path, size=(-1, -1)):
     starts, goals = start_goal_generator(node_number, map_path, size)
 
     file_name = os.path.basename(
-        map_path) + str(node_number) + "nodes" + str(time.time())
+        map_path) + str(node_number) + "nodes" + str(time.strftime("%H%M")+".scene")
 
     file_path = save_path + "/" + file_name
 
@@ -281,4 +281,5 @@ def find_path_optimal(map, start=(0,0), goal=(3,3),):
     else: return[]
 
 if __name__ == "__main__":
-    scene_generator(10, save_path, map_path, (50,50))
+    for i in [10,20,30,40,50,60,70,80,90,100]:
+        scene_generator(i, save_path, map_path, (50,50))
