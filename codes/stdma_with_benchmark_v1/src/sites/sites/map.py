@@ -307,17 +307,17 @@ class Map(Node):
             plans = value
             color = id_to_color(node_id)
 
-            size = self.grid_size/2
+            size = self.grid_size/2.5
             # 将计划中所有格填上代表色
             for i in range(len(plans)):
                 x,y = plans[i]
                 x = x*self.grid_size+self.grid_size//2
                 y = y*self.grid_size+self.grid_size//2
 
-                pygame.draw.circle(self.window,color,(x,y),size)
+                pygame.draw.circle(self.window,color,(x,y),size) # 为了看清楚swap的情形，先不画出计划线
 
                 # 每画一格尺寸缩小一点点
-                size = size*0.95
+                size = size*0.99
                 if size<1: size = 1
                 
         # 根据self.node_position绘制节点当前位置

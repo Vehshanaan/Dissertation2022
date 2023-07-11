@@ -41,13 +41,16 @@ def find_path(map, max_steps, self_id = -1, start=(0,0), goal=(3,3), plan_dict =
     plan_no_id = transpose_list(plan_no_id) # 转换完成
 
 
+
     # 使用优先级队列来保存待探索的节点，优先级由估计的路径长度决定
     queue = [(heuristic(start, goal), 0, start, [])]
     visited = set([start])
 
-    
+    path = []
+
     while queue:
         _, cost, current, path = heappop(queue)
+        
 
         
         if current ==goal: return path[:max_steps]
@@ -59,7 +62,10 @@ def find_path(map, max_steps, self_id = -1, start=(0,0), goal=(3,3), plan_dict =
 
 
 
+
         neighbors_ = get_neighbors(current, map, current_others_plan)
+
+
 
         # TODO:写一个函数从neighbours里去除swap，注意位置数据都是元组（x,y）格式
         # 如果邻居点（可用备选计划点）中有别人现在正在用的点（current计划的前一页），且这个人下一步想到我现在的位置（current）：neighbours弃掉。
@@ -67,27 +73,31 @@ def find_path(map, max_steps, self_id = -1, start=(0,0), goal=(3,3), plan_dict =
         neighbors = []
         # 先生成当前计划和上一步计划
         # 当前步计划
-        current_plan_for_swap = {}
-        previous_plan_for_swap = {}
+        next_steps = {}
+        current_positions = {}
         if plan_dict:
             for node_id, plan in plan_dict.items():
                 # 先提取当前步计划
                 if cost<len(plan): # 如果计划有那么长：
                     pos = plan[cost]
-                    current_plan_for_swap[node_id] = pos
+                    next_steps[node_id] = tuple(pos)
                 # 再提取之前步计划
                 if cost-1>=0 and cost-1<len(plan):
                     pos = plan[cost-1]
-                    previous_plan_for_swap[node_id] = pos
+                    current_positions[node_id] = tuple(pos)
 
-        for neighbor in neighbors_: # 如果当前步计划的点 = 某人的前一步，且某人当前步==我的前一步（path[-1]）
-            if previous_plan_for_swap:
-                for node_id, pos in previous_plan_for_swap.items():
+
+        for neighbor in neighbors_: 
+            add = True
+            if next_steps:
+                for node_id, pos in next_steps.items():
                     if pos == current:
-                        if current_plan_for_swap:
-                            if current_plan_for_swap[node_id] == path[-1]:
-                                continue
-            neighbors.append(neighbor)
+                        if current_positions:
+                            if current_positions[node_id] == neighbor:
+
+                                add = False
+            if add: neighbors.append(neighbor)
+        
 
 
         for neighbor in neighbors:
@@ -99,6 +109,7 @@ def find_path(map, max_steps, self_id = -1, start=(0,0), goal=(3,3), plan_dict =
         
     # 如果可探索点用完还没能到达终点：就这样吧
     if path:
+        print("this")
         return path[:max_steps]
 
     else:
@@ -131,7 +142,7 @@ def get_neighbors(pos, map, current_plan=[]):
 
     return neighbors
 
-def is_valid(pos, map):
+def is_valid(pos, map): # 记得xy倒回去！我的其他代码格式里可能全反了，我刚发现。
 
     x = pos[0]
     y = pos[1]
@@ -142,6 +153,7 @@ def is_valid(pos, map):
     if 0 <= x < row_max and 0 <= y < col_max:
         if map[y][x]:
             return True
+
 
     return False
 
@@ -195,4 +207,14 @@ def main():
 
         
 if __name__ == "__main__":
-    main()
+    map = [[True,True,True],
+           [False,True,False],
+           [False,True,True],
+           [True,True,True]]
+    plan = {1:[(0,1),(1,1),(2,1),(3,1),(3,0)]}
+    path = find_path(map,10,-1,(3,0),(0,2),plan_dict = plan)
+    print(path) # 应为：31 21 22
+
+    neighbours = get_neighbors((2,0),map,[(0,1)])
+    #print(neighbours)
+
