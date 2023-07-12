@@ -36,6 +36,8 @@ def find_path(map, max_steps, self_id = -1, start=(0,0), goal=(3,3), plan_dict =
     start = tuple(start)
     goal = tuple(goal)
 
+    if start == goal: return [goal]*max_steps # 如果到了终点：就呆在终点！
+
     # 处理一下输入的计划，变成以时间步划分的计划
     plan_no_id = list(plan_dict.values()).copy()
     plan_no_id = transpose_list(plan_no_id) # 转换完成

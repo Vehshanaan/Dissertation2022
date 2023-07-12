@@ -317,7 +317,7 @@ class Map(Node):
                 pygame.draw.circle(self.window,color,(x,y),size) # 为了看清楚swap的情形，先不画出计划线
 
                 # 每画一格尺寸缩小一点点
-                size = size*0.99
+                size = size*0.95
                 if size<1: size = 1
                 
         # 根据self.node_position绘制节点当前位置
@@ -358,7 +358,7 @@ class Map(Node):
                 center_y = collision_pos[1]*self.grid_size+self.grid_size//2
                 number_text = self.font.render(collision.__str__(),True,GREEN)
                 text_rect = number_text.get_rect(center=(center_x,center_y))
-                self.get_logger().warning("在（%d, %d）处，%s之间发生碰撞"%(collision_pos[0],collision_pos[1],collision.__str__()))
+                #self.get_logger().warning("在（%d, %d）处，%s之间发生碰撞"%(collision_pos[0],collision_pos[1],collision.__str__()))
                 self.window.blit(number_text, text_rect)
 
 

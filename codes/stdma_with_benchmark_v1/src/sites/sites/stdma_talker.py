@@ -149,7 +149,7 @@ class StdmaTalker(Node):
         init_pos_msg.data = self.position + [self.node_id]
         self.move_pub.publish(init_pos_msg)
         '''
-        self.move(self.start) # 告诉地图自身位置
+
 
         # 信道管理的话题
         self.control_sub = self.create_subscription(
