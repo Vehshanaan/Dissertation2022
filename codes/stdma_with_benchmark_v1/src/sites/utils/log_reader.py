@@ -232,22 +232,22 @@ if __name__ == "__main__":
 
     
     axes[0,0].bar(node_num,longest_path)
-    axes[0,0].set_title("最长路径的长度")
+    axes[0,0].set_title("longest_path")
 
     axes[0,1].bar(node_num,success_rate)
-    axes[0,1].set_title("成功抵达终点的几率")
+    axes[0,1].set_title("success_rate")
 
     axes[1,0].bar(node_num,flowtime)
-    axes[1,0].set_title("所有路径的总长度")
+    axes[1,0].set_title("sum path length")
 
     axes[1,1].bar(node_num,flowtime/node_num)
-    axes[1,1].set_title("每个节点的平均路径长度")
+    axes[1,1].set_title("path length avg node")
 
     axes[2,0].bar(node_num,avg_vs_optimal_rate)
-    axes[2,0].set_title("平均 最优路径/实际路径")
+    axes[2,0].set_title("avg optimal/actural")
 
     axes[2,1].bar(node_num,all_join_time/node_num)
-    axes[2,1].set_title("平均每个节点加入的耗时")
+    axes[2,1].set_title("avg join time spent")
 
     fig.tight_layout()
     plt.show()

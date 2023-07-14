@@ -356,7 +356,6 @@ class StdmaTalker(Node):
             for _ in empty_plans:
                 del self.inbox_plan[_]
 
-        
 
             # 如果下一槽位是自己的且自己已经加入网络：筹谋。
             if self.state == "in":
