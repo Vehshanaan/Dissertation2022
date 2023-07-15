@@ -25,6 +25,8 @@ setup(
         'console_scripts': [
             "timer = sites.stdma_timer:main",
             "map = sites.map:main",
+            "channel_visualiser = sites.channel_visualiser:main",
+            "talker = sites.stdma_talker:main",
         ],
     },
 )

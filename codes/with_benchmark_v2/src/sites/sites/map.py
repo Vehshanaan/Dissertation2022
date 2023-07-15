@@ -69,8 +69,6 @@ def id_to_color(code):
 class Map(Node):
     def __init__(self):
         super().__init__("Map")
-        self.move_sub = self.create_subscription(
-            Int32MultiArray, "stdma/move", self.move_callback, 100)
         self.inbox_plan = {}  # 记录各节点的计划
         self.message_sub = self.create_subscription(
             Int32MultiArray, "stdma/message", self.message_callback, 100)  # 接受节点发送的计划的话题
@@ -159,19 +157,6 @@ class Map(Node):
         node_id, data = utils.plan_decompressor(msg.data)
 
         self.inbox_plan[node_id] = data  # 保存收到的计划 字典保证了这东西一人只有一个
-
-    def move_callback(self, msg):
-        '''
-        根据收到的移动信息记录节点位置
-        '''
-        data = msg.data
-        node_id = data[2]
-        x = data[0]
-        y = data[1]
-        if x == -1 and y == -1:
-            return
-        else:
-            self.node_positions[node_id] = [x, y]  # 如果不是信道可视化节点，则保存节点对应位置
 
     def position_update(self):
         '''
