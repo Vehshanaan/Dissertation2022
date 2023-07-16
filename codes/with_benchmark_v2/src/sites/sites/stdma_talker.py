@@ -18,7 +18,7 @@ import utils
 class StdmaTalker(Node):
 
     def __init__(self):
-        self.node_id = os.getpgid()  # 此方法返回的是一个int
+        self.node_id = os.getpid()  # 此方法返回的是一个int
         random.seed(self.node_id)  # 从可用slot中随机挑选slot的时候会用到这个
         super().__init__("stdma_talker_%d" % self.node_id)
 
@@ -154,7 +154,7 @@ class StdmaTalker(Node):
                 if self.node_id in colliding_ids: # 如果哥们自己也撞了：
                     self.state = "listen" # 回到听的状态
                     self.my_slot = -2
-            if self.state = "check": 
+            if self.state == "check": 
                 # 如果自己已经入网，发过消息，但此时没有接收到自己的消息，也没有发生碰撞：肯定是传丢了
                 self.state = "listen"
                 self.my_slot = -2 # 重听吧
@@ -165,18 +165,21 @@ class StdmaTalker(Node):
                 self.slot =0
                 self.frame+=1
                 if self.state == "listen": # 如果听过一整帧之后，我是待加入状态：找一个眼儿
-                    self.state = "enter"
                     available_slots = [ii for ii in range(
                         self.num_slots) if self.slot_allocations[ii] == None]
                     if available_slots: # 没有可供选择的自由槽位的话，就算了，啥也不干
+                        self.state = "enter"
                         self.my_slot = random.sample(available_slots, 1)[0]
                         self.get_logger().info('Will try to enter at slot %d' % self.my_slot)
                     else:
                         self.my_slot = -2
+                        
             
             # 执行移动：弹出计划的第一步作为自己的新位置
             if hasattr(self,"plan") and self.plan:
                 self.position = self.plan.pop(0)
+                # 如果自己的位置已达到goal,销毁自己
+                if self.position == self.goal: self.destroy_node()
             
             # 筹谋前：将每个节点计划中的第一个去除（因为已经用过了）
             if self.inbox_plan:
@@ -193,6 +196,7 @@ class StdmaTalker(Node):
             for _ in empty_plans:
                 del self.inbox_plan[_]            
 
+
             # 如果下一槽位是自己的且自己已经加入网络：筹谋
             if self.state == "in" and self.slot == self.my_slot:
                 pass # TODO:筹谋：寻路算法。
@@ -201,6 +205,7 @@ class StdmaTalker(Node):
                 # 若已phase in： 生成长度为n的路径
                 # 若phasein的节点未能成功生成路径：报错。这是意料之外的事情。
 
+                # 注意：计划永远是指下一时刻开始的位置流。所以start也是下一时刻才进入
             
 
 def main(args = None):
