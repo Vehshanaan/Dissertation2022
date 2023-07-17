@@ -162,6 +162,7 @@ class Map(Node):
         '''
         用计划更新位置。此函数会弹出所有计划的第一位
         '''
+        self.node_positions = {} # 清空历史，这是为了已经消灭的节点能直接消失
         if self.inbox_plan:
             for key in list(self.inbox_plan.keys()):
                 if self.inbox_plan[key]:  # 如果计划不空：
@@ -227,11 +228,7 @@ class Map(Node):
                 (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size)
             )
 
-            center_x = x*self.grid_size+self.grid_size//2
-            center_y = y*self.grid_size+self.grid_size//2
-            number_text = self.font.render(str(node_id), True, GREEN)
-            text_rect = number_text.get_rect(center=(center_x, center_y))
-            self.window.blit(number_text, text_rect)
+
 
         # 根据字典value唯一性判断是否有碰撞
         collisions = find_keys_with_same_value(
@@ -248,14 +245,7 @@ class Map(Node):
                     (collision_pos[0]*self.grid_size, collision_pos[1]
                      * self.grid_size, self.grid_size, self.grid_size)
                 )
-                # 里面写上撞车的是谁
-                center_x = collision_pos[0]*self.grid_size+self.grid_size//2
-                center_y = collision_pos[1]*self.grid_size+self.grid_size//2
-                number_text = self.font.render(
-                    collision.__str__(), True, GREEN)
-                text_rect = number_text.get_rect(center=(center_x, center_y))
-                # self.get_logger().warning("在（%d, %d）处，%s之间发生碰撞"%(collision_pos[0],collision_pos[1],collision.__str__()))
-                self.window.blit(number_text, text_rect)
+
 
         pygame.display.flip()  # 刷新画面
 

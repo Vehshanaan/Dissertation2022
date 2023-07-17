@@ -1,13 +1,13 @@
-from gettext import find
 from heapq import heappop, heappush
-from operator import ge
+from math import inf
 
 
 def transpose_list(input_list):
     '''
     将输入的二维列表中的成员列表的每个相同位置的元素放进一个列表最后打包成一个新二维列表的函数
     '''
-    if not input_list: return None
+    if not input_list:
+        return None
     num_rows = len(input_list)
     num_cols = max(len(row) for row in input_list)
 
@@ -19,103 +19,119 @@ def transpose_list(input_list):
     return transposed_list
 
 
-def find_path(map, max_steps, self_id = -1, start=(0,0), goal=(3,3), plan_dict = {}):
+def find_path(map, max_steps, horizon, start=(0, 0), goal=(3, 3), plan_dict={}, first_ever = False):
     '''
     寻路算法
 
     Args:
         map (list[list]): 地图：二维数组，[[行]], 其中True代表可通行，False代表障碍物
-        max_steps (int): 生成计划的最大长度上限
+        max_steps (int): 返回计划的长度
+        horizon (int): 生成计划的最大时间维长度
         start (tuple, optional): 起始位置坐标. Defaults to (0,0).
         goal (tuple, optional): 终点位置坐标. Defaults to (3,3).
         plan ({node_id: [(x,y),...]}, optional): 计划保存变量, {node_id: [(x,y),...]} . Defaults to {}.
-
+        first_ever (bool): 是否是加入网络之后第一次筹谋？如果是的话，第一步必须是起点
     Returns:
         生成的计划 (list[tuple]): 生成的计划， [(横坐标，纵坐标)], 越往前越是下一步该执行的计划。此计划不包含起始点（即输入的start）
     '''
     start = tuple(start)
     goal = tuple(goal)
 
-    if start == goal: return [goal]*max_steps # 如果到了终点：就呆在终点！
+    if start == goal:
+        return [goal]  # 到了终点其实就不该进入这个函数了，除非是出生就在终点不然不会触发这一行的
 
     # 处理一下输入的计划，变成以时间步划分的计划
     plan_no_id = list(plan_dict.values())
-    plan_no_id = transpose_list(plan_no_id) # 转换完成
-
-
+    plan_no_id = transpose_list(plan_no_id)  # 转换完成
 
     # 使用优先级队列来保存待探索的节点，优先级由估计的路径长度决定
     queue = [(heuristic(start, goal), 0, start, [])]
-    visited = set([start]) # set([start]) 这里要仔细思考一下，这里可以决定生成的计划带不带起点！
-    # TODO:明天想想起点怎么带入
+    visited = set([]) # 已扩展过的点。已扩展过的点后面不会再重复扩了
 
-    paths = []
+    paths = []  # 保存所有生成的长度达标的路径，如果一直没有能到终点的路径，就从这里面挑一个
 
     while queue:
         _, cost, current, path = heappop(queue)
-        
-        if len(path) == max_steps: 
-            paths.append(path) # 如果获得了想要的长度的路径：保存
-        if len(path)>=max_steps: continue # 长度到了就不要继续了，这样实现finite horizon
 
-        if current ==goal: return path # 节点到达终点后会直接self.destroy_node(), 不用管那么多了
-            
+        if len(path) == horizon:
+            paths.append(path)  # 如果获得了想要的长度的路径：保存
+        if len(path) >= horizon:
+            continue  # 长度到了就不要继续了，这样实现finite horizon。这后面的这个数值就是horizon的长度
+        if current == goal and cost <= max_steps:
+            return path  # 节点到达终点后会直接self.destroy_node(), 不用管那么多了
 
         current_others_plan = []
-        if plan_no_id and cost < len(plan_no_id): # 根据步数提取当前时间点的其他计划
+        if plan_no_id and cost < len(plan_no_id):  # 根据步数提取当前时间点的其他计划
             current_others_plan = plan_no_id[cost]
 
         # 获得不上墙也不和别人碰的邻居点
         neighbors = get_neighbors(current, map, current_others_plan)
 
-        # 去除swap碰撞类型
-        neighbors = remove_swap_collision_postions(neighbors, cost, plan_dict)
-        
-        for neighbor in neighbors:
-            if tuple(list(neighbor)+[cost]) not in visited:
-                new_cost = cost + 1
-                heappush(queue, (new_cost + heuristic(neighbor, goal), new_cost, neighbor, path + [neighbor]))
-                visited.add(tuple(list(neighbor)+[cost]))
+        # 如果是入网以来第一次筹谋，则第一步必须是起点
+        if first_ever and cost == 0:
+            neighbors = [start]
 
-        
-    # 如果可探索点用完还没能到达终点：就这样吧
-    if path:
-        print("this")
-        return path[:max_steps]
+        # 去除swap碰撞类型
+        neighbors = remove_swap_collision_postions(
+            current, neighbors, cost, plan_dict)
+
+        for neighbor in neighbors:
+            new_cost = cost + 1
+            if tuple(list(neighbor)+[new_cost]) not in visited: # 不可重复扩展的是三维空间的点，不是二维
+                heappush(queue, (new_cost + heuristic(neighbor, goal),
+                         new_cost, neighbor, path + [neighbor]))
+                visited.add(tuple(list(neighbor)+[new_cost]))
+
+    # 如果可探索点用完还没能到达终点：从生成的路径里找一个离终点最近的
+    if paths:
+        # 找一个最后的点离终点最近的 这个是用horizon长度的计划的最后一位判断的
+        min_dist = inf  # 最短距离
+        label = -1  # 是谁
+        for i in range(len(paths)):
+            final_pos = paths[i][-1]
+            dist = abs(final_pos[0]-goal[0])+abs(final_pos[1]-goal[1])
+            if dist < min_dist:
+                min_dist = dist
+                label = i
+        path = paths[label]
+        return path[:max_steps] # 返回的时候就截一下
 
     else:
-        return [start]*max_steps # 如果产生的路径是空的：呆在原地    
+        return None # 如果没能找到计划：返回None 这其实是不应该的，这意味着场地的空间放不下节点了。
 
-def remove_swap_collision_postions(neighbors_with_swaps, cost, plan_dict):
+
+def remove_swap_collision_postions(current, neighbors_with_swaps, cost, plan_dict):
     neighbors = []
     # 先生成当前计划和上一步计划
     # 当前步计划
     next_steps = {}
+    # 所有节点当前的位置（其实就是上一步计划）
     current_positions = {}
     if plan_dict:
         for node_id, plan in plan_dict.items():
             # 先提取当前步计划
-            if cost<len(plan): # 如果计划有那么长：
+            if cost < len(plan):  # 如果计划有那么长：
                 pos = plan[cost]
                 next_steps[node_id] = tuple(pos)
             # 再提取之前步计划
-            if cost-1>=0 and cost-1<len(plan):
+            if cost-1 >= 0 and cost-1 < len(plan):
                 pos = plan[cost-1]
                 current_positions[node_id] = tuple(pos)
 
-
-    for neighbor in neighbors_with_swaps: 
+    for neighbor in neighbors_with_swaps:
         add = True
         if next_steps:
             for node_id, pos in next_steps.items():
-                if pos == current:
+                if pos == current:  # 如果有人的下一步是到我现在的位置
                     if current_positions:
+                        # 如果此人的当前位置等于我下一步想去的位置
                         if current_positions[node_id] == neighbor:
-                            add = False
-        if add: neighbors.append(neighbor)
+                            add = False  # 这就是swap了，不行
+        if add:
+            neighbors.append(neighbor)
 
     return neighbors
-        
+
 
 def get_neighbors(pos, map, current_plan=[]):
     '''
@@ -129,20 +145,19 @@ def get_neighbors(pos, map, current_plan=[]):
     Returns:
         _type_: _description_
     '''
-    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # 上下左右四个方向
+    directions = [(0, 0), (-1, 0), (1, 0), (0, -1), (0, 1)]  # 上下左右四个方向和原地。
     neighbors = []
-
-
 
     for direction in directions:
         new_pos = (pos[0] + direction[0], pos[1] + direction[1])
 
-        if is_valid(new_pos, map) and new_pos not in current_plan: # 如果不在地图障碍物且不在别人的下一步计划中：
+        if is_valid(new_pos, map) and new_pos not in current_plan:  # 如果不在地图障碍物且不在别人的下一步计划中：
             neighbors.append(new_pos)
 
     return neighbors
 
-def is_valid(pos, map): # 记得xy倒回去！我的其他代码格式里可能全反了，我刚发现。
+
+def is_valid(pos, map):  
 
     x = pos[0]
     y = pos[1]
@@ -154,67 +169,59 @@ def is_valid(pos, map): # 记得xy倒回去！我的其他代码格式里可能�
         if map[y][x]:
             return True
 
-
     return False
+
 
 def heuristic(pos, goal):
     # 使用曼哈顿距离作为启发式估计
     return abs(pos[0] - goal[0]) + abs(pos[1] - goal[1])
 
+
 # 地图的绝对文件路径
 map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/map_builder/map2.png"
 
+
 def main():
-    
-    
 
     # 创建一个示例地图
     map = [[True]*20]*20
 
-
     max_steps = 10  # 限制路径最大长度为5
-
-
-    
 
     # 测试程序是否产生碰撞
     generated_path = []
-    start = (1,1)
+    start = (1, 1)
     for i in range(20):
-        path = find_path(map,20,start = start, goal = (10,10), plan = generated_path)
-        path = path#[:i]
+        path = find_path(map, 20, start=start, goal=(
+            10, 10), plan=generated_path)
+        path = path  # [:i]
         generated_path.append(path)
 
-    #generated_path = [[(0,0),(0,1)],[(1,1),(0,1)]]
+    # generated_path = [[(0,0),(0,1)],[(1,1),(0,1)]]
 
-    
     for i in range(len(generated_path[0])):
         pos = set()
         for j in range(len(generated_path)):
-            if generated_path[j][i] in pos and generated_path[j][i]!=start:
+            if generated_path[j][i] in pos and generated_path[j][i] != start:
                 print("碰撞"+str(generated_path[j][i]))
 
-                #print(generated_path[j])
-                print("发生在下面数组中的%d,%d"%(i,j))
+                # print(generated_path[j])
+                print("发生在下面数组中的%d,%d" % (i, j))
             else:
                 pos.add(generated_path[j][i])
-    
 
     for _ in generated_path:
         print(_)
 
 
-
-        
 if __name__ == "__main__":
-    map = [[True,True,True],
-           [False,True,False],
-           [False,True,True],
-           [True,True,True]]
-    plan = {1:[(0,1),(1,1),(2,1),(3,1),(3,0)]}
-    path = find_path(map,10,-1,(3,0),(0,2),plan_dict = plan)
-    print(path) # 应为：31 21 22
+    map = [[True, True, True],
+           [False, True, False],
+           [False, True, True],
+           [True, True, True]]
+    plan = {1: [(0, 1), (1, 1), (2, 1), (3, 1), (3, 0)]}
+    path = find_path(map, 10, -1, (3, 0), (0, 2), plan_dict=plan)
+    print(path)  # 应为：31 21 22
 
-    neighbours = get_neighbors((2,0),map,[(0,1)])
-    #print(neighbours)
-
+    neighbours = get_neighbors((2, 0), map, [(0, 1)])
+    # print(neighbours)

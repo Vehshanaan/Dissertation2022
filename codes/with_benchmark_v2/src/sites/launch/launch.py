@@ -53,6 +53,7 @@ def generate_launch_description():
     # 启动节点
     node_amount = 15
     for i in range(node_amount):
+        print("起点-终点对："+str(starts[i])+" - "+str(goals[i]))
         site = Node(
             package=package_name,
             executable="talker",
@@ -61,7 +62,7 @@ def generate_launch_description():
                     "num_slots": 10,  # 信道帧长度
                     "map_path": map_path,  # 地图路径
                     "start": starts[i],  # 起点位置
-                    "goals":goals[i],  # 终点位置
+                    "goal":goals[i],  # 终点位置
                 }
             ]
         )
@@ -109,7 +110,8 @@ def scene_reader(scene_path=scene_path):
 
 
 def main():
-    scene_reader()
+    starts, goals = scene_reader()
+
 
 
 if __name__ == "__main__":

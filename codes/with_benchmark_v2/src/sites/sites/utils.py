@@ -1,5 +1,6 @@
 import cv2
-
+import re
+import os
 map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-png/Berlin_1_256.png"
 
 
@@ -15,6 +16,13 @@ def map_load(map_path):
     '''
     img = cv2.imread(map_path,0)
     _,img = cv2.threshold(img,0,255,cv2.THRESH_BINARY | cv2.THRESH_OTSU) # 大津法二值化 
+    
+    # 从地图文件命名中获取地图大小
+    map_basename = os.path.basename(map_path)
+    size = re.search(r'_(\d+)\.', map_basename)
+    size = int(size.group(1))
+    size = (size,size)
+    img = cv2.resize(img, size, interpolation=cv2.INTER_AREA)
     map = (img!=0).tolist()
 
     return map
@@ -65,4 +73,5 @@ def plan_decompressor(plan1d):
 
 
 if __name__ == "__main__":
-    map_load(map_path)
+    map = map_load(map_path)
+    print(len(map))

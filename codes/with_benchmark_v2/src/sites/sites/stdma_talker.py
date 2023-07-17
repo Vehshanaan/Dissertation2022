@@ -12,7 +12,7 @@ from std_msgs.msg import Int32, Bool, Int32MultiArray
 # 导入工具箱
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
-import utils
+import utils, path_finding
 
 
 class StdmaTalker(Node):
@@ -53,14 +53,17 @@ class StdmaTalker(Node):
         self.declare_parameter("start", start)
         self.start = self.get_parameter(
             "start").get_parameter_value().integer_array_value
-        self.start = self.start.tolist()
+        self.start = tuple(self.start.tolist())
 
         # 初始化终点
         goal = (-1, -1)
         self.declare_parameter("goal", goal)
         self.goal = self.get_parameter(
             "goal").get_parameter_value().integer_array_value
-        self.goal = self.goal.tolist()
+        self.goal = tuple(self.goal.tolist())
+
+        # 是否已经成功进入地图？
+        self.jumped_in = False
 
         # 初始化自身位置
         self.position = self.start
@@ -79,6 +82,8 @@ class StdmaTalker(Node):
         # 时钟
         self.timer_sub = self.create_subscription(
             Bool, "stdma/timer", self.timer_callback, 10)
+
+        
 
     def control_callback(self, msg):
         '''
@@ -179,7 +184,10 @@ class StdmaTalker(Node):
             if hasattr(self,"plan") and self.plan:
                 self.position = self.plan.pop(0)
                 # 如果自己的位置已达到goal,销毁自己
-                if self.position == self.goal: self.destroy_node()
+                if self.position == self.goal: 
+                    self.get_logger().fatal("%d滴任务，完成啦！"%self.node_id)
+                    self.destroy_node()
+
             
             # 筹谋前：将每个节点计划中的第一个去除（因为已经用过了）
             if self.inbox_plan:
@@ -196,16 +204,19 @@ class StdmaTalker(Node):
             for _ in empty_plans:
                 del self.inbox_plan[_]            
 
-
+        
+        
             # 如果下一槽位是自己的且自己已经加入网络：筹谋
             if self.state == "in" and self.slot == self.my_slot:
-                pass # TODO:筹谋：寻路算法。
-                # 如果自己是in且未phase in：尝试生成一段长度为n-1的路径。长度n-1是因为前面要加上起点
-                #               如果生成失败：过。如果成功：代表自己成功phase in
-                # 若已phase in： 生成长度为n的路径
-                # 若phasein的节点未能成功生成路径：报错。这是意料之外的事情。
+                plan = path_finding.find_path(self.map, 2*self.num_slots, 20, self.position, self.goal, self.inbox_plan, not self.jumped_in)
+                if plan: 
+                    self.plan = plan # 如果成功生成路径：保存计划
+                    # 如果是第一次筹谋（尚未进入地图变成实体）且成功生成计划：
+                    if not self.jumped_in: self.jumped_in = True
+                    self.get_logger().fatal("我的当前位置：（%d,%d）， 我的目标位置：（%d, %d）"%(self.position[0],self.position[1],self.goal[0],self.goal[1]))
+                    self.get_logger().fatal("我的计划："+str(self.plan))
 
-                # 注意：计划永远是指下一时刻开始的位置流。所以start也是下一时刻才进入
+                    # 潜在bug：已入网的节点找不到足够的物理空间来生成计划，会导致节点存在但没有通报的计划，导致隐形
             
 
 def main(args = None):
