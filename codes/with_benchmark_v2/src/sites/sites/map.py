@@ -10,7 +10,8 @@ import sys
 import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
-import utils  # 导入工具箱
+if current_dir:
+    import utils  # 导入工具箱
 
 # 定义颜色
 BLACK = (0, 0, 0)
@@ -49,23 +50,6 @@ def find_keys_with_same_value(dictionary):
     return keys_with_same_value
 
 
-def id_to_color(code):
-    '''
-    根据输入的编号生成唯一对应RGB颜色
-
-    Args:
-        code (int): 节点编号
-
-    Returns:
-        color (r,g,b): 三通道值
-    '''
-    number = int(code)
-    r = (number * 127) % 256  # 每个通道的取值范围是0-255
-    g = (number * 83) % 256
-    b = (number * 43) % 256
-    return (r, g, b)
-
-
 class Map(Node):
     def __init__(self):
         super().__init__("Map")
@@ -98,23 +82,32 @@ class Map(Node):
             "num_slots").get_parameter_value().integer_value
         self.num_slots = num_slots
 
+        # 从外界初始化节点数目（写结果保存日志文件用，为了以后自己不蒙圈）
+        self.declare_parameter("num_nodes", -1)
+        num_nodes = self.get_parameter(
+            "num_nodes").get_parameter_value().integer_value
+        self.num_nodes = num_nodes
+
         # 日志路径的生成
         dir_path = log_path+str(os.path.basename(map_path))+"/"
         if not os.path.exists(dir_path):  # 为每个地图创建一个子文件夹保存其对应日志结果文件
             os.makedirs(dir_path)
         self.log_path = dir_path+"FrameLen" + \
-            str(self.num_slots)+str(time.strftime("%h%d%H%M")) + \
+            str(self.num_slots)+"_"+str(self.num_nodes)+"Nodes"+str(time.strftime("%h%d%H%M")) + \
             ".log"  # 日期格式：月（英文缩写）日时分
 
         # 自适应调节地图格子大小
         grid_size = 20
-        while grid_size*self.height > 1300 or grid_size*self.width > 1300:
+        while grid_size*self.height > 1500 or grid_size*self.width > 1500:  # 我的屏幕差不多就这么大了
             grid_size = grid_size-1
-        
+            if grid_size == 1:
+                break
+
         self.grid_size = grid_size
 
         self.position_history = {}  # 记录节点位置的历史，日志里用
         self.time = 0  # 时间戳，给节点位置历史分时间用
+        self.prev_log_write_time = 0  # 前一次进行日志写入的时刻。这是为了减少写入的频率而允许我ctrlc直接截断程序而不破坏日志
 
         self.timer_sub = self.create_subscription(
             Bool, "stdma/timer", self.timer_callback, 10)
@@ -150,6 +143,7 @@ class Map(Node):
                     (col * self.grid_size, row * self.grid_size,
                      self.grid_size, self.grid_size),
                 )
+
     def message_callback(self, msg):
         '''
         接收到节点计划的处理
@@ -162,7 +156,7 @@ class Map(Node):
         '''
         用计划更新位置。此函数会弹出所有计划的第一位
         '''
-        self.node_positions = {} # 清空历史，这是为了已经消灭的节点能直接消失
+        self.node_positions = {}  # 清空历史，这是为了已经消灭的节点能直接消失
         if self.inbox_plan:
             for key in list(self.inbox_plan.keys()):
                 if self.inbox_plan[key]:  # 如果计划不空：
@@ -187,7 +181,10 @@ class Map(Node):
             data = {
                 "scene_path": self.scene_path,
                 "map_path": self.map_path,
-                "history": self.position_history
+                "map_size": (self.width, self.height),
+                "num_slots": self.num_slots,
+                "num_nodes": self.num_nodes,
+                "history": self.position_history,
             }
             json.dump(data, log)
 
@@ -199,7 +196,7 @@ class Map(Node):
         for key, value in self.inbox_plan.items():
             node_id = key
             plans = value
-            color = id_to_color(node_id)
+            color = utils.id_to_color(node_id)
 
             size = self.grid_size/2.5
             # 将计划中所有格填上代表色
@@ -224,11 +221,9 @@ class Map(Node):
             # 画节点占用的位置的底色
             pygame.draw.rect(
                 self.window,
-                id_to_color(node_id),
+                utils.id_to_color(node_id),
                 (x*self.grid_size, y*self.grid_size, self.grid_size, self.grid_size)
             )
-
-
 
         # 根据字典value唯一性判断是否有碰撞
         collisions = find_keys_with_same_value(
@@ -246,7 +241,6 @@ class Map(Node):
                      * self.grid_size, self.grid_size, self.grid_size)
                 )
 
-
         pygame.display.flip()  # 刷新画面
 
     def timer_callback(self, msg):
@@ -254,11 +248,13 @@ class Map(Node):
             self.time += 1
             self.position_update()  # 用收到的槽的计划更新节点位置
             self.history_update()  # 更新历史记录
-            self.log_write()  # 写入日志文档
+            if self.time-self.prev_log_write_time > 5:  # 如果离上次保存日志过了一小会：
+                self.log_write()  # 写入日志文档
+                self.prev_log_write_time = self.time
             self.map_update()  # 更新地图
 
 
-def main(args = None):
+def main(args=None):
 
     rclpy.init()
 
@@ -268,6 +264,7 @@ def main(args = None):
 
     map.destroy_node()
     rclpy.shutdown()
+
 
 if __name__ == "__main__":
     main()

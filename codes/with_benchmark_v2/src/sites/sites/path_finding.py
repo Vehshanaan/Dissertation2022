@@ -112,11 +112,11 @@ def remove_swap_collision_postions(current, neighbors_with_swaps, cost, plan_dic
             # 先提取当前步计划
             if cost < len(plan):  # 如果计划有那么长：
                 pos = plan[cost]
-                next_steps[node_id] = tuple(pos)
+                next_steps[node_id] = pos #tuple(pos)
             # 再提取之前步计划
             if cost-1 >= 0 and cost-1 < len(plan):
                 pos = plan[cost-1]
-                current_positions[node_id] = tuple(pos)
+                current_positions[node_id] = pos #tuple(pos)
 
     for neighbor in neighbors_with_swaps:
         add = True
@@ -214,14 +214,6 @@ def main():
         print(_)
 
 
-if __name__ == "__main__":
-    map = [[True, True, True],
-           [False, True, False],
-           [False, True, True],
-           [True, True, True]]
-    plan = {1: [(0, 1), (1, 1), (2, 1), (3, 1), (3, 0)]}
-    path = find_path(map, 10, -1, (3, 0), (0, 2), plan_dict=plan)
-    print(path)  # 应为：31 21 22
+if __name__ == "__main__": 
+    pass
 
-    neighbours = get_neighbors((2, 0), map, [(0, 1)])
-    # print(neighbours)

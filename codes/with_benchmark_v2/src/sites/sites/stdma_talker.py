@@ -12,7 +12,9 @@ from std_msgs.msg import Int32, Bool, Int32MultiArray
 # 导入工具箱
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
-import utils, path_finding
+if current_dir:
+    import utils
+    import path_finding
 
 
 class StdmaTalker(Node):
@@ -83,8 +85,6 @@ class StdmaTalker(Node):
         self.timer_sub = self.create_subscription(
             Bool, "stdma/timer", self.timer_callback, 10)
 
-        
-
     def control_callback(self, msg):
         '''
         用来分享信道占用情况(槽位使用权)的STDMA话题
@@ -110,7 +110,7 @@ class StdmaTalker(Node):
         for ii in range(num_messages):
             received_messages.append(self.inbox.pop(0))
         return received_messages
-    
+
     def timer_callback(self, msg):
         if msg.data:
             # 上升沿，是slot的开始或结束
@@ -118,77 +118,76 @@ class StdmaTalker(Node):
         else:
             # 下降沿，是slot的中间
             self.mid_slot_callback()
-    
+
     def mid_slot_callback(self):
-        if self.slot>=0: # 防止刚初始化的节点掺和进这里头
+        if self.slot >= 0:  # 防止刚初始化的节点掺和进这里头
             if self.slot == self.my_slot:
                 msg = Int32()
                 msg.data = self.node_id
-                self.control_pub.publish(msg) # 发送信道占有信息
+                self.control_pub.publish(msg)  # 发送信道占有信息
 
-                if hasattr(self, "plan") and self.plan and self.state == "in": #如果有计划且计划不空且状态为in:
+                # 如果有计划且计划不空且状态为in:
+                if hasattr(self, "plan") and self.plan and self.state == "in":
                     msg = Int32MultiArray()
-                    msg.data = utils.plan_compressor(self.node_id,self.plan)
+                    msg.data = utils.plan_compressor(self.node_id, self.plan)
                     self.message_pub.publish(msg)
-                
-                self.state = "check" # 每次发送完都检查我这一槽是不是只有我说话，来更新自己对槽的占有状态
-    
+
+                self.state = "check"  # 每次发送完都检查我这一槽是不是只有我说话，来更新自己对槽的占有状态
+
     def end_slot_callback(self):
 
         if self.slot == -1:
             # 初次进入此函数
-            self.slot = 0 # 从-1变回0
-        
+            self.slot = 0  # 从-1变回0
+
         else:
-            received_message = self.get_messages() # 清空收到的信道控制信息并转存
-            num_messages = len(received_message) # 检查在过去槽里一共收到几条信息
+            received_message = self.get_messages()  # 清空收到的信道控制信息并转存
+            num_messages = len(received_message)  # 检查在过去槽里一共收到几条信息
 
             # 如果啥也没收到：槽空
             if num_messages == 0:
-                self.slot_allocations[self.slot] = None # 登记本槽为空
+                self.slot_allocations[self.slot] = None  # 登记本槽为空
             # 如果本槽内只收到一条信息：槽有主人了
             elif num_messages == 1:
-                msg = received_message[0] # 就一条
+                msg = received_message[0]  # 就一条
                 sender = msg.data
-                self.slot_allocations[self.slot] = sender # 登记槽归谁
-                if sender == self.node_id: # 如果是我发的：
-                    self.state = "in" # 说明我成功搞到一个槽，我入网了
-            elif num_messages>1: # 如果槽内收到多条信息:大撞车
-                colliding_ids = [m.data for m in received_message] # 撞车的哥几个都是谁
-                self.slot_allocations[self.slot] = None # 由于发生了撞车，没人拥有此槽
-                if self.node_id in colliding_ids: # 如果哥们自己也撞了：
-                    self.state = "listen" # 回到听的状态
+                self.slot_allocations[self.slot] = sender  # 登记槽归谁
+                if sender == self.node_id:  # 如果是我发的：
+                    self.state = "in"  # 说明我成功搞到一个槽，我入网了
+            elif num_messages > 1:  # 如果槽内收到多条信息:大撞车
+                colliding_ids = [m.data for m in received_message]  # 撞车的哥几个都是谁
+                self.slot_allocations[self.slot] = None  # 由于发生了撞车，没人拥有此槽
+                if self.node_id in colliding_ids:  # 如果哥们自己也撞了：
+                    self.state = "listen"  # 回到听的状态
                     self.my_slot = -2
-            if self.state == "check": 
+            if self.state == "check":
                 # 如果自己已经入网，发过消息，但此时没有接收到自己的消息，也没有发生碰撞：肯定是传丢了
                 self.state = "listen"
-                self.my_slot = -2 # 重听吧
-            
+                self.my_slot = -2  # 重听吧
+
             # 更新槽和帧的编号
-            self.slot+=1
-            if self.slot == self.num_slots: # 如果听过一整帧
-                self.slot =0
-                self.frame+=1
-                if self.state == "listen": # 如果听过一整帧之后，我是待加入状态：找一个眼儿
+            self.slot += 1
+            if self.slot == self.num_slots:  # 如果听过一整帧
+                self.slot = 0
+                self.frame += 1
+                if self.state == "listen":  # 如果听过一整帧之后，我是待加入状态：找一个眼儿
                     available_slots = [ii for ii in range(
                         self.num_slots) if self.slot_allocations[ii] == None]
-                    if available_slots: # 没有可供选择的自由槽位的话，就算了，啥也不干
+                    if available_slots:  # 没有可供选择的自由槽位的话，就算了，啥也不干
                         self.state = "enter"
                         self.my_slot = random.sample(available_slots, 1)[0]
                         self.get_logger().info('Will try to enter at slot %d' % self.my_slot)
                     else:
                         self.my_slot = -2
-                        
-            
+
             # 执行移动：弹出计划的第一步作为自己的新位置
-            if hasattr(self,"plan") and self.plan:
+            if hasattr(self, "plan") and self.plan:
                 self.position = self.plan.pop(0)
                 # 如果自己的位置已达到goal,销毁自己
-                if self.position == self.goal: 
-                    self.get_logger().fatal("%d滴任务，完成啦！"%self.node_id)
+                if self.position == self.goal:
+                    self.get_logger().fatal("%d滴任务，完成啦！" % self.node_id)
                     self.destroy_node()
 
-            
             # 筹谋前：将每个节点计划中的第一个去除（因为已经用过了）
             if self.inbox_plan:
                 '''
@@ -196,30 +195,34 @@ class StdmaTalker(Node):
                     if value: value.pop(0) # 弹掉每个非空计划的头一个
                 '''
                 for key in list(self.inbox_plan.keys()):
-                    if self.inbox_plan[key]:self.inbox_plan[key].pop(0) # 弹掉非空计划的头一个
+                    if self.inbox_plan[key]:
+                        self.inbox_plan[key].pop(0)  # 弹掉非空计划的头一个
             # 清除已为空的计划元素
-            empty_plans= []
+            empty_plans = []
             for key in list(self.inbox_plan.keys()):
-                if not self.inbox_plan[key]: empty_plans.append(key)
+                if not self.inbox_plan[key]:
+                    empty_plans.append(key)
             for _ in empty_plans:
-                del self.inbox_plan[_]            
+                del self.inbox_plan[_]
 
-        
-        
             # 如果下一槽位是自己的且自己已经加入网络：筹谋
             if self.state == "in" and self.slot == self.my_slot:
-                plan = path_finding.find_path(self.map, 2*self.num_slots, 20, self.position, self.goal, self.inbox_plan, not self.jumped_in)
-                if plan: 
-                    self.plan = plan # 如果成功生成路径：保存计划
+                horizon_length = 50 # finite horizon的长度
+                plan = path_finding.find_path(
+                    self.map, 2*self.num_slots, horizon_length, self.position, self.goal, self.inbox_plan, not self.jumped_in)
+                if plan:
+                    self.plan = plan  # 如果成功生成路径：保存计划
                     # 如果是第一次筹谋（尚未进入地图变成实体）且成功生成计划：
-                    if not self.jumped_in: self.jumped_in = True
-                    self.get_logger().fatal("我的当前位置：（%d,%d）， 我的目标位置：（%d, %d）"%(self.position[0],self.position[1],self.goal[0],self.goal[1]))
-                    self.get_logger().fatal("我的计划："+str(self.plan))
+                    if not self.jumped_in:
+                        self.jumped_in = True
+                    #self.get_logger().fatal("我的当前位置：（%d,%d）， 我的目标位置：（%d, %d）" %
+                                            #(self.position[0], self.position[1], self.goal[0], self.goal[1]))
+                    #self.get_logger().fatal("我的计划："+str(self.plan))
 
                     # 潜在bug：已入网的节点找不到足够的物理空间来生成计划，会导致节点存在但没有通报的计划，导致隐形
-            
 
-def main(args = None):
+
+def main(args=None):
 
     rclpy.init(args=args)
 
@@ -234,6 +237,6 @@ def main(args = None):
 
     rclpy.shutdown()
 
+
 if __name__ == "__main__":
     main()
-

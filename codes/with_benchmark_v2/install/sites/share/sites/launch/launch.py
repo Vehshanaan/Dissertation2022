@@ -11,6 +11,10 @@ map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realwo
 scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-scen/Berlin_1_256.map.scen"
 
 
+frame_length = 10  # 帧长度
+node_total = 20  # 节点数目
+
+
 def generate_launch_description():
 
     package_name = "sites"
@@ -26,7 +30,8 @@ def generate_launch_description():
             {
                 "map_path": map_path,  # 地图文件绝对路径
                 "scene_path": scene_path,  # 场景文件绝对路径
-                "num_slots": 10,  # 信道帧长度
+                "num_slots": frame_length,  # 信道帧长度
+                "num_nodes": node_total, # 节点数目
             }
         ]
     )
@@ -38,7 +43,7 @@ def generate_launch_description():
         executable="channel_visualiser",
         parameters=[
             {
-                "num_slots": 10,  # 信道帧长度
+                "num_slots": frame_length,  # 信道帧长度
                 "map_path": map_path,  # 地图路径，实际上对于可视化节点用不到, 写上只是为了防止读图空路径报错
             }
         ]
@@ -48,18 +53,17 @@ def generate_launch_description():
 
     # 启动节点
     # 为各个节点读取起点和终点
-    starts, goals = scene_reader(scene_path)
+    starts, goals = scene_reader(scene_path,50)
 
     # 启动节点
-    node_amount = 15
-    for i in range(node_amount):
+    for i in range(node_total):
         print("起点-终点对："+str(starts[i])+" - "+str(goals[i]))
         site = Node(
             package=package_name,
             executable="talker",
             parameters=[
                 {
-                    "num_slots": 10,  # 信道帧长度
+                    "num_slots": frame_length,  # 信道帧长度
                     "map_path": map_path,  # 地图路径
                     "start": starts[i],  # 起点位置
                     "goal":goals[i],  # 终点位置
@@ -79,12 +83,14 @@ def generate_launch_description():
     return ld
 
 
-def scene_reader(scene_path=scene_path):
+def scene_reader(scene_path=scene_path, min_dist=-1):
     '''
     读入标准scene文件，返回起点和终点数组
 
     Args:
         scene_path (str, optional): scene文件的路径. 默认值在launch.py中.
+
+        min_dist (int): 起点和终点之间的最小距离，小于这个距离的将被滤除
 
     Returns:
 
@@ -104,6 +110,10 @@ def scene_reader(scene_path=scene_path):
             start = (int(words[4]), int(words[5]))
             # 第7，8个元素是终点横纵坐标
             goal = (int(words[6]), int(words[7]))
+            # 最后一个元素是最优距离
+            optimal_dist = float(words[-1])
+            if optimal_dist < min_dist:
+                continue # 如果最优距离小于阈值：跳过，不读入这组起终点
             starts.append(start)
             goals.append(goal)
     return starts, goals
@@ -111,7 +121,6 @@ def scene_reader(scene_path=scene_path):
 
 def main():
     starts, goals = scene_reader()
-
 
 
 if __name__ == "__main__":

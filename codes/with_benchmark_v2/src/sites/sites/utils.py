@@ -27,6 +27,22 @@ def map_load(map_path):
 
     return map
 
+def id_to_color(code):
+    '''
+    根据输入的编号生成唯一对应RGB颜色
+
+    Args:
+        code (int): 节点编号
+
+    Returns:
+        color (r,g,b): 三通道值
+    '''
+    number = int(code)
+    r = (number * 127) % 256  # 每个通道的取值范围是0-255
+    g = (number * 83) % 256
+    b = (number * 43) % 256
+    return (r, g, b)
+
 def plan_compressor(node_id, plan2d) -> list:
     '''
     将[[x1,y1],[x2,y2],...]格式的二维数组压缩成一维的函数
