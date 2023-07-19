@@ -4,7 +4,7 @@ import json
 import utils
 import os
 log_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/experiment_results/Berlin_1_256.png/FrameLen10_20NodesJul181544.log"
-
+log_parent_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/experiment_results/Berlin_1_256.png_Size(256, 256)"
 
 def traverse_directory(directory_path):
     result = []
@@ -128,7 +128,41 @@ def log_reader(log_path):
         avg_join_spent_time = sum_time/len(times)
         print("有%d/%d个节点成功入网，每个节点加入网络的平均耗时是：%d" %
               (len(times), node_total, avg_join_spent_time))
+        
+        return node_total, frame_length, avg_real_vs_optimal, finish_time, avg_join_spent_time
+
+
+def main():
+    log_files = traverse_directory(log_parent_path)
+
+    real_vs_optimals = []
+    finish_times = []
+    avg_real_vs_optimals = []
+    avg_join_spent_times = []
+    frame_lengths = []
+    
+    for log in log_files:
+        node_total, frame_length, avg_real_vs_optimal, finish_time, avg_join_spent_time = log_reader(log)
+        frame_lengths.append(frame_length)
+        avg_real_vs_optimals.append(avg_real_vs_optimal)
+        finish_times.append(finish_time)
+        avg_join_spent_times.append(avg_join_spent_time)
+
+    fig, axes = plt.subplots(2,2,figsize = (12,12))
+
+    axes[0,0].bar(frame_lengths, avg_real_vs_optimals)
+    axes[0,0].set_title("avg real vs optimal rate")
+
+    axes[0,1].bar(frame_lengths, finish_times)
+    axes[0,1].set_title("finish time")
+
+    axes[1,0].bar(frame_lengths, avg_join_spent_times)
+    axes[1,0].set_title("avg join time per node")
+
+    fig.tight_layout()
+    plt.show()
+
 
 
 if __name__ == "__main__":
-    log_reader(log_path)
+    main()

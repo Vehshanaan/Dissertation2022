@@ -1,12 +1,17 @@
 # 对已有模块试错的试验场函数
 import utils, re
 
-map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-png/Berlin_1_256.png"
-scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-scen/Berlin_1_256.map.scen"
+map_path1 = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-png/Berlin_1_256.png"
+scene_path1 = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-scen/Berlin_1_256.map.scen"
+
+
+map_path2 = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/randoms/mapf-png/warehouse-10-20-10-2-1.png"
+scene_path2 = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/randoms/mapf-scen-random/scen-random/warehouse-10-20-10-2-1-random-1.scen"
+
 
 dir_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-png"
 
-def scene_reader(scene_path=scene_path):
+def scene_reader(scene_path):
     '''
     读入标准scene文件，返回起点和终点数组
 
@@ -38,12 +43,13 @@ def scene_reader(scene_path=scene_path):
 # 检查rescale后起点和终点的位置是不是空心的
 
 
-map = utils.map_load(map_path)
-starts, goals = scene_reader(scene_path)
+map = utils.map_load(map_path2,(163,63))
+starts, goals = scene_reader(scene_path2)
 
 for i in range(len(starts)):
     start = starts[i]
     goal = goals[i]
-    if map[start[1]][start[0]]==False: print("起点在墙里")
-    if map[goal[1]][goal[0]]==False: print("终点在墙里")
+    if map[start[1]][start[0]]==False: 
+        print("起点%s在墙里"%str(start))
+    if map[goal[1]][goal[0]]==False: print("终点%s在墙里"%str(goal))
 

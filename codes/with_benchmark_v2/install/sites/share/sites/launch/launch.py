@@ -8,11 +8,16 @@ from launch_ros.actions import Node
 
 # 注意，地图和场景都在这里设置，**记得设置成成对的！！！，没法设计代码级别的防呆匹配！自己记得用好，不要犯傻**
 map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-png/Berlin_1_256.png"
+map_size = (256,256) # 地图大小。详参https://movingai.com/benchmarks/mapf/index.html
+
 scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-scen/Berlin_1_256.map.scen"
-
-
-frame_length = 10  # 帧长度
+'''
+map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/randoms/mapf-png/maze_1_32.png"
+scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/randoms/mapf-scen-even/scen-even/maze-32-32-2-even-1.scen"
+'''
+frame_length = 30  # 帧长度
 node_total = 20  # 节点数目
+map_size = list(map_size)
 
 
 def generate_launch_description():
@@ -29,6 +34,7 @@ def generate_launch_description():
         parameters=[
             {
                 "map_path": map_path,  # 地图文件绝对路径
+                "map_size": map_size, # 地图大小
                 "scene_path": scene_path,  # 场景文件绝对路径
                 "num_slots": frame_length,  # 信道帧长度
                 "num_nodes": node_total, # 节点数目
@@ -65,6 +71,7 @@ def generate_launch_description():
                 {
                     "num_slots": frame_length,  # 信道帧长度
                     "map_path": map_path,  # 地图路径
+                    "map_size": map_size, # 地图大小
                     "start": starts[i],  # 起点位置
                     "goal":goals[i],  # 终点位置
                 }

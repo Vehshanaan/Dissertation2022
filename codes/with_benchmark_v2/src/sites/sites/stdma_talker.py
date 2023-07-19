@@ -44,11 +44,16 @@ class StdmaTalker(Node):
         self.inbox = []
         self.inbox_plan = {}  # 储存别人发过来的计划 “id”: 计划
 
+        # 从外部初始化地图大小
+        self.declare_parameter("map_size",[1,1])
+        map_size = self.get_parameter("map_size").get_parameter_value().integer_array_value
+        self.map_size = tuple(list(map_size))
+
         # 初始化地图
         self.declare_parameter("map_path", "_")
         map_path = self.get_parameter(
             "map_path").get_parameter_value().string_value
-        self.map = utils.map_load(map_path)
+        self.map = utils.map_load(map_path, self.map_size)
 
         # 初始化起点
         start = (-1, -1)
@@ -207,7 +212,7 @@ class StdmaTalker(Node):
 
             # 如果下一槽位是自己的且自己已经加入网络：筹谋
             if self.state == "in" and self.slot == self.my_slot:
-                horizon_length = 50 # finite horizon的长度
+                horizon_length = 60 # finite horizon的长度
                 plan = path_finding.find_path(
                     self.map, 2*self.num_slots, horizon_length, self.position, self.goal, self.inbox_plan, not self.jumped_in)
                 if plan:

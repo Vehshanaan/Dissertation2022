@@ -70,8 +70,13 @@ class Map(Node):
             "scene_path").get_parameter_value().string_value
         self.scene_path = scene_path
 
+        # 从外部初始化地图大小
+        self.declare_parameter("map_size",[1,1])
+        map_size = self.get_parameter("map_size").get_parameter_value().integer_array_value
+        self.map_size = tuple(list(map_size))
+
         # 读取地图
-        map = utils.map_load(self.map_path)
+        map = utils.map_load(self.map_path, self.map_size)
         self.map = map
         self.height = len(map)
         self.width = len(map[0])
@@ -89,7 +94,7 @@ class Map(Node):
         self.num_nodes = num_nodes
 
         # 日志路径的生成
-        dir_path = log_path+str(os.path.basename(map_path))+"/"
+        dir_path = log_path+str(os.path.basename(map_path))+"_Size"+str(self.map_size)+"/"
         if not os.path.exists(dir_path):  # 为每个地图创建一个子文件夹保存其对应日志结果文件
             os.makedirs(dir_path)
         self.log_path = dir_path+"FrameLen" + \
