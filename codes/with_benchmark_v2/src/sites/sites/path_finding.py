@@ -19,7 +19,7 @@ def transpose_list(input_list):
     return transposed_list
 
 
-def find_path(map, max_steps, horizon, start=(0, 0), goal=(3, 3), plan_dict={}, first_ever = False):
+def find_path(map, max_steps, horizon, others_positions, start=(0, 0), goal=(3, 3), plan_dict={}, first_ever = False):
     '''
     寻路算法
 
@@ -27,6 +27,7 @@ def find_path(map, max_steps, horizon, start=(0, 0), goal=(3, 3), plan_dict={}, 
         map (list[list]): 地图：二维数组，[[行]], 其中True代表可通行，False代表障碍物
         max_steps (int): 返回计划的长度
         horizon (int): 生成计划的最大时间维长度
+        others_positions (dict): 筹谋时刻的其他节点的位置
         start (tuple, optional): 起始位置坐标. Defaults to (0,0).
         goal (tuple, optional): 终点位置坐标. Defaults to (3,3).
         plan ({node_id: [(x,y),...]}, optional): 计划保存变量, {node_id: [(x,y),...]} . Defaults to {}.
@@ -72,9 +73,11 @@ def find_path(map, max_steps, horizon, start=(0, 0), goal=(3, 3), plan_dict={}, 
             neighbors = [start]
 
         # 去除swap碰撞类型
-        neighbors = remove_swap_collision_postions(
-            current, neighbors, cost, plan_dict)
-
+        if cost !=0: # 对于非第一步的swap去除
+            neighbors = remove_swap_collision_postions(current, neighbors, cost, plan_dict)
+        else: # 对于第一步的swap去除
+            neighbors = remove_swap_collision_positions_first(current, neighbors, cost, plan_dict, others_positions)
+            
         for neighbor in neighbors:
             new_cost = cost + 1
             if tuple(list(neighbor)+[new_cost]) not in visited: # 不可重复扩展的是三维空间的点，不是二维
@@ -99,6 +102,25 @@ def find_path(map, max_steps, horizon, start=(0, 0), goal=(3, 3), plan_dict={}, 
     else:
         return None # 如果没能找到计划：返回None 这其实是不应该的，这意味着场地的空间放不下节点了。
 
+def remove_swap_collision_positions_first(current, neighbors_with_swaps, cost, plan_dict, others_positions):
+    neighbors = []
+    next_steps = {}
+    if plan_dict:
+        for node_id, plan in plan_dict.items():
+            if cost < len(plan):
+                pos = plan[cost]
+                next_steps[node_id] = pos
+    for neighbor in neighbors_with_swaps:
+        add = True
+        if next_steps:
+            for node_id, pos in next_steps.items():
+                if pos == current:
+                    if others_positions:
+                        if others_positions[node_id] == neighbor:
+                            add = False
+        if add:
+            neighbors.append(neighbor)
+    return neighbors
 
 def remove_swap_collision_postions(current, neighbors_with_swaps, cost, plan_dict):
     neighbors = []

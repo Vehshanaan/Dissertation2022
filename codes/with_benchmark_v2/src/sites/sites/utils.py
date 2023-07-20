@@ -18,7 +18,7 @@ def map_load(map_path, size):
     '''
     img = cv2.imread(map_path,0)
 
-    
+    '''
     # 去除图片的黑色边框
     # 获取图像的高度和宽度
     height, width = img.shape
@@ -56,7 +56,7 @@ def map_load(map_path, size):
     
     # 裁剪图像，去除黑色边框
     img = img[top:bottom, left:right]
-    
+    '''    
 
     '''
     # 从地图文件命名中获取地图大小

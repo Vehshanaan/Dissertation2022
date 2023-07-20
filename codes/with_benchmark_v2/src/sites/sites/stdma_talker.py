@@ -75,6 +75,9 @@ class StdmaTalker(Node):
         # 初始化自身位置
         self.position = self.start
 
+        # 初始化其他节点的位置记录
+        self.others_positions = {} # node_id(int): pos (tuple)
+
         # 信道分配的话题
         self.control_sub = self.create_subscription(
             Int32, 'stdma/control', self.control_callback, 10)
@@ -193,6 +196,8 @@ class StdmaTalker(Node):
                     self.get_logger().fatal("%d滴任务，完成啦！" % self.node_id)
                     self.destroy_node()
 
+            # 更新使用过的计划，顺便更新其他节点的位置
+            self.others_positions = {}
             # 筹谋前：将每个节点计划中的第一个去除（因为已经用过了）
             if self.inbox_plan:
                 '''
@@ -201,7 +206,7 @@ class StdmaTalker(Node):
                 '''
                 for key in list(self.inbox_plan.keys()):
                     if self.inbox_plan[key]:
-                        self.inbox_plan[key].pop(0)  # 弹掉非空计划的头一个
+                        self.others_positions[key] = self.inbox_plan[key].pop(0)  # 弹掉非空计划的头一个, 并更新位置记录
             # 清除已为空的计划元素
             empty_plans = []
             for key in list(self.inbox_plan.keys()):
@@ -214,15 +219,16 @@ class StdmaTalker(Node):
             if self.state == "in" and self.slot == self.my_slot:
                 horizon_length = 60 # finite horizon的长度
                 plan = path_finding.find_path(
-                    self.map, 2*self.num_slots, horizon_length, self.position, self.goal, self.inbox_plan, not self.jumped_in)
+                    self.map, 2*self.num_slots, horizon_length, self.others_positions, self.position, self.goal, self.inbox_plan, not self.jumped_in)
                 if plan:
                     self.plan = plan  # 如果成功生成路径：保存计划
                     # 如果是第一次筹谋（尚未进入地图变成实体）且成功生成计划：
                     if not self.jumped_in:
                         self.jumped_in = True
-                    #self.get_logger().fatal("我的当前位置：（%d,%d）， 我的目标位置：（%d, %d）" %
-                                            #(self.position[0], self.position[1], self.goal[0], self.goal[1]))
-                    #self.get_logger().fatal("我的计划："+str(self.plan))
+                    self.get_logger().fatal("我的当前位置：（%d,%d）， 我的目标位置：（%d, %d）" %
+                                            (self.position[0], self.position[1], self.goal[0], self.goal[1]))
+                    self.get_logger().fatal("我收到的计划："+str(self.inbox_plan))
+                    self.get_logger().fatal("我的计划: "+str(self.plan))
 
                     # 潜在bug：已入网的节点找不到足够的物理空间来生成计划，会导致节点存在但没有通报的计划，导致隐形
 
