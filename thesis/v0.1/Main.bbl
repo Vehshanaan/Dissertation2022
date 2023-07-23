@@ -99,6 +99,562 @@
       \field{pages}{407\bibrangedash 414}
       \range{pages}{8}
     \endentry
+    \entry{MAPF_Explain1}{article}{}
+      \name{author}{1}{}{%
+        {{hash=28a17dd42adfbe88290bb3d370d53070}{%
+           family={Stern},
+           familyi={S\bibinitperiod},
+           given={Roni},
+           giveni={R\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Springer}%
+      }
+      \strng{namehash}{28a17dd42adfbe88290bb3d370d53070}
+      \strng{fullhash}{28a17dd42adfbe88290bb3d370d53070}
+      \strng{bibnamehash}{28a17dd42adfbe88290bb3d370d53070}
+      \strng{authorbibnamehash}{28a17dd42adfbe88290bb3d370d53070}
+      \strng{authornamehash}{28a17dd42adfbe88290bb3d370d53070}
+      \strng{authorfullhash}{28a17dd42adfbe88290bb3d370d53070}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Artificial Intelligence: 5th RAAI Summer School, Dolgoprudny, Russia, July 4--7, 2019, Tutorial Lectures}
+      \field{title}{Multi-agent path finding--an overview}
+      \field{year}{2019}
+      \field{pages}{96\bibrangedash 115}
+      \range{pages}{20}
+    \endentry
+    \entry{MAPF_Explain2}{inproceedings}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{10}{}{%
+        {{hash=28a17dd42adfbe88290bb3d370d53070}{%
+           family={Stern},
+           familyi={S\bibinitperiod},
+           given={Roni},
+           giveni={R\bibinitperiod}}}%
+        {{hash=c558657d1b7e2d26630dbf4adfbf0684}{%
+           family={Sturtevant},
+           familyi={S\bibinitperiod},
+           given={Nathan},
+           giveni={N\bibinitperiod}}}%
+        {{hash=090820c15422fa559364ad660e9cecbd}{%
+           family={Felner},
+           familyi={F\bibinitperiod},
+           given={Ariel},
+           giveni={A\bibinitperiod}}}%
+        {{hash=6e0da33fcadd327da8ebc74eea9cafe2}{%
+           family={Koenig},
+           familyi={K\bibinitperiod},
+           given={Sven},
+           giveni={S\bibinitperiod}}}%
+        {{hash=bd18c879f9e29c587d042f725f23e5cb}{%
+           family={Ma},
+           familyi={M\bibinitperiod},
+           given={Hang},
+           giveni={H\bibinitperiod}}}%
+        {{hash=03986118cbfb19cbf21a3a0b658edbd4}{%
+           family={Walker},
+           familyi={W\bibinitperiod},
+           given={Thayne},
+           giveni={T\bibinitperiod}}}%
+        {{hash=3e8ee84b5cf0f6c7813e54088700ce0f}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Jiaoyang},
+           giveni={J\bibinitperiod}}}%
+        {{hash=5243814e91385f8aefa08d68b7df7419}{%
+           family={Atzmon},
+           familyi={A\bibinitperiod},
+           given={Dor},
+           giveni={D\bibinitperiod}}}%
+        {{hash=0c95e714680d33d0c807a3640affbf33}{%
+           family={Cohen},
+           familyi={C\bibinitperiod},
+           given={Liron},
+           giveni={L\bibinitperiod}}}%
+        {{hash=1152ba4ccd01d3a20263e6099b50049c}{%
+           family={Kumar},
+           familyi={K\bibinitperiod},
+           given={TK},
+           giveni={T\bibinitperiod}}}%
+      }
+      \strng{namehash}{14a089a7ff176a355b5c10d5cdc463bb}
+      \strng{fullhash}{80456c1cc221f8627b384ab4e622746b}
+      \strng{bibnamehash}{14a089a7ff176a355b5c10d5cdc463bb}
+      \strng{authorbibnamehash}{14a089a7ff176a355b5c10d5cdc463bb}
+      \strng{authornamehash}{14a089a7ff176a355b5c10d5cdc463bb}
+      \strng{authorfullhash}{80456c1cc221f8627b384ab4e622746b}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the International Symposium on Combinatorial Search}
+      \field{number}{1}
+      \field{title}{Multi-agent pathfinding: Definitions, variants, and benchmarks}
+      \field{volume}{10}
+      \field{year}{2019}
+      \field{pages}{151\bibrangedash 158}
+      \range{pages}{8}
+    \endentry
+    \entry{Warehouse_Automation1}{inproceedings}{}
+      \name{author}{5}{}{%
+        {{hash=83d343c6418562d92539594229830138}{%
+           family={Kou},
+           familyi={K\bibinitperiod},
+           given={Ngai\bibnamedelima Meng},
+           giveni={N\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=b233f2ea71c72b76b5c808ee1f9beb3a}{%
+           family={Peng},
+           familyi={P\bibinitperiod},
+           given={Cheng},
+           giveni={C\bibinitperiod}}}%
+        {{hash=bd18c879f9e29c587d042f725f23e5cb}{%
+           family={Ma},
+           familyi={M\bibinitperiod},
+           given={Hang},
+           giveni={H\bibinitperiod}}}%
+        {{hash=6321ad6e5ab21657628e6d7ab09e418a}{%
+           family={Kumar},
+           familyi={K\bibinitperiod},
+           given={TK\bibnamedelima Satish},
+           giveni={T\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=6e0da33fcadd327da8ebc74eea9cafe2}{%
+           family={Koenig},
+           familyi={K\bibinitperiod},
+           given={Sven},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{691f4b2e42b1015b997b4fb8f92ca410}
+      \strng{fullhash}{f2f228947092535c2def13700a451564}
+      \strng{bibnamehash}{f2f228947092535c2def13700a451564}
+      \strng{authorbibnamehash}{f2f228947092535c2def13700a451564}
+      \strng{authornamehash}{691f4b2e42b1015b997b4fb8f92ca410}
+      \strng{authorfullhash}{f2f228947092535c2def13700a451564}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the AAAI Conference on Artificial Intelligence}
+      \field{number}{06}
+      \field{title}{Idle time optimization for target assignment and path finding in sortation centers}
+      \field{volume}{34}
+      \field{year}{2020}
+      \field{pages}{9925\bibrangedash 9932}
+      \range{pages}{8}
+    \endentry
+    \entry{Warehouse_Automation2}{article}{}
+      \name{author}{5}{}{%
+        {{hash=c78a99ce702300cef14d551ea01dbc5b}{%
+           family={Hönig},
+           familyi={H\bibinitperiod},
+           given={Wolfgang},
+           giveni={W\bibinitperiod}}}%
+        {{hash=01b23baf902ca716cc3bee0b9f9e7a96}{%
+           family={Kiesel},
+           familyi={K\bibinitperiod},
+           given={Scott},
+           giveni={S\bibinitperiod}}}%
+        {{hash=accba18b971b81313a87dd77f20f108e}{%
+           family={Tinka},
+           familyi={T\bibinitperiod},
+           given={Andrew},
+           giveni={A\bibinitperiod}}}%
+        {{hash=d3b59ddcd4d86ef12b6fa7209561b0be}{%
+           family={Durham},
+           familyi={D\bibinitperiod},
+           given={Joseph\bibnamedelima W},
+           giveni={J\bibinitperiod\bibinitdelim W\bibinitperiod}}}%
+        {{hash=1c307d9b859cf07f7eb1337ae5ac9f78}{%
+           family={Ayanian},
+           familyi={A\bibinitperiod},
+           given={Nora},
+           giveni={N\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{6786657868ffe776bc8264cc4baa805c}
+      \strng{fullhash}{ecdfda356cf61a10d878edc4c48d1cdf}
+      \strng{bibnamehash}{ecdfda356cf61a10d878edc4c48d1cdf}
+      \strng{authorbibnamehash}{ecdfda356cf61a10d878edc4c48d1cdf}
+      \strng{authornamehash}{6786657868ffe776bc8264cc4baa805c}
+      \strng{authorfullhash}{ecdfda356cf61a10d878edc4c48d1cdf}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Robotics and Automation Letters}
+      \field{number}{2}
+      \field{title}{Persistent and robust execution of MAPF schedules in warehouses}
+      \field{volume}{4}
+      \field{year}{2019}
+      \field{pages}{1125\bibrangedash 1131}
+      \range{pages}{7}
+    \endentry
+    \entry{Intersection_Management}{article}{}
+      \name{author}{2}{}{%
+        {{hash=a7438bdb1e6ce8d9d27ce29a13748dd8}{%
+           family={Dresner},
+           familyi={D\bibinitperiod},
+           given={Kurt},
+           giveni={K\bibinitperiod}}}%
+        {{hash=3f42a499da2cddc0bae71b76c81f7c46}{%
+           family={Stone},
+           familyi={S\bibinitperiod},
+           given={Peter},
+           giveni={P\bibinitperiod}}}%
+      }
+      \strng{namehash}{37398612af4d3fcdafc746b22708fea7}
+      \strng{fullhash}{37398612af4d3fcdafc746b22708fea7}
+      \strng{bibnamehash}{37398612af4d3fcdafc746b22708fea7}
+      \strng{authorbibnamehash}{37398612af4d3fcdafc746b22708fea7}
+      \strng{authornamehash}{37398612af4d3fcdafc746b22708fea7}
+      \strng{authorfullhash}{37398612af4d3fcdafc746b22708fea7}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of artificial intelligence research}
+      \field{title}{A multiagent approach to autonomous intersection management}
+      \field{volume}{31}
+      \field{year}{2008}
+      \field{pages}{591\bibrangedash 656}
+      \range{pages}{66}
+    \endentry
+    \entry{Fork_Fleet1}{inproceedings}{}
+      \name{author}{4}{}{%
+        {{hash=e414226627c532eeba13292de416a574}{%
+           family={Pecora},
+           familyi={P\bibinitperiod},
+           given={Federico},
+           giveni={F\bibinitperiod}}}%
+        {{hash=6c6277a1ef5d5497d692eff5d1efeeda}{%
+           family={Andreasson},
+           familyi={A\bibinitperiod},
+           given={Henrik},
+           giveni={H\bibinitperiod}}}%
+        {{hash=2f18adc3bbca7c00003250c5bc2abb0d}{%
+           family={Mansouri},
+           familyi={M\bibinitperiod},
+           given={Masoumeh},
+           giveni={M\bibinitperiod}}}%
+        {{hash=c1596cc27f75a929e6091758d5a02123}{%
+           family={Petkov},
+           familyi={P\bibinitperiod},
+           given={Vilian},
+           giveni={V\bibinitperiod}}}%
+      }
+      \strng{namehash}{39dc04ea7572182decd407e355fe213e}
+      \strng{fullhash}{a2db401d6546afe7c9a50fc5ffec6bf4}
+      \strng{bibnamehash}{a2db401d6546afe7c9a50fc5ffec6bf4}
+      \strng{authorbibnamehash}{a2db401d6546afe7c9a50fc5ffec6bf4}
+      \strng{authornamehash}{39dc04ea7572182decd407e355fe213e}
+      \strng{authorfullhash}{a2db401d6546afe7c9a50fc5ffec6bf4}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the International Conference on Automated Planning and Scheduling}
+      \field{title}{A loosely-coupled approach for multi-robot coordination, motion planning and control}
+      \field{volume}{28}
+      \field{year}{2018}
+      \field{pages}{485\bibrangedash 493}
+      \range{pages}{9}
+    \endentry
+    \entry{Fork_Fleet2}{inproceedings}{}
+      \name{author}{4}{}{%
+        {{hash=8273d954f1e8ef6bcd12fb1a59c6d6b5}{%
+           family={Salvado},
+           familyi={S\bibinitperiod},
+           given={João},
+           giveni={J\bibinitperiod}}}%
+        {{hash=12b1e3f8d904c4bb30a7313c308a31fd}{%
+           family={Krug},
+           familyi={K\bibinitperiod},
+           given={Robert},
+           giveni={R\bibinitperiod}}}%
+        {{hash=2f18adc3bbca7c00003250c5bc2abb0d}{%
+           family={Mansouri},
+           familyi={M\bibinitperiod},
+           given={Masoumeh},
+           giveni={M\bibinitperiod}}}%
+        {{hash=6df7cd666d395b619fd0277c21a365e1}{%
+           family={Pecora},
+           familyi={P\bibinitperiod},
+           given={Fedorico},
+           giveni={F\bibinitperiod}}}%
+      }
+      \strng{namehash}{7afd43d1d9c7a18cd587d98c6038f022}
+      \strng{fullhash}{3cf3637d79e1332334b00882655d93ef}
+      \strng{bibnamehash}{3cf3637d79e1332334b00882655d93ef}
+      \strng{authorbibnamehash}{3cf3637d79e1332334b00882655d93ef}
+      \strng{authornamehash}{7afd43d1d9c7a18cd587d98c6038f022}
+      \strng{authorfullhash}{3cf3637d79e1332334b00882655d93ef}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{2018 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)}
+      \field{title}{Motion Planning and Goal Assignment for Robot Fleets Using Trajectory Optimization}
+      \field{year}{2018}
+      \field{pages}{7939\bibrangedash 7946}
+      \range{pages}{8}
+      \verb{doi}
+      \verb 10.1109/IROS.2018.8594118
+      \endverb
+    \endentry
+    \entry{Flocking_1}{article}{}
+      \name{author}{1}{}{%
+        {{hash=f7b28f3352eaacebbbc56b73db55a6ea}{%
+           family={Olfati-Saber},
+           familyi={O\bibinithyphendelim S\bibinitperiod},
+           given={Reza},
+           giveni={R\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{f7b28f3352eaacebbbc56b73db55a6ea}
+      \strng{fullhash}{f7b28f3352eaacebbbc56b73db55a6ea}
+      \strng{bibnamehash}{f7b28f3352eaacebbbc56b73db55a6ea}
+      \strng{authorbibnamehash}{f7b28f3352eaacebbbc56b73db55a6ea}
+      \strng{authornamehash}{f7b28f3352eaacebbbc56b73db55a6ea}
+      \strng{authorfullhash}{f7b28f3352eaacebbbc56b73db55a6ea}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Transactions on automatic control}
+      \field{number}{3}
+      \field{title}{Flocking for multi-agent dynamic systems: Algorithms and theory}
+      \field{volume}{51}
+      \field{year}{2006}
+      \field{pages}{401\bibrangedash 420}
+      \range{pages}{20}
+    \endentry
+    \entry{Flocking_2}{inproceedings}{}
+      \name{author}{5}{}{%
+        {{hash=bd18c879f9e29c587d042f725f23e5cb}{%
+           family={Ma},
+           familyi={M\bibinitperiod},
+           given={Hang},
+           giveni={H\bibinitperiod}}}%
+        {{hash=e73fe9577563ac162c16d971810cc0bb}{%
+           family={Yang},
+           familyi={Y\bibinitperiod},
+           given={Jingxing},
+           giveni={J\bibinitperiod}}}%
+        {{hash=0c95e714680d33d0c807a3640affbf33}{%
+           family={Cohen},
+           familyi={C\bibinitperiod},
+           given={Liron},
+           giveni={L\bibinitperiod}}}%
+        {{hash=1152ba4ccd01d3a20263e6099b50049c}{%
+           family={Kumar},
+           familyi={K\bibinitperiod},
+           given={TK},
+           giveni={T\bibinitperiod}}}%
+        {{hash=6e0da33fcadd327da8ebc74eea9cafe2}{%
+           family={Koenig},
+           familyi={K\bibinitperiod},
+           given={Sven},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{9b9e7f5e344b38853662648db653be27}
+      \strng{fullhash}{f57b0a83b275716dae525929344dc420}
+      \strng{bibnamehash}{f57b0a83b275716dae525929344dc420}
+      \strng{authorbibnamehash}{f57b0a83b275716dae525929344dc420}
+      \strng{authornamehash}{9b9e7f5e344b38853662648db653be27}
+      \strng{authorfullhash}{f57b0a83b275716dae525929344dc420}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the AAAI Conference on Artificial Intelligence and Interactive Digital Entertainment}
+      \field{number}{1}
+      \field{title}{Feasibility study: Moving non-homogeneous teams in congested video game environments}
+      \field{volume}{13}
+      \field{year}{2017}
+      \field{pages}{270\bibrangedash 272}
+      \range{pages}{3}
+    \endentry
+    \entry{Swarm_Robotics}{article}{}
+      \name{author}{5}{}{%
+        {{hash=c78a99ce702300cef14d551ea01dbc5b}{%
+           family={Hönig},
+           familyi={H\bibinitperiod},
+           given={Wolfgang},
+           giveni={W\bibinitperiod}}}%
+        {{hash=19b68b1560247695c557ee3fb79377e5}{%
+           family={Preiss},
+           familyi={P\bibinitperiod},
+           given={James\bibnamedelima A},
+           giveni={J\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=6321ad6e5ab21657628e6d7ab09e418a}{%
+           family={Kumar},
+           familyi={K\bibinitperiod},
+           given={TK\bibnamedelima Satish},
+           giveni={T\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=6d430fe2b65c3d9fedd6f2d351604092}{%
+           family={Sukhatme},
+           familyi={S\bibinitperiod},
+           given={Gaurav\bibnamedelima S},
+           giveni={G\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=1c307d9b859cf07f7eb1337ae5ac9f78}{%
+           family={Ayanian},
+           familyi={A\bibinitperiod},
+           given={Nora},
+           giveni={N\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{5ed6ecbcc76f6e37accfa9b67556b830}
+      \strng{fullhash}{b0ef6ca13f062445017570a54f33459a}
+      \strng{bibnamehash}{b0ef6ca13f062445017570a54f33459a}
+      \strng{authorbibnamehash}{b0ef6ca13f062445017570a54f33459a}
+      \strng{authornamehash}{5ed6ecbcc76f6e37accfa9b67556b830}
+      \strng{authorfullhash}{b0ef6ca13f062445017570a54f33459a}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Transactions on Robotics}
+      \field{number}{4}
+      \field{title}{Trajectory planning for quadrotor swarms}
+      \field{volume}{34}
+      \field{year}{2018}
+      \field{pages}{856\bibrangedash 869}
+      \range{pages}{14}
+    \endentry
+    \entry{Industry_41}{article}{}
+      \name{author}{5}{}{%
+        {{hash=bbbfc2e139b4fbf801d5d4ea03048311}{%
+           family={Lasi},
+           familyi={L\bibinitperiod},
+           given={Heiner},
+           giveni={H\bibinitperiod}}}%
+        {{hash=f88eb676c206753b0989fa3776b5a10c}{%
+           family={Fettke},
+           familyi={F\bibinitperiod},
+           given={Peter},
+           giveni={P\bibinitperiod}}}%
+        {{hash=0aeb854e1980e96131ad11d6c7e59b76}{%
+           family={Kemper},
+           familyi={K\bibinitperiod},
+           given={Hans-Georg},
+           giveni={H\bibinithyphendelim G\bibinitperiod}}}%
+        {{hash=d641a10adbc6d2e6bc6817d3af3ae40f}{%
+           family={Feld},
+           familyi={F\bibinitperiod},
+           given={Thomas},
+           giveni={T\bibinitperiod}}}%
+        {{hash=4539d354ecc875071164ba52f1c44812}{%
+           family={Hoffmann},
+           familyi={H\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Springer}%
+      }
+      \strng{namehash}{c366f25a6822d6636c050e1a0df320c3}
+      \strng{fullhash}{19799c67d0dbf629073f2f2d2d5fd4c0}
+      \strng{bibnamehash}{19799c67d0dbf629073f2f2d2d5fd4c0}
+      \strng{authorbibnamehash}{19799c67d0dbf629073f2f2d2d5fd4c0}
+      \strng{authornamehash}{c366f25a6822d6636c050e1a0df320c3}
+      \strng{authorfullhash}{19799c67d0dbf629073f2f2d2d5fd4c0}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Business \& information systems engineering}
+      \field{title}{Industry 4.0}
+      \field{volume}{6}
+      \field{year}{2014}
+      \field{pages}{239\bibrangedash 242}
+      \range{pages}{4}
+    \endentry
+    \entry{Industry_42}{article}{}
+      \name{author}{3}{}{%
+        {{hash=fdd957e8b7c9be15903606cb7ec76b57}{%
+           family={Rossit},
+           familyi={R\bibinitperiod},
+           given={Daniel\bibnamedelima Alejandro},
+           giveni={D\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=04066c1b740ff4aaecca53ecbe876c97}{%
+           family={Tohmé},
+           familyi={T\bibinitperiod},
+           given={Fernando},
+           giveni={F\bibinitperiod}}}%
+        {{hash=9886158c709444f0f772b93d40ac2738}{%
+           family={Frutos},
+           familyi={F\bibinitperiod},
+           given={Mariano},
+           giveni={M\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Taylor \& Francis}%
+      }
+      \strng{namehash}{0633b5722f4c022622cf2e415503850b}
+      \strng{fullhash}{0633b5722f4c022622cf2e415503850b}
+      \strng{bibnamehash}{0633b5722f4c022622cf2e415503850b}
+      \strng{authorbibnamehash}{0633b5722f4c022622cf2e415503850b}
+      \strng{authornamehash}{0633b5722f4c022622cf2e415503850b}
+      \strng{authorfullhash}{0633b5722f4c022622cf2e415503850b}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{International Journal of Production Research}
+      \field{number}{12}
+      \field{title}{Industry 4.0: smart scheduling}
+      \field{volume}{57}
+      \field{year}{2019}
+      \field{pages}{3802\bibrangedash 3813}
+      \range{pages}{12}
+    \endentry
+    \entry{Industry_43}{article}{}
+      \name{author}{3}{}{%
+        {{hash=7c9366945feb3f9145a70dc37846e663}{%
+           family={De\bibnamedelima Ryck},
+           familyi={D\bibinitperiod\bibinitdelim R\bibinitperiod},
+           given={Matthias},
+           giveni={M\bibinitperiod}}}%
+        {{hash=ff248058db97eb068c12919b9a3f7826}{%
+           family={Versteyhe},
+           familyi={V\bibinitperiod},
+           given={Mark},
+           giveni={M\bibinitperiod}}}%
+        {{hash=d9f4e836f195f37cc95b106ef1022ecb}{%
+           family={Debrouwere},
+           familyi={D\bibinitperiod},
+           given={Frederik},
+           giveni={F\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Elsevier}%
+      }
+      \strng{namehash}{0be7122734b3eb41eb59e05641c565bd}
+      \strng{fullhash}{0be7122734b3eb41eb59e05641c565bd}
+      \strng{bibnamehash}{0be7122734b3eb41eb59e05641c565bd}
+      \strng{authorbibnamehash}{0be7122734b3eb41eb59e05641c565bd}
+      \strng{authornamehash}{0be7122734b3eb41eb59e05641c565bd}
+      \strng{authorfullhash}{0be7122734b3eb41eb59e05641c565bd}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Manufacturing Systems}
+      \field{title}{Automated guided vehicle systems, state-of-the-art control algorithms and techniques}
+      \field{volume}{54}
+      \field{year}{2020}
+      \field{pages}{152\bibrangedash 173}
+      \range{pages}{22}
+    \endentry
     \entry{Robots2020}{article}{}
       \name{author}{2}{}{%
         {{hash=5d500fe4f8d9e903a85bb08d70528ecb}{%
@@ -121,8 +677,8 @@
       \strng{authorbibnamehash}{54826ed8af6718878efd97402fc5bc7e}
       \strng{authornamehash}{54826ed8af6718878efd97402fc5bc7e}
       \strng{authorfullhash}{54826ed8af6718878efd97402fc5bc7e}
-      \field{sortinit}{3}
-      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{Nature}

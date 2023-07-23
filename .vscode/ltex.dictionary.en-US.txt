@@ -5,3 +5,4 @@ STDMA
 Decentralised
 centralised
 organise
+MAPF

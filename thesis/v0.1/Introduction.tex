@@ -75,6 +75,7 @@ The detailed explanation of the motivation is as follows.
   slots in repeating frames. 
   In short, STDMA is a protocol that allows agents to autonomously
    share 1D resources (time) among themselves.
+
    % 记得加上：详细的解释位于文献综述部分
 
 The reason for using STDMA is its \textbf{characteristics}:
@@ -106,3 +107,38 @@ These characteristics and challenges make this project interesting and worthy of
 
 
 \subsection{Why 2D plane path planning?}
+
+2D plane path planning is a name for better understanding and is not the accurate name for this problem.
+This problem is acturally a \textbf{\textit{Multi-Agent Path Finding} (MAPF)} problem \cite{MAPF_Explain1, MAPF_Explain2}.
+
+Here, the term "finding" could be somewhat confusing. 
+In fact, he MAPF problem combines both \textbf{collision-free movement} of multiple agents and 
+\textbf{path efficiency optimising}.
+
+Overall, the problem of \textit{Multi-Agent Path Finding} (MAPF) concerns \textbf{the movement of multiple agents in a grid world}.
+
+To easily get a better understanding of this problem, please refer to this \href{https://primalgrid.netlify.app/primal}{website}\footnotemark.\footnotetext{https://primalgrid.netlify.app/primal}
+The website presents the MAPF problems and their solutions through a simple and engaging animation (estimated time required: 1$\sim$2 min).
+
+% 记得加上：详细描述参看后续Literature review
+
+%\FloatBarrier
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\linewidth]{figures/Amazon_Warehouse.jpeg}
+    \caption{Kiva system operating in Amazon warehouse\protect\footnotemark. }
+    \label{fig:Amazon Warehouse Robots}
+\end{figure}
+\footnotetext{https://spectrum.ieee.org/interview-brad-porter-vp-of-robotics-at-amazon}
+
+\textbf{MAPF algorithms have broad prospects for use}.
+\begin{itemize}
+    \item \textbf{Warehouse Automation}: Pick-pack-and-ship system in warehouse (like Fig \ref{fig:Amazon Warehouse Robots}). Delivering items in sorting station \cite{Warehouse_Automation1,Warehouse_Automation2}.
+    \item \textbf{Intersection Management}: Coordinate autonomous vehicle movement through intersections \cite{Intersection_Management}.
+    \item \textbf{Robot Fleet}: Automating fleets of autonomous robots like forklift fleets \cite{Fork_Fleet1,Fork_Fleet2}.  
+    \item \textbf{Agents in video games and CGIs}: Flock simulating and animating\cite{Flocking_1,Flocking_2}.
+    \item \textbf{Swarm Robots}: Controlling self-organised robot swarms\cite{Swarm_Robotics}.
+\end{itemize}
+
+In general, the application of this algorithm is very broad. Furthermore, in the context of Industry 4.0 and flexible manufacturing, it has even better prospects for application\cite{Industry_41,Industry_42,Industry_43}, as centralized control is gradually becoming inadequate to meet new production needs.
+ 

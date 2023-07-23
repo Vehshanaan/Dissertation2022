@@ -2377,7 +2377,20 @@
   <bcf:section number="0">
     <bcf:citekey order="1" intorder="1">STDMA</bcf:citekey>
     <bcf:citekey order="2" intorder="1">Paper_From_Supervisor</bcf:citekey>
-    <bcf:citekey order="3" intorder="1">Robots2020</bcf:citekey>
+    <bcf:citekey order="3" intorder="1">MAPF_Explain1</bcf:citekey>
+    <bcf:citekey order="3" intorder="2">MAPF_Explain2</bcf:citekey>
+    <bcf:citekey order="4" intorder="1">Warehouse_Automation1</bcf:citekey>
+    <bcf:citekey order="4" intorder="2">Warehouse_Automation2</bcf:citekey>
+    <bcf:citekey order="5" intorder="1">Intersection_Management</bcf:citekey>
+    <bcf:citekey order="6" intorder="1">Fork_Fleet1</bcf:citekey>
+    <bcf:citekey order="6" intorder="2">Fork_Fleet2</bcf:citekey>
+    <bcf:citekey order="7" intorder="1">Flocking_1</bcf:citekey>
+    <bcf:citekey order="7" intorder="2">Flocking_2</bcf:citekey>
+    <bcf:citekey order="8" intorder="1">Swarm_Robotics</bcf:citekey>
+    <bcf:citekey order="9" intorder="1">Industry_41</bcf:citekey>
+    <bcf:citekey order="9" intorder="2">Industry_42</bcf:citekey>
+    <bcf:citekey order="9" intorder="3">Industry_43</bcf:citekey>
+    <bcf:citekey order="10" intorder="1">Robots2020</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="none">
