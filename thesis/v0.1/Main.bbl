@@ -1,0 +1,139 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global}
+    \entry{STDMA}{inproceedin}{}
+      \name{author}{5}{}{%
+        {{hash=8ab0eef2683f5746041a013cf9ce027e}{%
+           family={Gaugel},
+           familyi={G\bibinitperiod},
+           given={Tristan},
+           giveni={T\bibinitperiod}}}%
+        {{hash=dd7c7cfac63543062717af7935af1e65}{%
+           family={Mittag},
+           familyi={M\bibinitperiod},
+           given={Jens},
+           giveni={J\bibinitperiod}}}%
+        {{hash=4eb1825c8150c2f23424f1c147cdf88b}{%
+           family={Hartenstein},
+           familyi={H\bibinitperiod},
+           given={Hannes},
+           giveni={H\bibinitperiod}}}%
+        {{hash=d51b3719b125d04c49eb3c63672e5cd0}{%
+           family={Papanastasiou},
+           familyi={P\bibinitperiod},
+           given={Stylianos},
+           giveni={S\bibinitperiod}}}%
+        {{hash=be63c53bd8a4bbc09f8d5a92f25f8dc5}{%
+           family={Ström},
+           familyi={S\bibinitperiod},
+           given={Erik\bibnamedelima G.},
+           giveni={E\bibinitperiod\bibinitdelim G\bibinitperiod}}}%
+      }
+      \strng{namehash}{a2feba12b411e3b7c3287163f4ccf391}
+      \strng{fullhash}{0c68a9b682f9dc08c0f25bcb2b7b44f9}
+      \strng{bibnamehash}{0c68a9b682f9dc08c0f25bcb2b7b44f9}
+      \strng{authorbibnamehash}{0c68a9b682f9dc08c0f25bcb2b7b44f9}
+      \strng{authornamehash}{a2feba12b411e3b7c3287163f4ccf391}
+      \strng{authorfullhash}{0c68a9b682f9dc08c0f25bcb2b7b44f9}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{2013 IEEE Vehicular Networking Conference}
+      \field{title}{In-depth analysis and evaluation of Self-organizing TDMA}
+      \field{year}{2013}
+      \field{pages}{79\bibrangedash 86}
+      \range{pages}{8}
+      \verb{doi}
+      \verb 10.1109/VNC.2013.6737593
+      \endverb
+    \endentry
+    \entry{Paper_From_Supervisor}{article}{}
+      \name{author}{2}{}{%
+        {{hash=7c05ad990bd26ca7f01d32cde2cb2495}{%
+           family={Asadi},
+           familyi={A\bibinitperiod},
+           given={Elham\bibnamedelima Fatemeh},
+           giveni={E\bibinitperiod\bibinitdelim F\bibinitperiod}}}%
+        {{hash=5a6baa575a5d93b82a2805a1c997c010}{%
+           family={Richards},
+           familyi={R\bibinitperiod},
+           given={Arthur},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Elsevier}%
+      }
+      \strng{namehash}{f2912a48795ea248716cf1d3e2cf7392}
+      \strng{fullhash}{f2912a48795ea248716cf1d3e2cf7392}
+      \strng{bibnamehash}{f2912a48795ea248716cf1d3e2cf7392}
+      \strng{authorbibnamehash}{f2912a48795ea248716cf1d3e2cf7392}
+      \strng{authornamehash}{f2912a48795ea248716cf1d3e2cf7392}
+      \strng{authorfullhash}{f2912a48795ea248716cf1d3e2cf7392}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Automatica}
+      \field{title}{Scalable distributed model predictive control for constrained systems}
+      \field{volume}{93}
+      \field{year}{2018}
+      \field{pages}{407\bibrangedash 414}
+      \range{pages}{8}
+    \endentry
+    \entry{Robots2020}{article}{}
+      \name{author}{2}{}{%
+        {{hash=5d500fe4f8d9e903a85bb08d70528ecb}{%
+           family={Olivaw},
+           familyi={O\bibinitperiod},
+           given={Daneel},
+           giveni={D\bibinitperiod}}}%
+        {{hash=60cc0a9f62283d12da66fee328636cc8}{%
+           family={Asimov},
+           familyi={A\bibinitperiod},
+           given={Isaac},
+           giveni={I\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Nature Publishing Group}%
+      }
+      \strng{namehash}{54826ed8af6718878efd97402fc5bc7e}
+      \strng{fullhash}{54826ed8af6718878efd97402fc5bc7e}
+      \strng{bibnamehash}{54826ed8af6718878efd97402fc5bc7e}
+      \strng{authorbibnamehash}{54826ed8af6718878efd97402fc5bc7e}
+      \strng{authornamehash}{54826ed8af6718878efd97402fc5bc7e}
+      \strng{authorfullhash}{54826ed8af6718878efd97402fc5bc7e}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Nature}
+      \field{number}{7665}
+      \field{title}{Discussion of two robots}
+      \field{volume}{548}
+      \field{year}{2021}
+      \field{pages}{43\bibrangedash 51}
+      \range{pages}{9}
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

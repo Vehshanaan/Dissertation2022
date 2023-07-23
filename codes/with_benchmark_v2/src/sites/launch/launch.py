@@ -7,19 +7,23 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 # 注意，地图和场景都在这里设置，**记得设置成成对的！！！，没法设计代码级别的防呆匹配！自己记得用好，不要犯傻**
-#map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-png/Berlin_1_256.png"
-#map_size = (256,256) # 地图大小。详参https://movingai.com/benchmarks/mapf/index.html
+'''
+map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-png/Berlin_1_256.png"
+map_size = (256,256) # 地图大小。详参https://movingai.com/benchmarks/mapf/index.html
+scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-scen/Berlin_1_256.map.scen"
 
-
-
-#scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-scen/Berlin_1_256.map.scen"
+frame_length = 10
+node_total = 20
+'''
 
 map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/with_benchmark_v2/test_map.png"
 map_size = (50,3)
 scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/with_benchmark_v2/test.scen"
 
-frame_length = 10  # 帧长度
+frame_length = 2  # 帧长度
 node_total = 2  # 节点数目
+
+
 map_size = list(map_size)
 
 

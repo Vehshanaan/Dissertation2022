@@ -1,0 +1,59 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global}
+    \entry{Robots2020}{article}{}
+      \name{author}{2}{}{%
+        {{hash=5d500fe4f8d9e903a85bb08d70528ecb}{%
+           family={Olivaw},
+           familyi={O\bibinitperiod},
+           given={Daneel},
+           giveni={D\bibinitperiod}}}%
+        {{hash=60cc0a9f62283d12da66fee328636cc8}{%
+           family={Asimov},
+           familyi={A\bibinitperiod},
+           given={Isaac},
+           giveni={I\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Nature Publishing Group}%
+      }
+      \strng{namehash}{54826ed8af6718878efd97402fc5bc7e}
+      \strng{fullhash}{54826ed8af6718878efd97402fc5bc7e}
+      \strng{bibnamehash}{54826ed8af6718878efd97402fc5bc7e}
+      \strng{authorbibnamehash}{54826ed8af6718878efd97402fc5bc7e}
+      \strng{authornamehash}{54826ed8af6718878efd97402fc5bc7e}
+      \strng{authorfullhash}{54826ed8af6718878efd97402fc5bc7e}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Nature}
+      \field{number}{7665}
+      \field{title}{Discussion of two robots}
+      \field{volume}{548}
+      \field{year}{2021}
+      \field{pages}{43\bibrangedash 51}
+      \range{pages}{9}
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+
