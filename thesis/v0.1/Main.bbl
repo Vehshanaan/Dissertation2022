@@ -655,39 +655,128 @@
       \field{pages}{152\bibrangedash 173}
       \range{pages}{22}
     \endentry
-    \entry{Robots2020}{article}{}
-      \name{author}{2}{}{%
-        {{hash=5d500fe4f8d9e903a85bb08d70528ecb}{%
-           family={Olivaw},
-           familyi={O\bibinitperiod},
-           given={Daneel},
-           giveni={D\bibinitperiod}}}%
-        {{hash=60cc0a9f62283d12da66fee328636cc8}{%
-           family={Asimov},
-           familyi={A\bibinitperiod},
-           given={Isaac},
+    \entry{STDMA_2}{inproceedings}{}
+      \name{author}{4}{}{%
+        {{hash=8d7075e7d04fefbaf37fb6df010a9ba4}{%
+           family={Fernández},
+           familyi={F\bibinitperiod},
+           given={Zaloa},
+           giveni={Z\bibinitperiod}}}%
+        {{hash=3be8c6e9e246a0e19d5356624f2d1bfa}{%
+           family={Val},
+           familyi={V\bibinitperiod},
+           given={Iñaki},
            giveni={I\bibinitperiod}}}%
+        {{hash=ccc75388d000af3f7bc0cf6cc80fd0b7}{%
+           family={Mendicute},
+           familyi={M\bibinitperiod},
+           given={Mikel},
+           giveni={M\bibinitperiod}}}%
+        {{hash=3bf5ec7c331990cec149dda1eb9ea414}{%
+           family={Uhlemann},
+           familyi={U\bibinitperiod},
+           given={Elisabeth},
+           giveni={E\bibinitperiod}}}%
       }
-      \list{publisher}{1}{%
-        {Nature Publishing Group}%
-      }
-      \strng{namehash}{54826ed8af6718878efd97402fc5bc7e}
-      \strng{fullhash}{54826ed8af6718878efd97402fc5bc7e}
-      \strng{bibnamehash}{54826ed8af6718878efd97402fc5bc7e}
-      \strng{authorbibnamehash}{54826ed8af6718878efd97402fc5bc7e}
-      \strng{authornamehash}{54826ed8af6718878efd97402fc5bc7e}
-      \strng{authorfullhash}{54826ed8af6718878efd97402fc5bc7e}
+      \strng{namehash}{9960723b49b6b09d4075d46113ae5846}
+      \strng{fullhash}{1f8f8f629161b0da955ee00d8ce052fd}
+      \strng{bibnamehash}{1f8f8f629161b0da955ee00d8ce052fd}
+      \strng{authorbibnamehash}{1f8f8f629161b0da955ee00d8ce052fd}
+      \strng{authornamehash}{9960723b49b6b09d4075d46113ae5846}
+      \strng{authorfullhash}{1f8f8f629161b0da955ee00d8ce052fd}
       \field{sortinit}{1}
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{journaltitle}{Nature}
-      \field{number}{7665}
-      \field{title}{Discussion of two robots}
-      \field{volume}{548}
+      \field{booktitle}{2019 15th IEEE International Workshop on Factory Communication Systems (WFCS)}
+      \field{title}{Analysis and Evaluation of Self-Organizing TDMA for Industrial Applications}
+      \field{year}{2019}
+      \field{pages}{1\bibrangedash 8}
+      \range{pages}{8}
+      \verb{doi}
+      \verb 10.1109/WFCS.2019.8758039
+      \endverb
+    \endentry
+    \entry{STDMA_improv1}{article}{}
+      \name{author}{4}{}{%
+        {{hash=4b2888819ff396ea09467ccb9180198b}{%
+           family={Mosavat-Jahromi},
+           familyi={M\bibinithyphendelim J\bibinitperiod},
+           given={Hamed},
+           giveni={H\bibinitperiod}}}%
+        {{hash=0e1dff109644a2423d611a0bfe123178}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Yue},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=e717dca824fa5b3ac4a778e396764971}{%
+           family={Ni},
+           familyi={N\bibinitperiod},
+           given={Yuanzhi},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=2dd55b198ae7d0f504c9cfb4ddd0f3e1}{%
+           family={Cai},
+           familyi={C\bibinitperiod},
+           given={Lin},
+           giveni={L\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{a834360c26269923822ce7e2d222ae30}
+      \strng{fullhash}{a5696e1c33b8d4c61e94bceb63107783}
+      \strng{bibnamehash}{a5696e1c33b8d4c61e94bceb63107783}
+      \strng{authorbibnamehash}{a5696e1c33b8d4c61e94bceb63107783}
+      \strng{authornamehash}{a834360c26269923822ce7e2d222ae30}
+      \strng{authorfullhash}{a5696e1c33b8d4c61e94bceb63107783}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Transactions on Mobile Computing}
+      \field{number}{10}
+      \field{title}{Distributed and adaptive reservation MAC protocol for beaconing in vehicular networks}
+      \field{volume}{20}
+      \field{year}{2020}
+      \field{pages}{2936\bibrangedash 2948}
+      \range{pages}{13}
+    \endentry
+    \entry{STDMA_improv2}{inproceedings}{}
+      \name{author}{3}{}{%
+        {{hash=8d28e16e10e8cc99d1e4235971cfc486}{%
+           family={Terauchi},
+           familyi={T\bibinitperiod},
+           given={Takeru},
+           giveni={T\bibinitperiod}}}%
+        {{hash=cb5f006c153dd3c81427d767bfb721a0}{%
+           family={Suto},
+           familyi={S\bibinitperiod},
+           given={Katsuya},
+           giveni={K\bibinitperiod}}}%
+        {{hash=3967acc9438f9f3f31b1d50ce0d41d6a}{%
+           family={Wakaiki},
+           familyi={W\bibinitperiod},
+           given={Masashi},
+           giveni={M\bibinitperiod}}}%
+      }
+      \list{organization}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{de430555602266a04db473f359441e4a}
+      \strng{fullhash}{de430555602266a04db473f359441e4a}
+      \strng{bibnamehash}{de430555602266a04db473f359441e4a}
+      \strng{authorbibnamehash}{de430555602266a04db473f359441e4a}
+      \strng{authornamehash}{de430555602266a04db473f359441e4a}
+      \strng{authorfullhash}{de430555602266a04db473f359441e4a}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{2021 IEEE 93rd vehicular technology conference (VTC2021-Spring)}
+      \field{title}{Harvest-then-transmit-based TDMA protocol with statistical channel state information for wireless powered sensor networks}
       \field{year}{2021}
-      \field{pages}{43\bibrangedash 51}
-      \range{pages}{9}
+      \field{pages}{1\bibrangedash 5}
+      \range{pages}{5}
     \endentry
   \enddatalist
 \endrefsection

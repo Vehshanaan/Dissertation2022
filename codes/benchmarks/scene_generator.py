@@ -68,7 +68,7 @@ def map_load(map_path, size):
 
     _, img = cv2.threshold(
         img, 100, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)  # 二值化
-
+    
     map = (img != 0).tolist()
 
     return map
@@ -218,7 +218,7 @@ def get_neighbors(pos, map):
     for direction in directions:
         new_pos = (pos[0] + direction[0], pos[1] + direction[1])
 
-        if is_valid(new_pos, map): # 如果不在地图障碍物且不在别人的下一步计划中：
+        if is_valid(new_pos, map): # 如果不在地图障碍物中：
             neighbors.append(new_pos)
 
     return neighbors
@@ -245,8 +245,10 @@ def heuristic(pos, goal):
 if __name__ == "__main__":
 
     map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/randoms/mapf-png/warehouse-10-20-10-2-1.png"
-    map_size = (162, 64)  # 162,64
+    map_size = (162, 61)  # 162,64
+    scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/my_own_benchmarks/"
 
-    scene_generate(map_path,map_size)
+
+    scene_generate(map_path,map_size,scene_path)
 
     #main()

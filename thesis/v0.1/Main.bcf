@@ -2390,7 +2390,10 @@
     <bcf:citekey order="9" intorder="1">Industry_41</bcf:citekey>
     <bcf:citekey order="9" intorder="2">Industry_42</bcf:citekey>
     <bcf:citekey order="9" intorder="3">Industry_43</bcf:citekey>
-    <bcf:citekey order="10" intorder="1">Robots2020</bcf:citekey>
+    <bcf:citekey order="10" intorder="1">STDMA</bcf:citekey>
+    <bcf:citekey order="11" intorder="1">STDMA_2</bcf:citekey>
+    <bcf:citekey order="12" intorder="1">STDMA_improv1</bcf:citekey>
+    <bcf:citekey order="12" intorder="2">STDMA_improv2</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="none">
