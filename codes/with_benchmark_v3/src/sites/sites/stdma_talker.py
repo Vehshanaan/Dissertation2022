@@ -132,6 +132,10 @@ class StdmaTalker(Node):
         if node_id == self.node_id:
             return  # 如果是自己发的：跳过，不保存接收到的信息
         else:
+            # 如果计划不够长：用计划最后一位补齐长度
+            if len(data)<self.num_slots:
+                data+=[data[-1]]*(self.num_slots-len(data))
+                self.get_logger().fatal("补长后的计划："+str(data))
             self.inbox_plan[node_id] = data  # 保存到计划存储变量里
 
     def get_messages(self):
@@ -244,24 +248,33 @@ class StdmaTalker(Node):
             for _ in empty_plans:
                 del self.inbox_plan[_]
 
-            '''
+            
             # 如果下一槽位是自己的且自己已经加入网络：筹谋
+            '''
             if self.state == "in" and self.slot == self.my_slot:
-                horizon_length = 60 # finite horizon的长度
+                horizon_length = 50 # finite horizon的长度
                 plan = path_finding.find_path(
-                    self.map, self.num_slots, horizon_length, self.others_positions, self.position, self.goal, self.inbox_plan, not self.jumped_in)
+                    self.map, self.num_slots-5, horizon_length, self.others_positions, self.position, self.goal, self.inbox_plan, not self.jumped_in)
                 if plan:
                     self.plan = plan  # 如果成功生成路径：保存计划
                     # 如果是第一次筹谋（尚未进入地图变成实体）且成功生成计划：
                     if not self.jumped_in:
                         self.jumped_in = True
-                    self.get_logger().fatal("我的当前位置：（%d,%d）， 我的目标位置：（%d, %d）" %
-                                            (self.position[0], self.position[1], self.goal[0], self.goal[1]))
-                    self.get_logger().fatal("我收到的计划："+str(self.inbox_plan))
-                    self.get_logger().fatal("我的计划: "+str(self.plan))
+                    #self.get_logger().fatal("我的当前位置：（%d,%d）， 我的目标位置：（%d, %d）" %
+                                            #(self.position[0], self.position[1], self.goal[0], self.goal[1]))
+                    #self.get_logger().fatal("我收到的计划："+str(self.inbox_plan))
+                    #self.get_logger().fatal("我的计划: "+str(self.plan))
 
                     # 潜在bug：已入网的节点找不到足够的物理空间来生成计划，会导致节点存在但没有通报的计划，导致隐形
             '''
+            # 我先测试一下安全时间靠不靠谱
+            '''
+            if self.half_slot_length!=-1:
+                time_now = time.time()
+                time_left = self.half_slot_length-(time_now-self.time_stamp)
+                while time.time()-time_now <time_left*0.95:
+                    pass
+            ''' # 行。
 
 
 def main(args=None):

@@ -71,8 +71,9 @@ class Map(Node):
         self.scene_path = scene_path
 
         # 从外部初始化地图大小
-        self.declare_parameter("map_size",[1,1])
-        map_size = self.get_parameter("map_size").get_parameter_value().integer_array_value
+        self.declare_parameter("map_size", [1, 1])
+        map_size = self.get_parameter(
+            "map_size").get_parameter_value().integer_array_value
         self.map_size = tuple(list(map_size))
 
         # 读取地图
@@ -94,7 +95,8 @@ class Map(Node):
         self.num_nodes = num_nodes
 
         # 日志路径的生成
-        dir_path = log_path+str(os.path.basename(map_path))+"_Size"+str(self.map_size)+"/"
+        dir_path = log_path+str(os.path.basename(map_path)) + \
+            "_Size"+str(self.map_size)+"/"
         if not os.path.exists(dir_path):  # 为每个地图创建一个子文件夹保存其对应日志结果文件
             os.makedirs(dir_path)
         self.log_path = dir_path+"FrameLen" + \
@@ -120,6 +122,9 @@ class Map(Node):
         self.node_with_plans = set([])
 
         self.map_init()  # 初始化可视化地图窗口
+
+        # 消除已离开的节点的buffer
+        self.remove_countdown = {}
 
     def map_init(self):
         '''
@@ -161,13 +166,21 @@ class Map(Node):
         '''
         用计划更新位置。此函数会弹出所有计划的第一位
         '''
-        self.node_positions = {}  # 清空历史，这是为了已经消灭的节点能直接消失
+        # self.node_positions = {}  # 清空历史，这是为了已经消灭的节点能直接消失
         if self.inbox_plan:
             for key in list(self.inbox_plan.keys()):
                 if self.inbox_plan[key]:  # 如果计划不空：
                     self.node_positions[key] = self.inbox_plan[key].pop(
                         0)  # 用计划的头一位更新位置
-        
+                else:  # 不然：给消灭计时器+1
+                    if key not in self.remove_countdown:
+                        self.remove_countdown[key] = 1
+                    else:
+                        self.remove_countdown[key] += 1
+                    # 如果有人的消灭计时器到了一整帧：杀！意味着某人一整帧没有发送新计划。
+                    if self.remove_countdown[key] and self.remove_countdown[key] == self.num_slots:
+                        del self.node_positions[key]
+
         # 如果一个位置一整帧都没有用计划更新过，则此节点删除？
 
     def history_update(self):
@@ -247,6 +260,7 @@ class Map(Node):
                     (collision_pos[0]*self.grid_size, collision_pos[1]
                      * self.grid_size, self.grid_size, self.grid_size)
                 )
+            self.get_logger().fatal("地图检测到发生碰撞："+str(collisions))
 
         pygame.display.flip()  # 刷新画面
 
