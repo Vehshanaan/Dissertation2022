@@ -27,7 +27,6 @@ class PathFinder():
         self.start = start # 每次寻路时的起点
         self.goal = goal # 终点
         self.queue = None # 寻路所使用的堆
-        self.visited = None # 已遍历过的点
         self.path = [] # 生成的路径 在幻想中走过的路
 
     def update(self):
@@ -42,7 +41,6 @@ class PathFinder():
         抹去寻路算法的存档，从头开始
         '''
         self.queue = None
-        self.vsited = None
 
     def path_find(self, time_limit, plan):
 
@@ -52,12 +50,10 @@ class PathFinder():
         if self.path: # 如果自己的路径不为空
             for plan in plan.values(): # 对于每个计划：
                 self.path = cut_path(self.path,plan) # 将有重复的部分全部剪掉
-                self.reset() # 把寻路的存档缓存抹掉，从头开始
+                # 清除该清除的部分，重新开始
         
-        # 读取上次的工作
-        start = self.start
-        if self.path: start = self.path[-1]
-        if not self.queue: self.queue = [heuristic(start,goal),len(self.path),start,[]]
+        # 读取上次的工作, 继续
+        
         
         
         

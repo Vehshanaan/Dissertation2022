@@ -3,6 +3,9 @@
 \chapter{Research Methodology}
 \label{chap:Literature_Review}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\comment{
+
 The Methodology section should provide a clear explanation of the research approach.  You want your reader to agree that you carefully considered your method so that we can trust your results to be both insightful (\underline{mean something}) and credible (\underline{not subject to error}):
 \begin{itemize}
     \item A clear description of the methodology, how it creates a scientific investigation and operates to collect meaningful data.
@@ -46,5 +49,58 @@ For example, if $x>0$ then we can write
 \sigma =\int_{x=0}^{\infty} \frac{1}{x^2}dx \quad ,
 \end{equation}
 where $\sigma$ is the integral (see Equations \ref{eq:sum}).  
+
+}
+
+This section provides detailed information on algorithm, its implementation, and experiment design.
+
+\section{Algorithm and Implmentation}
+
+\subsection*{Environment}
+
+\begin{itemize}
+    \item \textbf{Hardware:} ROG Zephyrus M16 Laptop
+    \begin{itemize}
+        \item CPU: 11th Gen Intel(R) Core(TM) 17-11800H @ 2.30GHz
+        \item GPU: NVIDIA GeForce RTX 3060 Laptop GPU (unrelated to the experiment, information provided just for content completeness)
+    \end{itemize}
+    \item \textbf{Software:}
+    \begin{itemize}
+        \item OS: WSL2 (Ubuntu 22.04 LTS) in Windows 11 23H2
+        \item Implementation Platform: ROS2 Humble, all codes written in python
+    \end{itemize}
+\end{itemize}
+
+
+\textbf{The algorithm's idea} could be summarised in the following two parts: 
+\begin{enumerate}
+    \item \textbf{Communicate with STDMA}: Agents establish communication with STDMA protocol.
+    \item \textbf{Plan}: Agents plan their move based on the information received.
+\end{enumerate}
+
+And they are explained as below.
+
+\subsection{Communicate with STDMA}
+
+As previously mentioned in Section \ref{sec:STDMA Explained}, the STDMA protocol mainly consists of the following three parts:
+\begin{enumerate}
+    \item Synchronised Clock: Agents have synchronised clock.
+    \item State Machine: Four states for an agent to control their behaviour and describe network usage.
+    \item Message Publishing and Sending: Agents could monitor the channel and send information through it.
+\end{enumerate}
+
+And these features are implemented within the ROS2 structure.
+
+\subsubsection*{Synchronised Clock}
+
+In this paper, shared clock pulses are used to achieve the purpose of synchronizing clocks between agents.
+A ROS2 publisher sends a square wave with a fixed period and a duty cycle of 50$\%$ to the designated topic, serving as the shared clock signal. 
+Agents subscribe to this clock signal topic to achieve clock synchronisation.
+
+
+
+
+
+\section{Experiment Design}
 
 

@@ -8,9 +8,13 @@
 \contentsline {chapter}{\numberline {2}Literature Review}{10}{chapter.2}%
 \contentsline {section}{\numberline {2.1}STDMA Explained}{10}{section.2.1}%
 \contentsline {section}{\numberline {2.2}MAPF Algorithm Review}{11}{section.2.2}%
+\contentsline {section}{\numberline {2.3}MPC Review(?)}{11}{section.2.3}%
 \contentsline {chapter}{\numberline {3}Research Methodology}{12}{chapter.3}%
-\contentsline {chapter}{\numberline {4}Results}{13}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Common attributes to pay attention to are:}{13}{section.4.1}%
-\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{14}{chapter.5}%
-\contentsline {chapter}{\numberline {A}Appendix}{15}{appendix.A}%
-\contentsline {chapter}{References}{17}{appendix*.8}%
+\contentsline {section}{\numberline {3.1}Algorithm and Implmentation}{12}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Communicate with STDMA}{12}{subsection.3.1.1}%
+\contentsline {section}{\numberline {3.2}Experiment Design}{13}{section.3.2}%
+\contentsline {chapter}{\numberline {4}Results}{14}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Common attributes to pay attention to are:}{14}{section.4.1}%
+\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{15}{chapter.5}%
+\contentsline {chapter}{\numberline {A}Appendix}{16}{appendix.A}%
+\contentsline {chapter}{References}{18}{appendix*.7}%
