@@ -1,7 +1,6 @@
-
+from importlib.machinery import PathFinder
 from zoneinfo import available_timezones
 from blinker import receiver_connected
-
 from rclpy.logging import LoggingSeverity
 import sys  # 为了导入同目录的工具箱
 import os
@@ -18,6 +17,7 @@ sys.path.append(current_dir)
 if current_dir:
     import utils
     import path_finding
+
 
 
 class StdmaTalker(Node):
@@ -104,7 +104,6 @@ class StdmaTalker(Node):
         self.half_slot_length = -1
 
 
-
     def slot_length_update(self, time):
         '''
         每半槽调用一次，更新半槽时长
@@ -173,7 +172,7 @@ class StdmaTalker(Node):
                 # 如果有计划且计划不空且状态为in:
                 if hasattr(self, "plan") and self.plan and self.state == "in":
                     msg = Int32MultiArray()
-                    msg.data = utils.plan_compressor(self.node_id, self.plan[:self.num_slots])
+                    msg.data = utils.plan_compressor(self.node_id, self.plan)
                     self.message_pub.publish(msg)
 
                 self.state = "check"  # 每次发送完都检查我这一槽是不是只有我说话，来更新自己对槽的占有状态
@@ -225,7 +224,7 @@ class StdmaTalker(Node):
                         self.my_slot = -2
 
             # 执行移动：弹出计划的第一步作为自己的新位置
-            if hasattr(self, "plan") and self.plan and self.state == "in" and self.jumped_in:
+            if hasattr(self, "plan") and self.plan:
                 self.position = self.plan.pop(0)
                 # 如果自己的位置已达到goal,销毁自己
                 if self.position == self.goal:
@@ -252,28 +251,32 @@ class StdmaTalker(Node):
             for _ in empty_plans:
                 del self.inbox_plan[_]
 
-            # 先来计算一下剩下的时间
-            if self.half_slot_length != -1:
-                time_now = time.time()
-                time_left = self.half_slot_length - \
-                    (time_now - self.time_stamp)*0.9
-                # 若算出剩余时间:寻一下路 在self.plan的基础上迭代
-                if hasattr(self,"plan"):
-                    self.plan = path_finding.find_path(time_left, self.map, self.plan, self.others_positions, self.position, self.goal, self.inbox_plan, not self.jumped_in)
-                else: 
-                    self.plan = path_finding.find_path(time_left, self.map, [], self.others_positions, self.position, self.goal, self.inbox_plan, not self.jumped_in)
-
-                #self.get_logger().fatal("生成的计划之长度：%d"%len(self.plan))
+            # 如果下一槽位是自己的且自己已经加入网络：筹谋
             
-            # 如果下一帧是自己的：筹谋
             if self.state == "in" and self.slot == self.my_slot:
-                if len(self.plan) > self.num_slots:  # 如果buffer中有足够长的计划
-                    self.jumped_in = True  # 加入网络
-                else:
-                    # 没能生成足够长的计划的场合
-                    # 不会吧，不该进入这里的。先不管好了
-                    self.get_logger().fatal("%d的计划不够长，怎可能了？" % self.node_id)
+                horizon_length = 50 # finite horizon的长度
+                plan = path_finding.find_path(
+                    self.map, self.num_slots-5, horizon_length, self.others_positions, self.position, self.goal, self.inbox_plan, not self.jumped_in)
+                if plan:
+                    self.plan = plan  # 如果成功生成路径：保存计划
+                    # 如果是第一次筹谋（尚未进入地图变成实体）且成功生成计划：
+                    if not self.jumped_in:
+                        self.jumped_in = True
+                    #self.get_logger().fatal("我的当前位置：（%d,%d）， 我的目标位置：（%d, %d）" %
+                                            #(self.position[0], self.position[1], self.goal[0], self.goal[1]))
+                    #self.get_logger().fatal("我收到的计划："+str(self.inbox_plan))
+                    #self.get_logger().fatal("我的计划: "+str(self.plan))
+
+                    # 潜在bug：已入网的节点找不到足够的物理空间来生成计划，会导致节点存在但没有通报的计划，导致隐形
             
+            # 我先测试一下安全时间靠不靠谱
+            '''
+            if self.half_slot_length!=-1:
+                time_now = time.time()
+                time_left = self.half_slot_length-(time_now-self.time_stamp)
+                while time.time()-time_now <time_left*0.95:
+                    pass
+            '''  # 行。
 
 
 def main(args=None):

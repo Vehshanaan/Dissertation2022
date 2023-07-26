@@ -166,12 +166,13 @@ class Map(Node):
         '''
         用计划更新位置。此函数会弹出所有计划的第一位
         '''
-        # self.node_positions = {}  # 清空历史，这是为了已经消灭的节点能直接消失
+        self.node_positions = {}  # 清空历史，这是为了已经消灭的节点能直接消失
         if self.inbox_plan:
             for key in list(self.inbox_plan.keys()):
                 if self.inbox_plan[key]:  # 如果计划不空：
                     self.node_positions[key] = self.inbox_plan[key].pop(
                         0)  # 用计划的头一位更新位置
+                '''
                 else:  # 不然：给消灭计时器+1
                     if key not in self.remove_countdown:
                         self.remove_countdown[key] = 1
@@ -180,7 +181,7 @@ class Map(Node):
                     # 如果有人的消灭计时器到了一整帧：杀！意味着某人一整帧没有发送新计划。
                     if self.remove_countdown[key] and self.remove_countdown[key] == self.num_slots:
                         del self.node_positions[key]
-
+                '''
         # 如果一个位置一整帧都没有用计划更新过，则此节点删除？
 
     def history_update(self):
