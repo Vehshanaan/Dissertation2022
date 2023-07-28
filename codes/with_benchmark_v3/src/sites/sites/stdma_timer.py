@@ -36,7 +36,7 @@ class StdmaTimer(Node):
         super().__init__(self.node_name)
         self.signal = False
         self.publisher_ = self.create_publisher(Bool, 'stdma/timer', 10)
-        timer_period = 0.5  # seconds 这是半个槽的时长
+        timer_period = 0.2  # seconds 这是半个槽的时长
         self.timer = self.create_timer(
             timer_period, self.timer_callback)  # 定时发送signal并翻转signal
 

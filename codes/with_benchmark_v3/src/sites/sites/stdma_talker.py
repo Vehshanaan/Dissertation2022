@@ -17,7 +17,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
 if current_dir:
     import utils
-    import path_finding
+    import path_finder
 
 
 class StdmaTalker(Node):
@@ -45,7 +45,6 @@ class StdmaTalker(Node):
         self.my_slot = -2  # 自己的slot编号
         self.slot_allocations = [None]*self.num_slots  # 槽位分配记录列表
         self.inbox = []
-        self.inbox_plan = {}  # 储存别人发过来的计划 “id”: 计划
 
         # 从外部初始化地图大小
         self.declare_parameter("map_size", [1, 1])
@@ -79,9 +78,6 @@ class StdmaTalker(Node):
         # 初始化自身位置
         self.position = self.start
 
-        # 初始化其他节点的位置记录
-        self.others_positions = {}  # node_id(int): pos (tuple)
-
         # 信道分配的话题
         self.control_sub = self.create_subscription(
             Int32, 'stdma/control', self.control_callback, 10)
@@ -103,7 +99,9 @@ class StdmaTalker(Node):
         # 半槽长度保存变量
         self.half_slot_length = -1
 
-
+        # 寻路机
+        self.path_finder = path_finder.PathFinder(
+            self.map, self.num_slots, self.start, self.goal)
 
     def slot_length_update(self, time):
         '''
@@ -136,11 +134,15 @@ class StdmaTalker(Node):
         if node_id == self.node_id:
             return  # 如果是自己发的：跳过，不保存接收到的信息
         else:
+            '''
             # 如果计划不够长：用计划最后一位补齐长度
             if len(data) < self.num_slots:
                 data += [data[-1]]*(self.num_slots-len(data))
                 self.get_logger().fatal("补长后的计划："+str(data))
             self.inbox_plan[node_id] = data  # 保存到计划存储变量里
+            '''
+            self.path_finder.receive_plan(node_id, data)  # 保存收到的计划
+            pass
 
     def get_messages(self):
         '''
@@ -173,7 +175,8 @@ class StdmaTalker(Node):
                 # 如果有计划且计划不空且状态为in:
                 if hasattr(self, "plan") and self.plan and self.state == "in":
                     msg = Int32MultiArray()
-                    msg.data = utils.plan_compressor(self.node_id, self.plan[:self.num_slots])
+                    msg.data = utils.plan_compressor(
+                        self.node_id, self.plan[:self.num_slots])
                     self.message_pub.publish(msg)
 
                 self.state = "check"  # 每次发送完都检查我这一槽是不是只有我说话，来更新自己对槽的占有状态
@@ -224,56 +227,16 @@ class StdmaTalker(Node):
                     else:
                         self.my_slot = -2
 
-            # 执行移动：弹出计划的第一步作为自己的新位置
-            if hasattr(self, "plan") and self.plan and self.state == "in" and self.jumped_in:
-                self.position = self.plan.pop(0)
-                # 如果自己的位置已达到goal,销毁自己
-                if self.position == self.goal:
-                    self.get_logger().fatal("%d滴任务，完成啦！" % self.node_id)
-                    self.destroy_node()
+            # 每次槽结束：寻路机时间+1, 还有一大堆别的处理
+            self.path_finder.slot_end()
 
-            # 更新使用过的计划，顺便更新其他节点的位置
-            self.others_positions = {}
-            # 筹谋前：将每个节点计划中的第一个去除（因为已经用过了）
-            if self.inbox_plan:
-                '''
-                for key, value in self.inbox_plan.items():
-                    if value: value.pop(0) # 弹掉每个非空计划的头一个
-                '''
-                for key in list(self.inbox_plan.keys()):
-                    if self.inbox_plan[key]:
-                        self.others_positions[key] = self.inbox_plan[key].pop(
-                            0)  # 弹掉非空计划的头一个, 并更新位置记录
-            # 清除已为空的计划元素
-            empty_plans = []
-            for key in list(self.inbox_plan.keys()):
-                if not self.inbox_plan[key]:
-                    empty_plans.append(key)
-            for _ in empty_plans:
-                del self.inbox_plan[_]
-
-            # 先来计算一下剩下的时间
-            if self.half_slot_length != -1:
-                time_now = time.time()
-                time_left = self.half_slot_length - \
-                    (time_now - self.time_stamp)*0.9
-                # 若算出剩余时间:寻一下路 在self.plan的基础上迭代
-                if hasattr(self,"plan"):
-                    self.plan = path_finding.find_path(time_left, self.map, self.plan, self.others_positions, self.position, self.goal, self.inbox_plan, not self.jumped_in)
-                else: 
-                    self.plan = path_finding.find_path(time_left, self.map, [], self.others_positions, self.position, self.goal, self.inbox_plan, not self.jumped_in)
-
-                #self.get_logger().fatal("生成的计划之长度：%d"%len(self.plan))
-            
-            # 如果下一帧是自己的：筹谋
-            if self.state == "in" and self.slot == self.my_slot:
-                if len(self.plan) > self.num_slots:  # 如果buffer中有足够长的计划
-                    self.jumped_in = True  # 加入网络
-                else:
-                    # 没能生成足够长的计划的场合
-                    # 不会吧，不该进入这里的。先不管好了
-                    self.get_logger().fatal("%d的计划不够长，怎可能了？" % self.node_id)
-            
+            # 如果是初次：先初始化寻路器的堆
+            if self.slot == self.my_slot and self.state == "in" and not self.jumped_in:
+                self.path_finder.init()
+            # 谋
+            time_left = self.half_slot_length - \
+                (time.time()-self.time_stamp)  # 剩余时间
+            self.path_finder.connive(time_left)
 
 
 def main(args=None):
