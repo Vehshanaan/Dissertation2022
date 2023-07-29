@@ -172,12 +172,23 @@ class StdmaTalker(Node):
                 msg.data = self.node_id
                 self.control_pub.publish(msg)  # 发送信道占有信息
 
-                # 如果有计划且计划不空且状态为in:
+                '''
+                # 如果有计划且计划不空且状态为in:   
                 if hasattr(self, "plan") and self.plan and self.state == "in":
                     msg = Int32MultiArray()
                     msg.data = utils.plan_compressor(
                         self.node_id, self.plan[:self.num_slots])
                     self.message_pub.publish(msg)
+                '''
+
+                # 该裁剪计划了
+                if self.state == "in":
+                    self.plan = self.path_finder.cut_plan()
+                    if self.plan:
+                        self.jumped_in = True
+                        self.get_logger().fatal("我切下来的计划：%s"%str(self.plan))
+                    else: 
+                        self.get_logger().fatal("啥也没切下来")
 
                 self.state = "check"  # 每次发送完都检查我这一槽是不是只有我说话，来更新自己对槽的占有状态
 

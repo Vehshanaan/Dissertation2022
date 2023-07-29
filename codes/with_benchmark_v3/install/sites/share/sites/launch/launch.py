@@ -15,8 +15,8 @@ scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/real
 map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/my_own_benchmarks/warehouse-10-20-10-2-1.png"
 scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/my_own_benchmarks/warehouse-10-20-10-2-1.pngJul241220.scen"
 
-frame_length = 20  # 帧长度
-node_total = 20  # 节点数目
+frame_length = 5  # 帧长度
+node_total = 1  # 节点数目
 
 
 def generate_launch_description():

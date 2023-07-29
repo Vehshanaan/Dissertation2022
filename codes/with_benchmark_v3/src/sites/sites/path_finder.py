@@ -13,7 +13,6 @@ class PathFinder():
         self.others_plans = {}  # 别人的计划
         self.current_pos = None  # 此时此刻自己的位置
         self.published_plan = []  # 已经投入运行的计划
-        self.phantom_plan = []  # 预期的计划，接在已发布计划后面
         self.visited = []  # 已扩展过的点，是寻路算法的内存
         self.possibility = []  # 待扩展点，是寻路算法的内存
         self.current_time = 0  # 当前时间。内部时钟。用来给各种计划做时间索引，每槽过去就+1
@@ -30,13 +29,14 @@ class PathFinder():
     def init(self):
         '''
         talker在end中，如果self==in 且刚刚结束的一帧属于自己且未入图时调用
+        初始化自己的可能性
         '''
 
         # 计划的第一格时间
         start_time = self.current_time+self.num_slots+1  # 额外+1是因为发送计划的下一槽才动
 
         self.possibility = [(self.heutistic(self.start, self.goal),
-                             start_time, self.start, [(self.start[0], self.start[1], start_time)])]
+                             start_time, (self.start[0], self.start[1], start_time), [(self.start[0], self.start[1], start_time)])]
 
         self.visited = []  # 连这个也顺手重置了吧
 
@@ -53,25 +53,60 @@ class PathFinder():
         # TODO: 用收到的计划来对已有的路径（可能性）进行切割
 
     def connive(self, time_limit):
+        if not self.possibility:
+            return  # 没有可能性的话：直接返回
+        # TODO:什么情况会没有可能性呢？
+
         # 就是寻路算法中while的部分
         begin_time = t.time()  # 开始谋的时间
-        while t.time() - begin_time < time_limit*0.95:
+        while t.time() - begin_time < time_limit*0.5:
             if self.possibility:  # 如果自己的堆不空：
-
                 _, time, current_pos, path = heappop(self.possibility)
-
                 if (current_pos[0], current_pos[1]) == self.goal:  # 如果当前路径的尾部就是自己的终点：
                     # 把推出来的解还回去
                     heappush(self.possibility, (_, time, current_pos, path))
                     # 直接结束
                     return
                 # 获得邻居点
-                neighbors = []
+                neighbors = self.get_neighbors(current_pos)
                 # 对于所有的邻居：推入queue
-
+                for neighbor in neighbors:
+                    new_time = time+1
+                    if neighbor not in self.visited:
+                        heappush(self.possibility, (new_time+self.heutistic(neighbor,
+                                 self.goal), new_time, neighbor, path+[neighbor]))
+                        self.visited.append(neighbor)
             else:
                 # 自己的可能性空了？什么情况下会空呢？
-                pass
+                return
+
+    def cut_plan(self):
+        # 从未来中选取头一位，截出计划，返回
+        if not self.possibility:
+            return None
+        total_cost, time, last_pos, path = heappop(self.possibility)
+
+        total_plan = self.published_plan+path
+        # 将路径的前n个切下来
+        plan = total_plan[:self.num_slots]
+        # 如果路径不够长，用路径最后一位补齐长度
+        if len(plan) < self.num_slots:
+            # 计算缺了多少
+            short = self.num_slots - len(plan)
+            # 补长度
+            plan += [plan[-1]]*short
+            # 根据补的长度补齐时间
+            time += short
+            # 根据补的长度补齐启发式代价
+            total_cost += short
+        # 将切完剩下的路径压入
+        self.possibility = []
+        self.visited = []
+        heappush(self.possibility, (total_cost, time, plan[-1], total_plan[self.num_slots:]))
+        # 保存切下的路径，为后续处理准备好
+        self.published_plan = plan
+        result = [(pos[0], pos[1]) for pos in plan]
+        return result
 
     def slot_end(self):
         '''
@@ -85,7 +120,7 @@ class PathFinder():
 
         # 更新自己的位置
         if self.published_plan:
-            self.current_pos = self.published_plan[0]
+            self.current_pos = self.published_plan.pop(0)
 
         # 更新别人的位置
         for node_id, plan in self.others_plans.items():
@@ -107,22 +142,37 @@ class PathFinder():
         for dir in directions:
             all_possible_neighbors.append(
                 (
-                    pos[0]+dir[0], # 横向
-                    pos[1]+dir[1], # 纵向
-                    pos[3]+1 # 时间
+                    pos[0]+dir[0],  # 横向
+                    pos[1]+dir[1],  # 纵向
+                    pos[2]+1  # 时间
 
                 )
             )
+
         # 去除碰撞
         no_collision_neighbors = []
-        for nei in all_possible_neighbors: # 对于上一步生成的所有相邻点
+
+        for nei in all_possible_neighbors:  # 对于上一步生成的所有相邻点
             # 在自己收到的所有计划中寻找此点是否位于计划中
-            if any(nei in plan for plan in list(self.others_plans.values())): pass
-            else: no_collision_neighbors.append(nei)
+            if any(nei in plan for plan in list(self.others_plans.values())):
+                pass
+            else:
+                no_collision_neighbors.append(nei)
+
         # 去除swap
-        # 如果有谁的下一步在二维空间上==pos,且其当前位置为nei(二维意味):swap发生了。
-        for plan in list(self.others_plans.values()):
-            # 如果谁的下一步==pos,即pos[3]+1在计划中：
-                # 如果nei[3]-1也在计划中：
-                # swap发生了
-        
+        no_swap_neighbors = []
+
+        for nei in no_collision_neighbors:
+            append = True
+            # 如果有谁的下一步在二维空间上==pos,且其当前位置为nei(二维意味):swap发生了。
+            for plan in list(self.others_plans.values()):
+                # 如果谁的下一步==pos,即pos[2]+1在计划中：
+                if (pos[0], pos[1], pos[2]+1) in plan:
+                    # 如果nei[2]-1也在计划中：
+                    if (nei[0], nei[1], nei[2]-1) in plan:
+                        # swap发生了
+                        append = False
+            if append:
+                no_swap_neighbors.append(nei)
+
+        return no_swap_neighbors
