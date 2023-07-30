@@ -11,6 +11,7 @@ class PathFinder():
         self.start = start
         self.goal = goal
         self.others_plans = {}  # 别人的计划
+        self.others_pos = {}  # 别人的位置
         self.current_pos = None  # 此时此刻自己的位置
         self.published_plan = []  # 已经投入运行的计划
         self.visited = []  # 已扩展过的点，是寻路算法的内存
@@ -89,6 +90,7 @@ class PathFinder():
         total_plan = self.published_plan+path
         # 将路径的前n个切下来
         plan = total_plan[:self.num_slots]
+        '''
         # 如果路径不够长，用路径最后一位补齐长度
         if len(plan) < self.num_slots:
             # 计算缺了多少
@@ -99,10 +101,12 @@ class PathFinder():
             time += short
             # 根据补的长度补齐启发式代价
             total_cost += short
+        '''
         # 将切完剩下的路径压入
         self.possibility = []
         self.visited = []
-        heappush(self.possibility, (total_cost, time, plan[-1], total_plan[self.num_slots:]))
+        heappush(self.possibility, (total_cost, time,
+                 total_plan[-1], total_plan[self.num_slots:]))
         # 保存切下的路径，为后续处理准备好
         self.published_plan = plan
         result = [(pos[0], pos[1]) for pos in plan]
@@ -125,7 +129,7 @@ class PathFinder():
         # 更新别人的位置
         for node_id, plan in self.others_plans.items():
             # 符合此时刻的位置
-            time_match = [item for item in plan and item[-1]
+            time_match = [pos for pos in plan if pos[-1]
                           == self.current_time]
             # 记录位置
             if time_match:
@@ -149,10 +153,18 @@ class PathFinder():
                 )
             )
 
+        # 去除墙里
+        not_in_walls_neighbors = []
+        for nei in all_possible_neighbors:
+            x = nei[0]
+            y = nei[1]
+            if x < len(self.map[0]) and y < len(self.map) and x > -1 and y > -1:
+                if self.map[y][x]:
+                    not_in_walls_neighbors.append(nei)
         # 去除碰撞
         no_collision_neighbors = []
 
-        for nei in all_possible_neighbors:  # 对于上一步生成的所有相邻点
+        for nei in not_in_walls_neighbors:  # 对于上一步生成的所有相邻点
             # 在自己收到的所有计划中寻找此点是否位于计划中
             if any(nei in plan for plan in list(self.others_plans.values())):
                 pass
