@@ -187,6 +187,7 @@ class StdmaTalker(Node):
                     if self.plan:
                         self.jumped_in = True
                         self.get_logger().fatal("我切下来的计划：%s"%str(self.plan))
+
                     else: 
                         self.get_logger().fatal("啥也没切下来")
 
