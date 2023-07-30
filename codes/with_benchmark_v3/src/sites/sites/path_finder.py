@@ -36,14 +36,14 @@ class PathFinder():
         # 计划的第一格时间
         start_time = self.current_time+self.num_slots+1  # 额外+1是因为发送计划的下一槽才动
 
-        self.possibility = [(self.heutistic(self.start, self.goal),
+        self.possibility = [(self.heuristic(self.start, self.goal),
                              start_time, (self.start[0], self.start[1], start_time), [(self.start[0], self.start[1], start_time)])]
 
         self.visited = []  # 连这个也顺手重置了吧
 
     def receive_plan(self, node_id, plan):
         plan_3d = []
-        begin_time = self.current_time+self.num_slots+1  #试出来就是这个，回头再想为什么吧
+        begin_time = self.current_time+self.num_slots+1  # 试出来就是这个，回头再想为什么吧
         for pos in plan:
             pos_3d = (pos[0], pos[1], begin_time)
             plan_3d.append(pos_3d)
@@ -52,6 +52,35 @@ class PathFinder():
             self.others_plans[node_id] = plan_3d  # 加到计划保存变量中
 
         # TODO: 用收到的计划来对已有的路径（可能性）进行切割
+        self.react_to_plan(node_id, plan_3d)
+
+    def react_to_plan(self, node_id, plan_3d):
+        # 每次收到计划时对收到的计划作出反应，切除自己路径中所有冲突的部分
+        avaliable_possibility = []
+        for poss in self.possibility:
+            my_plan = poss[3]  # 我的路径（3d）
+            # 把计划剪成可用的计划
+            avaliable_plan = self.trim_plan(my_plan, plan_3d)
+            # heuristic(无冲突点，终点)， 无冲突点[-1], 无冲突点，[...，无冲突点]
+            if avaliable_plan:
+                avaliable_possibility.append((
+                    self.heuristic(avaliable_plan[-1], self.goal),
+                    avaliable_plan[-1][-1],
+                    avaliable_plan[-1],
+                    avaliable_plan
+                ))
+        self.possibility = avaliable_possibility
+
+    def trim_plan(self, my_plan, other_plan):
+        # 输入两计划，返回修剪后的我的计划
+        my_dict = {t: (x, y) for x, y, t in my_plan}
+        other_dict = {t: (x, y) for x, y, t in other_plan}
+        for i, (x, y, t) in enumerate(my_plan):
+            if t in other_dict and (x, y) == other_dict[t]:
+                return my_plan[:i]
+            if t+1 in other_dict and t+1 in my_dict and (x, y) == other_dict[t+1] and (my_dict[t+1][0], my_dict[t+1][1]) == (other_dict[t][0], other_dict[t][1]):
+                return my_plan[:i]
+        return my_plan
 
     def connive(self, time_limit):
         if not self.possibility:
@@ -74,14 +103,14 @@ class PathFinder():
                 for neighbor in neighbors:
                     new_time = time+1
                     if neighbor not in self.visited:
-                        heappush(self.possibility, (new_time+self.heutistic(neighbor,
+                        heappush(self.possibility, (new_time+self.heuristic(neighbor,
                                  self.goal), new_time, neighbor, path+[neighbor]))
                         self.visited.append(neighbor)
             else:
                 # 自己的可能性空了？什么情况下会空呢？
                 return
 
-    def cut_plan(self,required_length):
+    def cut_plan(self, required_length):
         # 从未来中选取头一位，截出计划，返回
         if not self.possibility:
             return None
@@ -90,7 +119,7 @@ class PathFinder():
         total_plan = self.published_plan+path
         # 将路径的前n个切下来
         plan = total_plan[:required_length]
-        
+
         # 如果路径不够长，用路径最后一位补齐长度?
 
         # 将切完剩下的路径压入
@@ -126,7 +155,7 @@ class PathFinder():
             if time_match:
                 self.others_pos[node_id] = time_match[0]
 
-    def heutistic(self, pos1, pos2):
+    def heuristic(self, pos1, pos2):
         return abs(pos1[0]-pos2[0])+abs(pos1[1]-pos2[1])
 
     def get_neighbors(self, pos):

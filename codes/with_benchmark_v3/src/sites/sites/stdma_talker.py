@@ -132,8 +132,7 @@ class StdmaTalker(Node):
         '''
         node_id, data = utils.plan_decompressor(msg.data)
         if node_id == self.node_id:
-            # return  # 如果是自己发的：跳过，不保存接收到的信息
-            self.path_finder.receive_plan(node_id, data)
+            return  # 如果是自己发的：跳过，不保存接收到的信息
         else:
             '''
             # 如果计划不够长：用计划最后一位补齐长度
@@ -143,7 +142,7 @@ class StdmaTalker(Node):
             self.inbox_plan[node_id] = data  # 保存到计划存储变量里
             '''
             self.path_finder.receive_plan(node_id, data)  # 保存收到的计划
-            pass
+            
 
         # self.get_logger().warn("收到的计划："+str(self.path_finder.others_plans)+"\n实际我的计划："+str(self.path_finder.published_plan))
 
