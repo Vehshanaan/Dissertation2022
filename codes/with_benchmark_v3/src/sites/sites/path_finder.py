@@ -81,7 +81,7 @@ class PathFinder():
                 # 自己的可能性空了？什么情况下会空呢？
                 return
 
-    def cut_plan(self):
+    def cut_plan(self,required_length):
         # 从未来中选取头一位，截出计划，返回
         if not self.possibility:
             return None
@@ -89,24 +89,15 @@ class PathFinder():
 
         total_plan = self.published_plan+path
         # 将路径的前n个切下来
-        plan = total_plan[:self.num_slots]
-        '''
-        # 如果路径不够长，用路径最后一位补齐长度
-        if len(plan) < self.num_slots:
-            # 计算缺了多少
-            short = self.num_slots - len(plan)
-            # 补长度
-            plan += [plan[-1]]*short
-            # 根据补的长度补齐时间
-            time += short
-            # 根据补的长度补齐启发式代价
-            total_cost += short
-        '''
+        plan = total_plan[:required_length]
+        
+        # 如果路径不够长，用路径最后一位补齐长度?
+
         # 将切完剩下的路径压入
         self.possibility = []
         self.visited = []
         heappush(self.possibility, (total_cost, time,
-                 total_plan[-1], total_plan[self.num_slots:]))
+                 total_plan[-1], total_plan[required_length:]))
         # 保存切下的路径，为后续处理准备好
         self.published_plan = plan
         result = [(pos[0], pos[1]) for pos in plan]

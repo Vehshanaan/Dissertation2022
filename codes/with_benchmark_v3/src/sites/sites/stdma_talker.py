@@ -180,24 +180,22 @@ class StdmaTalker(Node):
                         self.node_id, self.plan[:self.num_slots])
                     self.message_pub.publish(msg)
                 '''
-                
+
                 # 该裁剪计划了
                 if self.state == "in":
-                    self.plan = self.path_finder.cut_plan()
+                    self.plan = self.path_finder.cut_plan(2*self.num_slots)
                     if self.plan:
                         self.jumped_in = True
-                        self.get_logger().fatal("我切下来的计划：%s"%str(self.plan))
-                    else: 
+                        self.get_logger().fatal("我切下来的计划：%s" % str(self.plan))
+                    else:
                         self.get_logger().fatal("啥也没切下来")
-                    
+
                 # 若有计划: 发送计划
                 if hasattr(self, "plan") and self.plan and self.state == "in":
                     msg = Int32MultiArray()
                     msg.data = utils.plan_compressor(self.node_id, self.plan)
                     self.message_pub.publish(msg)
-                
-                if self.path_finder.possibility:
-                    self.get_logger().fatal(str(self.path_finder.possibility[0][3]))
+
                 self.state = "check"  # 每次发送完都检查我这一槽是不是只有我说话，来更新自己对槽的占有状态
 
     def end_slot_callback(self):
@@ -248,12 +246,12 @@ class StdmaTalker(Node):
 
             # 每次槽结束：寻路机时间+1, 还有一大堆别的处理
             self.path_finder.slot_end()
-            
+
             # 更新自身位置
-            if hasattr(self,"plan") and self.plan:
+            if hasattr(self, "plan") and self.plan:
                 self.position = self.plan.pop(0)
                 if self.position == self.goal:
-                    self.destroy_node() # 如果已经到达终点：消灭自己
+                    self.destroy_node()  # 如果已经到达终点：消灭自己
 
             # 如果是初次：先初始化寻路器的堆
             if self.slot == self.my_slot and self.state == "in" and not self.jumped_in:
@@ -262,7 +260,6 @@ class StdmaTalker(Node):
             time_left = self.half_slot_length - \
                 (time.time()-self.time_stamp)  # 剩余时间
             self.path_finder.connive(time_left)
-
 
 
 def main(args=None):
