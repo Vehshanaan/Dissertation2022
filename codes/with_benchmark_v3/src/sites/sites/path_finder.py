@@ -43,11 +43,11 @@ class PathFinder():
 
     def receive_plan(self, node_id, plan):
         plan_3d = []
+        begin_time = self.current_time+self.num_slots+1  #试出来就是这个，回头再想为什么吧
         for pos in plan:
-            time_begin = self.current_time+1  # +1 是因为，大家的计划都是不包含当前位置，都是从下一槽开始的点
-            pos_3d = (pos[0], pos[1], time_begin)
+            pos_3d = (pos[0], pos[1], begin_time)
             plan_3d.append(pos_3d)
-            time_begin += 1
+            begin_time += 1
         if plan_3d:
             self.others_plans[node_id] = plan_3d  # 加到计划保存变量中
 

@@ -29,7 +29,7 @@ class StdmaTalker(Node):
 
         # 尽可能少显示控制台日志信息。设置级别以下的东西不会被打印出来 例程见https://github.com/ros2/rclpy/blob/humble/rclpy/test/test_logging.py
         # 可以在继承此节点的节点类初始化函数中修改此等级，使其发送全部消息
-        self.get_logger().set_level(LoggingSeverity.FATAL)
+        self.get_logger().set_level(LoggingSeverity.WARN)
 
         self.frame = 0  # 帧计数
         self.slot = -1  # 当前所处的slot，每次end_slot_callback中会修改这个
@@ -132,7 +132,8 @@ class StdmaTalker(Node):
         '''
         node_id, data = utils.plan_decompressor(msg.data)
         if node_id == self.node_id:
-            return  # 如果是自己发的：跳过，不保存接收到的信息
+            # return  # 如果是自己发的：跳过，不保存接收到的信息
+            self.path_finder.receive_plan(node_id, data)
         else:
             '''
             # 如果计划不够长：用计划最后一位补齐长度
@@ -143,6 +144,9 @@ class StdmaTalker(Node):
             '''
             self.path_finder.receive_plan(node_id, data)  # 保存收到的计划
             pass
+
+        # self.get_logger().warn("收到的计划："+str(self.path_finder.others_plans)+"\n实际我的计划："+str(self.path_finder.published_plan))
+
 
     def get_messages(self):
         '''
@@ -186,7 +190,7 @@ class StdmaTalker(Node):
                     self.plan = self.path_finder.cut_plan(2*self.num_slots)
                     if self.plan:
                         self.jumped_in = True
-                        self.get_logger().fatal("我切下来的计划：%s" % str(self.plan))
+                        #self.get_logger().fatal("我切下来的计划：%s" % str(self.plan))
                     else:
                         self.get_logger().fatal("啥也没切下来")
 
