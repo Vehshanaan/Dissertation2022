@@ -134,17 +134,7 @@ class StdmaTalker(Node):
         if node_id == self.node_id:
             return  # 如果是自己发的：跳过，不保存接收到的信息
         else:
-            '''
-            # 如果计划不够长：用计划最后一位补齐长度
-            if len(data) < self.num_slots:
-                data += [data[-1]]*(self.num_slots-len(data))
-                self.get_logger().fatal("补长后的计划："+str(data))
-            self.inbox_plan[node_id] = data  # 保存到计划存储变量里
-            '''
             self.path_finder.receive_plan(node_id, data)  # 保存收到的计划
-            
-
-        # self.get_logger().warn("收到的计划："+str(self.path_finder.others_plans)+"\n实际我的计划："+str(self.path_finder.published_plan))
 
 
     def get_messages(self):
@@ -158,8 +148,9 @@ class StdmaTalker(Node):
         return received_messages
 
     def timer_callback(self, msg):
-
+        
         self.slot_length_update(time.time())  # 更新半槽时间记录
+        #self.path_finder.receive_plan(5,[(30,1)]*80)
 
         if msg.data:
             # 上升沿，是slot的开始或结束
@@ -189,7 +180,7 @@ class StdmaTalker(Node):
                     self.plan = self.path_finder.cut_plan(2*self.num_slots)
                     if self.plan:
                         self.jumped_in = True
-                        #self.get_logger().fatal("我切下来的计划：%s" % str(self.plan))
+                        self.get_logger().fatal("我切下来的计划：%s" % str(self.plan))
                     else:
                         self.get_logger().fatal("啥也没切下来")
 
@@ -263,6 +254,7 @@ class StdmaTalker(Node):
             time_left = self.half_slot_length - \
                 (time.time()-self.time_stamp)  # 剩余时间
             self.path_finder.connive(time_left)
+
 
 
 def main(args=None):

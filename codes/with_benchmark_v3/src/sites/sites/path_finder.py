@@ -1,7 +1,11 @@
 # 寻路类
 
+from collections import defaultdict
+
 from heapq import heappush, heappop
 import time as t
+
+from matplotlib.style import available
 
 
 class PathFinder():
@@ -10,20 +14,18 @@ class PathFinder():
         self.num_slots = num_slots
         self.start = start
         self.goal = goal
-        self.others_plans = {}  # 别人的计划
-        self.others_pos = {}  # 别人的位置
         self.current_pos = None  # 此时此刻自己的位置
         self.published_plan = []  # 已经投入运行的计划
         self.visited = []  # 已扩展过的点，是寻路算法的内存
         self.possibility = []  # 待扩展点，是寻路算法的内存
         self.current_time = 0  # 当前时间。内部时钟。用来给各种计划做时间索引，每槽过去就+1
+        self.occupancy = defaultdict(dict)
 
     def reset(self):
         '''
         发生重大错误时的类重置，重置一切，除了绝对不会变的东西
         '''
         self.published_plan = []
-        self.phantom_plan = []
         self.visited = []
         self.possibility = []
 
@@ -34,7 +36,7 @@ class PathFinder():
         '''
 
         # 计划的第一格时间
-        start_time = self.current_time+self.num_slots+1  # 额外+1是因为发送计划的下一槽才动
+        start_time = self.current_time+self.num_slots  # +1  # 额外+1是因为发送计划的下一槽才动
 
         self.possibility = [(self.heuristic(self.start, self.goal),
                              start_time, (self.start[0], self.start[1], start_time), [(self.start[0], self.start[1], start_time)])]
@@ -43,44 +45,72 @@ class PathFinder():
 
     def receive_plan(self, node_id, plan):
         plan_3d = []
-        begin_time = self.current_time+self.num_slots+1  # 试出来就是这个，回头再想为什么吧
+        begin_time = self.current_time+self.num_slots  # +1  # 试出来就是这个，回头再想为什么吧
         for pos in plan:
             pos_3d = (pos[0], pos[1], begin_time)
             plan_3d.append(pos_3d)
             begin_time += 1
-        if plan_3d:
-            self.others_plans[node_id] = plan_3d  # 加到计划保存变量中
+        for pos in plan_3d:
+            # 在某时刻的位置上写上占用者的名字
+            self.occupancy[pos[2]][(pos[0], pos[1])] = node_id
 
         # TODO: 用收到的计划来对已有的路径（可能性）进行切割
-        self.react_to_plan(node_id, plan_3d)
+        self.react_to_plan(node_id)
 
-    def react_to_plan(self, node_id, plan_3d):
-        # 每次收到计划时对收到的计划作出反应，切除自己路径中所有冲突的部分
-        avaliable_possibility = []
-        for poss in self.possibility:
-            my_plan = poss[3]  # 我的路径（3d）
-            # 把计划剪成可用的计划
-            avaliable_plan = self.trim_plan(my_plan, plan_3d)
-            # heuristic(无冲突点，终点)， 无冲突点[-1], 无冲突点，[...，无冲突点]
-            if avaliable_plan:
-                avaliable_possibility.append((
-                    self.heuristic(avaliable_plan[-1], self.goal),
-                    avaliable_plan[-1][-1],
-                    avaliable_plan[-1],
-                    avaliable_plan
-                ))
-        self.possibility = avaliable_possibility
+    def react_to_plan(self, node_id):
+        available_possibility = []
+        for heu, time, current_pos, path in self.possibility:
+            for i, pos in enumerate(path):
+                
+                # 检查碰撞
+                if pos[2] in self.occupancy:
+                    if (pos[0], pos[1]) in self.occupancy[pos[2]]:
+                        path = path[:i]
+                        break
+                elif i+1 < len(path) and (pos[0], pos[1]) in self.occupancy[pos[2]+1] and (path[i+1][0], path[i+1][1]) in self.occupancy[pos[2]+1] and self.occupancy[pos[2]+1].get((path[i+1][0], path[i+1][1])) == node_id:
+                    path = path[:i]
+                    break
+                
+                '''
+                # 检查swap：
+                elif i+1<len(path):
+                    id_1 = None
+                    id_2 = None
+                    if pos[2]+1 in self.occupancy:
+                        id_1 = self.occupancy[pos[2]+1].get((pos[0],pos[1]))
+                    if pos[2] in self.occupancy:
+                        id_2 = self.occupancy[pos[2]].get((path[i+1][0],path[i+1][1]))
+                    if id_1 and id_2 and id_1 == id_2:
+                        path = path[i:]
+                        break
+                '''
+                
+            if path:
+                available_possibility.append(
+                    (
+                    self.heuristic(path[-1],self.goal),
+                    path[-1][-1],
+                    path[-1],
+                    path
+                    )
+                )
+        if self.possibility and not available_possibility:
+            # 如果所有可能性都被毙了：
+            # 用当前所在点生成一个新种子
+            current_pos = self.current_pos
+            neighbors = self.get_neighbors(current_pos)
+            for nei in neighbors:
+                available_possibility.append(
+                    (
+                    self.heuristic(nei,self.goal),
+                    nei[-1],
+                    nei,
+                    [nei]
+                    )
+                )
+        self.possibility = available_possibility
 
-    def trim_plan(self, my_plan, other_plan):
-        # 输入两计划，返回修剪后的我的计划
-        my_dict = {t: (x, y) for x, y, t in my_plan}
-        other_dict = {t: (x, y) for x, y, t in other_plan}
-        for i, (x, y, t) in enumerate(my_plan):
-            if t in other_dict and (x, y) == other_dict[t]:
-                return my_plan[:i]
-            if t+1 in other_dict and t+1 in my_dict and (x, y) == other_dict[t+1] and (my_dict[t+1][0], my_dict[t+1][1]) == (other_dict[t][0], other_dict[t][1]):
-                return my_plan[:i]
-        return my_plan
+                
 
     def connive(self, time_limit):
         if not self.possibility:
@@ -113,7 +143,7 @@ class PathFinder():
     def cut_plan(self, required_length):
         # 从未来中选取头一位，截出计划，返回
         if not self.possibility:
-            return None
+            return False
         total_cost, time, last_pos, path = heappop(self.possibility)
 
         total_plan = self.published_plan+path
@@ -145,7 +175,7 @@ class PathFinder():
         # 更新自己的位置
         if self.published_plan:
             self.current_pos = self.published_plan.pop(0)
-
+        '''
         # 更新别人的位置
         for node_id, plan in self.others_plans.items():
             # 符合此时刻的位置
@@ -154,6 +184,7 @@ class PathFinder():
             # 记录位置
             if time_match:
                 self.others_pos[node_id] = time_match[0]
+        '''
 
     def heuristic(self, pos1, pos2):
         return abs(pos1[0]-pos2[0])+abs(pos1[1]-pos2[1])
@@ -181,30 +212,20 @@ class PathFinder():
             if x < len(self.map[0]) and y < len(self.map) and x > -1 and y > -1:
                 if self.map[y][x]:
                     not_in_walls_neighbors.append(nei)
-        # 去除碰撞
-        no_collision_neighbors = []
 
-        for nei in not_in_walls_neighbors:  # 对于上一步生成的所有相邻点
-            # 在自己收到的所有计划中寻找此点是否位于计划中
-            if any(nei in plan for plan in list(self.others_plans.values())):
-                pass
-            else:
-                no_collision_neighbors.append(nei)
+        # 去除碰撞和swap:
+        safe_neighbors = []
 
-        # 去除swap
-        no_swap_neighbors = []
-
-        for nei in no_collision_neighbors:
-            append = True
-            # 如果有谁的下一步在二维空间上==pos,且其当前位置为nei(二维意味):swap发生了。
-            for plan in list(self.others_plans.values()):
-                # 如果谁的下一步==pos,即pos[2]+1在计划中：
-                if (pos[0], pos[1], pos[2]+1) in plan:
-                    # 如果nei[2]-1也在计划中：
-                    if (nei[0], nei[1], nei[2]-1) in plan:
-                        # swap发生了
-                        append = False
-            if append:
-                no_swap_neighbors.append(nei)
-
-        return no_swap_neighbors
+        for nei in not_in_walls_neighbors:
+            if (nei[0], nei[1]) not in self.occupancy[nei[2]]:  # 如果没有碰撞：
+                id_1 = None
+                id_2 = None
+                # 现在在用我下一时刻目标点的人
+                if pos[2] in self.occupancy:
+                    id_1 = self.occupancy[pos[2]].get((nei[0], nei[1]))
+                # 下一时刻要来我这里的人
+                if nei[2] in self.occupancy:
+                    id_2 = self.occupancy[nei[2]].get((pos[0], pos[1]))
+                if not (id_1 and id_2 and id_1 == id_2):  # 如果两个id都存在且相等：swap，否则安全
+                    safe_neighbors.append(nei)
+        return safe_neighbors
