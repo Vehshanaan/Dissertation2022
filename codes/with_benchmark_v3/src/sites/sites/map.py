@@ -261,7 +261,7 @@ class Map(Node):
                     (collision_pos[0]*self.grid_size, collision_pos[1]
                      * self.grid_size, self.grid_size, self.grid_size)
                 )
-            self.get_logger().fatal("地图检测到发生碰撞："+str(collisions))
+                self.get_logger().fatal("地图检测到"+str(collisions)+"发生碰撞，发生在："+str(collision_pos))
 
         pygame.display.flip()  # 刷新画面
 

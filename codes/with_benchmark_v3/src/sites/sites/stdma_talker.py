@@ -135,7 +135,9 @@ class StdmaTalker(Node):
             return  # 如果是自己发的：跳过，不保存接收到的信息
         else:
             self.path_finder.receive_plan(node_id, data)  # 保存收到的计划
-
+            self.get_logger().warn("刚刚收到的计划："+str(self.path_finder.just_received))
+            if self.path_finder.possibility:
+                self.get_logger().warn("本机的最劲计划："+str(self.path_finder.possibility[-1][3]))
 
     def get_messages(self):
         '''
@@ -150,8 +152,12 @@ class StdmaTalker(Node):
     def timer_callback(self, msg):
         
         self.slot_length_update(time.time())  # 更新半槽时间记录
-        #self.path_finder.receive_plan(5,[(30,1)]*80)
+        '''
+        self.path_finder.receive_plan(5,[(29,1),(30,1)]*80)
 
+        if self.path_finder.possibility:
+                self.get_logger().warn("反应后的计划："+str(self.path_finder.possibility))
+        '''
         if msg.data:
             # 上升沿，是slot的开始或结束
             self.end_slot_callback()
@@ -161,6 +167,7 @@ class StdmaTalker(Node):
 
     def mid_slot_callback(self):
         if self.slot >= 0:  # 防止刚初始化的节点掺和进这里头
+            self.path_finder.react_to_plan()
             if self.slot == self.my_slot:
                 msg = Int32()
                 msg.data = self.node_id
@@ -174,18 +181,24 @@ class StdmaTalker(Node):
                         self.node_id, self.plan[:self.num_slots])
                     self.message_pub.publish(msg)
                 '''
-
                 # 该裁剪计划了
                 if self.state == "in":
-                    self.plan = self.path_finder.cut_plan(2*self.num_slots)
-                    if self.plan:
+                    # self.plan = self.path_finder.cut_plan(2*self.num_slots)
+                    plan = self.path_finder.cut_plan(2*self.num_slots)
+                    # 如果已经入网，大哥直接取自己的计划就可以
+                    if self.jumped_in: self.plan = plan
+                    # 如果生成了足量的计划：够格，可以进入网络了
+                    elif not self.jumped_in and plan and len(plan)>=2*self.num_slots:
                         self.jumped_in = True
-                        self.get_logger().fatal("我切下来的计划：%s" % str(self.plan))
-                    else:
-                        self.get_logger().fatal("啥也没切下来")
+                        self.plan = plan
+                    # 如果没能生成足量的计划：从头再来重新谋吧
+                    elif self.jumped_in:
+                        self.path_finder.init()
+
 
                 # 若有计划: 发送计划
                 if hasattr(self, "plan") and self.plan and self.state == "in":
+                    self.get_logger().warn("我生成的计划："+str(self.plan))
                     msg = Int32MultiArray()
                     msg.data = utils.plan_compressor(self.node_id, self.plan)
                     self.message_pub.publish(msg)
@@ -240,7 +253,10 @@ class StdmaTalker(Node):
 
             # 每次槽结束：寻路机时间+1, 还有一大堆别的处理
             self.path_finder.slot_end()
-
+            '''
+            self.get_logger().warn("我寻路机的时钟位置："+str(self.path_finder.current_time))
+            self.get_logger().warn("我现在的位置："+str(self.path_finder.current_pos))
+            '''
             # 更新自身位置
             if hasattr(self, "plan") and self.plan:
                 self.position = self.plan.pop(0)

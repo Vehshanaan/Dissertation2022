@@ -5,8 +5,6 @@ from collections import defaultdict
 from heapq import heappush, heappop
 import time as t
 
-from matplotlib.style import available
-
 
 class PathFinder():
     def __init__(self, map, num_slots, start, goal):
@@ -20,6 +18,7 @@ class PathFinder():
         self.possibility = []  # 待扩展点，是寻路算法的内存
         self.current_time = 0  # 当前时间。内部时钟。用来给各种计划做时间索引，每槽过去就+1
         self.occupancy = defaultdict(dict)
+        self.just_received = []
 
     def reset(self):
         '''
@@ -36,7 +35,7 @@ class PathFinder():
         '''
 
         # 计划的第一格时间
-        start_time = self.current_time+self.num_slots  # +1  # 额外+1是因为发送计划的下一槽才动
+        start_time = self.current_time+1  # +self.num_slots  # +1  # 额外+1是因为发送计划的下一槽才动
 
         self.possibility = [(self.heuristic(self.start, self.goal),
                              start_time, (self.start[0], self.start[1], start_time), [(self.start[0], self.start[1], start_time)])]
@@ -45,19 +44,22 @@ class PathFinder():
 
     def receive_plan(self, node_id, plan):
         plan_3d = []
-        begin_time = self.current_time+self.num_slots  # +1  # 试出来就是这个，回头再想为什么吧
+        begin_time = self.current_time+1  # +self.num_slots  # +1  # 试出来就是这个，回头再想为什么吧
         for pos in plan:
             pos_3d = (pos[0], pos[1], begin_time)
             plan_3d.append(pos_3d)
             begin_time += 1
+        self.just_received = plan_3d
+
+        # 将收到的计划存入occupancy中
         for pos in plan_3d:
             # 在某时刻的位置上写上占用者的名字
             self.occupancy[pos[2]][(pos[0], pos[1])] = node_id
 
-        # TODO: 用收到的计划来对已有的路径（可能性）进行切割
-        self.react_to_plan(node_id)
+        # 用收到的计划来对已有的路径（可能性）进行切割
+        self.react_to_plan()
 
-    def react_to_plan(self, node_id):
+    def react_to_plan(self):
         available_possibility = []
         for heu, time, current_pos, path in self.possibility:
             for i, pos in enumerate(path):
@@ -67,50 +69,68 @@ class PathFinder():
                     if (pos[0], pos[1]) in self.occupancy[pos[2]]:
                         path = path[:i]
                         break
-                elif i+1 < len(path) and (pos[0], pos[1]) in self.occupancy[pos[2]+1] and (path[i+1][0], path[i+1][1]) in self.occupancy[pos[2]+1] and self.occupancy[pos[2]+1].get((path[i+1][0], path[i+1][1])) == node_id:
-                    path = path[:i]
-                    break
-                
-                '''
-                # 检查swap：
-                elif i+1<len(path):
-                    id_1 = None
-                    id_2 = None
-                    if pos[2]+1 in self.occupancy:
-                        id_1 = self.occupancy[pos[2]+1].get((pos[0],pos[1]))
-                    if pos[2] in self.occupancy:
-                        id_2 = self.occupancy[pos[2]].get((path[i+1][0],path[i+1][1]))
-                    if id_1 and id_2 and id_1 == id_2:
-                        path = path[i:]
+                if i!=0: # 如果不是计划中的第一个：
+                    # 检查swap：2型：未发布之计划中的swap
+                    if i+1 < len(path):
+                        id_1 = None
+                        id_2 = None
+                        if pos[2]+1 in self.occupancy:
+                            id_1 = self.occupancy[pos[2]+1].get((pos[0], pos[1]))
+                        if pos[2] in self.occupancy:
+                            id_2 = self.occupancy[pos[2]].get(
+                                (path[i+1][0], path[i+1][1]))
+                        if id_1 and id_2 and id_1 == id_2:
+                            path = path[i:]
+                            break
+                elif i==0: # 计划之首位需要和已发布计划一起检查是否构成swap
+                    # 我的已发布计划的最后一位/我的上一个位置
+                    my_prev = None
+                    if self.published_plan: my_prev = self.published_plan[-1]
+                    if not my_prev: continue
+                    # 我的当前位置
+                    my_current = pos
+
+                    # 上一刻在我当前位置的别人是谁：
+                    other_prev = None
+                    if my_prev[2] in self.occupancy: other_prev = self.occupancy[my_prev[2]].get((my_current[0],my_current[1]))
+
+                    # 这一刻在我上一位置的人是谁
+                    other_current = None
+                    if my_current[2] in self.occupancy: other_current = self.occupancy[my_current[2]].get((my_prev[0],my_prev[1]))
+
+                    # 如果这俩是一个人：swap发生了
+                    if other_prev and other_current and other_prev == other_current: 
+                        path = path[:i]
                         break
-                '''
-                
+
             if path:
                 available_possibility.append(
                     (
-                    self.heuristic(path[-1],self.goal),
-                    path[-1][-1],
-                    path[-1],
-                    path
+                        self.heuristic(path[-1], self.goal),
+                        path[-1][-1],
+                        path[-1],
+                        path
                     )
                 )
         if self.possibility and not available_possibility:
             # 如果所有可能性都被毙了：
             # 用当前所在点生成一个新种子
-            current_pos = self.current_pos
+            self.visited = []
+            if self.published_plan:
+                current_pos = self.published_plan[-1]
+            else:
+                current_pos = self.current_pos
             neighbors = self.get_neighbors(current_pos)
             for nei in neighbors:
                 available_possibility.append(
                     (
-                    self.heuristic(nei,self.goal),
-                    nei[-1],
-                    nei,
-                    [nei]
+                        self.heuristic(nei, self.goal),
+                        nei[-1],
+                        nei,
+                        [nei]
                     )
                 )
         self.possibility = available_possibility
-
-                
 
     def connive(self, time_limit):
         if not self.possibility:
@@ -159,6 +179,10 @@ class PathFinder():
                  total_plan[-1], total_plan[required_length:]))
         # 保存切下的路径，为后续处理准备好
         self.published_plan = plan
+        # 将自己的路径保存
+        for pos in self.published_plan:
+            self.occupancy[pos[2]][(pos[0], pos[1])] = -1  # 凡是自己的位置，都用-1来标示
+
         result = [(pos[0], pos[1]) for pos in plan]
         return result
 
@@ -185,6 +209,7 @@ class PathFinder():
             if time_match:
                 self.others_pos[node_id] = time_match[0]
         '''
+        self.react_to_plan()
 
     def heuristic(self, pos1, pos2):
         return abs(pos1[0]-pos2[0])+abs(pos1[1]-pos2[1])
