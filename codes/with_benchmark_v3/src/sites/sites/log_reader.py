@@ -66,6 +66,9 @@ def log_reader(log_path):
         frame_length = data["num_slots"]
         frames = data["history"]
 
+        print("帧长度："+str(frame_length))
+        print("节点数："+str(node_total))
+
         starts, goals, optimal_dists = scene_reader(scene_path)
 
         # 用帧重构各节点轨迹
@@ -133,6 +136,7 @@ def log_reader(log_path):
 
 
 def main():
+    '''
     log_files = traverse_directory(log_parent_path)
 
     real_vs_optimals = []
@@ -161,6 +165,9 @@ def main():
 
     fig.tight_layout()
     plt.show()
+    '''
+    path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/experiment_results/warehouse-10-20-10-2-1.png_Size(162, 61)/FrameLen60_60NodesAug021845.log"
+    node_total, frame_length, avg_real_vs_optimal, finish_time, avg_join_spent_time = log_reader(path)
 
 
 

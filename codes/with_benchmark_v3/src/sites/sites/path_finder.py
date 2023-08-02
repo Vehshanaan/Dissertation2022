@@ -57,7 +57,7 @@ class PathFinder():
             self.occupancy[pos[2]][(pos[0], pos[1])] = node_id
 
         # 用收到的计划来对已有的路径（可能性）进行切割
-        self.react_to_plan()
+        # self.react_to_plan()
 
     def react_to_plan(self):
         available_possibility = []
@@ -69,20 +69,20 @@ class PathFinder():
                     if (pos[0], pos[1]) in self.occupancy[pos[2]]:
                         path = path[:i]
                         break
-                if i!=0: # 如果不是计划中的第一个：
-                    # 检查swap：2型：未发布之计划中的swap
-                    if i+1 < len(path):
-                        id_1 = None
-                        id_2 = None
-                        if pos[2]+1 in self.occupancy:
-                            id_1 = self.occupancy[pos[2]+1].get((pos[0], pos[1]))
-                        if pos[2] in self.occupancy:
-                            id_2 = self.occupancy[pos[2]].get(
-                                (path[i+1][0], path[i+1][1]))
-                        if id_1 and id_2 and id_1 == id_2:
-                            path = path[i:]
-                            break
-                elif i==0: # 计划之首位需要和已发布计划一起检查是否构成swap
+                #if i!=0: # 如果不是计划中的第一个：
+                # 检查swap：2型：未发布之计划中的swap
+                if i+1 < len(path):
+                    id_1 = None
+                    id_2 = None
+                    if pos[2]+1 in self.occupancy:
+                        id_1 = self.occupancy[pos[2]+1].get((pos[0], pos[1]))
+                    if pos[2] in self.occupancy:
+                        id_2 = self.occupancy[pos[2]].get(
+                            (path[i+1][0], path[i+1][1]))
+                    if id_1 and id_2 and id_1 == id_2:
+                        path = path[i:]
+                        break
+                if i==0: # 计划之首位需要和已发布计划一起检查是否构成swap
                     # 我的已发布计划的最后一位/我的上一个位置
                     my_prev = None
                     if self.published_plan: my_prev = self.published_plan[-1]
@@ -112,7 +112,17 @@ class PathFinder():
                         path
                     )
                 )
-        if self.possibility and not available_possibility:
+        
+        if self.published_plan and (self.published_plan[-1][0], self.published_plan[-1][1]) == self.goal:
+            self.possibility = []
+            return
+
+        if self.possibility and not available_possibility and not self.current_pos:
+            # 有可能性但现在没了，而且没有自己的位置：说明还没进入网络
+            self.possibility = []
+            return
+
+        if self.possibility and not available_possibility: #and (self.published_plan[-1][0],self.published_plan[-1][1])!=self.goal:
             # 如果所有可能性都被毙了：
             # 用当前所在点生成一个新种子
             self.visited = []
@@ -121,7 +131,34 @@ class PathFinder():
             else:
                 current_pos = self.current_pos
             neighbors = self.get_neighbors(current_pos)
+            # 检查neighbors中的二型碰撞
+            true_neighbors = []
             for nei in neighbors:
+                pass
+                # 如果当前位置和nei构成swap:跳过
+                
+                # 取用自己的上一位置：published_plan的第一位
+                if self.published_plan:
+                    my_prev = self.published_plan[-1]
+                else: continue # 如果没有已发布的计划，直接跳过，TODO
+
+                my_current = nei
+
+                # 上一刻在我当前位置的别人是谁：
+                other_prev = None
+                if my_prev[2] in self.occupancy: other_prev = self.occupancy[my_prev[2]].get((my_current[0],my_current[1]))
+
+                # 这一刻在我上一位置的人是谁
+                other_current = None
+                if my_current[2] in self.occupancy: other_current = self.occupancy[my_current[2]].get((my_prev[0],my_prev[1]))
+
+                # 如果这俩是一个人：swap发生了
+                if other_prev and other_current and other_prev == other_current: 
+                    continue
+                # 不然：append
+                true_neighbors.append(nei)
+
+            for nei in true_neighbors:
                 available_possibility.append(
                     (
                         self.heuristic(nei, self.goal),
@@ -130,16 +167,18 @@ class PathFinder():
                         [nei]
                     )
                 )
+        
         self.possibility = available_possibility
 
     def connive(self, time_limit):
+        begin_time = t.time()
         if not self.possibility:
             return  # 没有可能性的话：直接返回
         # TODO:什么情况会没有可能性呢？
-
+        self.react_to_plan()
         # 就是寻路算法中while的部分
-        begin_time = t.time()  # 开始谋的时间
-        while t.time() - begin_time < time_limit*0.5:
+        if (t.time() - begin_time) >= time_limit: return # 如果已经没时间了：return
+        while t.time() - begin_time < time_limit*0.6:
             if self.possibility:  # 如果自己的堆不空：
                 _, time, current_pos, path = heappop(self.possibility)
                 if (current_pos[0], current_pos[1]) == self.goal:  # 如果当前路径的尾部就是自己的终点：
@@ -170,6 +209,7 @@ class PathFinder():
         # 将路径的前n个切下来
         plan = total_plan[:required_length]
 
+
         # 如果路径不够长，用路径最后一位补齐长度?
 
         # 将切完剩下的路径压入
@@ -179,6 +219,7 @@ class PathFinder():
                  total_plan[-1], total_plan[required_length:]))
         # 保存切下的路径，为后续处理准备好
         self.published_plan = plan
+
         # 将自己的路径保存
         for pos in self.published_plan:
             self.occupancy[pos[2]][(pos[0], pos[1])] = -1  # 凡是自己的位置，都用-1来标示
@@ -190,8 +231,7 @@ class PathFinder():
         '''
         每次一个槽结束时调用,功能有：
          - 时间前进一位
-         - 清理计划：自己的和别人的
-         - 更新别人的位置记录
+         - 更新自己的位置记录
         '''
         # 时间前进一位
         self.current_time += 1
@@ -199,17 +239,7 @@ class PathFinder():
         # 更新自己的位置
         if self.published_plan:
             self.current_pos = self.published_plan.pop(0)
-        '''
-        # 更新别人的位置
-        for node_id, plan in self.others_plans.items():
-            # 符合此时刻的位置
-            time_match = [pos for pos in plan if pos[-1]
-                          == self.current_time]
-            # 记录位置
-            if time_match:
-                self.others_pos[node_id] = time_match[0]
-        '''
-        self.react_to_plan()
+
 
     def heuristic(self, pos1, pos2):
         return abs(pos1[0]-pos2[0])+abs(pos1[1]-pos2[1])

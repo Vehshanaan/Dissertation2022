@@ -13,16 +13,16 @@ map_size = (256,256) # 地图大小。详参https://movingai.com/benchmarks/mapf
 scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-scen/Berlin_1_256.map.scen"
 '''
 
-'''
+
 map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/my_own_benchmarks/warehouse-10-20-10-2-1.png"
 scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/my_own_benchmarks/warehouse-10-20-10-2-1.pngJul241220.scen"
-'''
 
+'''
 map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/with_benchmark_v3/test_map.png"
 scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/with_benchmark_v3/test.scen"
-
-frame_length = 8  # 帧长度
-node_total = 2  # 节点数目
+'''
+frame_length = 30  # 帧长度
+node_total = 30  # 节点数目
 
 
 def generate_launch_description():
@@ -65,7 +65,6 @@ def generate_launch_description():
 
     ld.add_action(channel_visualiser)
 
-    # 启动节点
 
     # 启动节点
     for i in range(node_total):

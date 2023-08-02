@@ -45,6 +45,7 @@ class StdmaTalker(Node):
         self.my_slot = -2  # 自己的slot编号
         self.slot_allocations = [None]*self.num_slots  # 槽位分配记录列表
         self.inbox = []
+        self.inbox_plan = []
 
         # 从外部初始化地图大小
         self.declare_parameter("map_size", [1, 1])
@@ -134,11 +135,13 @@ class StdmaTalker(Node):
         if node_id == self.node_id:
             return  # 如果是自己发的：跳过，不保存接收到的信息
         else:
-            self.path_finder.receive_plan(node_id, data)  # 保存收到的计划
+            #self.path_finder.receive_plan(node_id, data)  # 保存收到的计划
+            self.inbox_plan.append([node_id, data]) # 保存收到的计划
+            '''
             self.get_logger().warn("刚刚收到的计划："+str(self.path_finder.just_received))
             if self.path_finder.possibility:
                 self.get_logger().warn("本机的最劲计划："+str(self.path_finder.possibility[-1][3]))
-
+            '''
     def get_messages(self):
         '''
         将self.inbox中的信息逐个弹出，构成新的列表并返回新列表
@@ -167,43 +170,44 @@ class StdmaTalker(Node):
 
     def mid_slot_callback(self):
         if self.slot >= 0:  # 防止刚初始化的节点掺和进这里头
-            self.path_finder.react_to_plan()
+            # 收一下收到的计划
+            for _ in range(len(self.inbox_plan)):
+                element = self.inbox_plan.pop(0)
+                self.path_finder.receive_plan(element[0],element[1])
+
+
+            # 简单谋一下
+            time_left = self.half_slot_length - (time.time()-self.time_stamp)*0.5
+            self.path_finder.connive(time_limit=time_left)
+
             if self.slot == self.my_slot:
                 msg = Int32()
                 msg.data = self.node_id
                 self.control_pub.publish(msg)  # 发送信道占有信息
 
-                '''
-                # 如果有计划且计划不空且状态为in:   
-                if hasattr(self, "plan") and self.plan and self.state == "in":
-                    msg = Int32MultiArray()
-                    msg.data = utils.plan_compressor(
-                        self.node_id, self.plan[:self.num_slots])
-                    self.message_pub.publish(msg)
-                '''
+
                 # 该裁剪计划了
                 if self.state == "in":
-                    # self.plan = self.path_finder.cut_plan(2*self.num_slots)
-                    plan = self.path_finder.cut_plan(2*self.num_slots)
+                    plan = self.path_finder.cut_plan(self.num_slots+1)
                     # 如果已经入网，大哥直接取自己的计划就可以
                     if self.jumped_in: self.plan = plan
                     # 如果生成了足量的计划：够格，可以进入网络了
-                    elif not self.jumped_in and plan and len(plan)>=2*self.num_slots:
+                    elif not self.jumped_in and plan:# and len(plan)>=self.num_slots+1:
                         self.jumped_in = True
                         self.plan = plan
-                    # 如果没能生成足量的计划：从头再来重新谋吧
-                    elif self.jumped_in:
-                        self.path_finder.init()
-
+                    # 他妈的，计划有时候不够长，怎么办了
+                    elif self.jumped_in and len(plan)<self.num_slots+1:
+                        self.get_logger().warn("出事了")
 
                 # 若有计划: 发送计划
                 if hasattr(self, "plan") and self.plan and self.state == "in":
-                    self.get_logger().warn("我生成的计划："+str(self.plan))
+                    #self.get_logger().warn("我生成的计划："+str(self.plan))
                     msg = Int32MultiArray()
                     msg.data = utils.plan_compressor(self.node_id, self.plan)
                     self.message_pub.publish(msg)
-
                 self.state = "check"  # 每次发送完都检查我这一槽是不是只有我说话，来更新自己对槽的占有状态
+
+            
 
     def end_slot_callback(self):
 
@@ -214,6 +218,7 @@ class StdmaTalker(Node):
         else:
             received_message = self.get_messages()  # 清空收到的信道控制信息并转存
             num_messages = len(received_message)  # 检查在过去槽里一共收到几条信息
+
 
             # 如果啥也没收到：槽空
             if num_messages == 0:
@@ -250,6 +255,11 @@ class StdmaTalker(Node):
                         self.get_logger().info('Will try to enter at slot %d' % self.my_slot)
                     else:
                         self.my_slot = -2
+
+            # 收一下收到的计划
+            for _ in range(len(self.inbox_plan)):
+                element = self.inbox_plan.pop(0)
+                self.path_finder.receive_plan(element[0],element[1])
 
             # 每次槽结束：寻路机时间+1, 还有一大堆别的处理
             self.path_finder.slot_end()
