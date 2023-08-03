@@ -7,24 +7,23 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 # 注意，地图和场景都在这里设置，**记得设置成成对的！！！，没法设计代码级别的防呆匹配！自己记得用好，不要犯傻**
-'''
-map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-png/Berlin_1_256.png"
-map_size = (256,256) # 地图大小。详参https://movingai.com/benchmarks/mapf/index.html
-scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/realworld_streets/street-scen/Berlin_1_256.map.scen"
 
-frame_length = 10
+
+
+map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/my_own_benchmarks/warehouse-10-20-10-2-1.png"
+scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/my_own_benchmarks/warehouse-10-20-10-2-1.pngJul241220.scen"
+
+frame_length = 70
 node_total = 20
-'''
 
+
+'''
 map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/with_benchmark_v2/test_map.png"
-map_size = (50,3)
 scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/with_benchmark_v2/test.scen"
 
 frame_length = 2  # 帧长度
 node_total = 2  # 节点数目
-
-
-map_size = list(map_size)
+'''
 
 
 def generate_launch_description():
@@ -33,6 +32,9 @@ def generate_launch_description():
 
     # 启动描述符
     ld = LaunchDescription()
+
+    # 读取起点和终点
+    map_size, starts, goals = scene_reader(scene_path,50)
 
     # 启动地图
     map = Node(
@@ -64,9 +66,6 @@ def generate_launch_description():
 
     ld.add_action(channel_visualiser)
 
-    # 启动节点
-    # 为各个节点读取起点和终点
-    starts, goals = scene_reader(scene_path,50)
 
     # 启动节点
     for i in range(node_total):
@@ -114,12 +113,16 @@ def scene_reader(scene_path=scene_path, min_dist=-1):
     '''
     starts = []
     goals = []
+    map_size = []
     with open(scene_path, "r") as scene:
         for line in scene:
             words = line.strip().split(" ")
             if len(words) == 2:
                 continue  # 过滤掉开头的version空格1
             words = words[0].strip().split("\t")
+
+            # 读取地图大小
+            map_size = (int(words[2]), int(words[3]))
             # 第5，6个元素是起点横纵坐标
             start = (int(words[4]), int(words[5]))
             # 第7，8个元素是终点横纵坐标
@@ -127,14 +130,14 @@ def scene_reader(scene_path=scene_path, min_dist=-1):
             # 最后一个元素是最优距离
             optimal_dist = float(words[-1])
             if optimal_dist < min_dist:
-                continue # 如果最优距离小于阈值：跳过，不读入这组起终点
+                continue  # 如果最优距离小于阈值：跳过，不读入这组起终点
             starts.append(start)
             goals.append(goal)
-    return starts, goals
+    return map_size, starts, goals
 
 
 def main():
-    starts, goals = scene_reader()
+    pass
 
 
 if __name__ == "__main__":

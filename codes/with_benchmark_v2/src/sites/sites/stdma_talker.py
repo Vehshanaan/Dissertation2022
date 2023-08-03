@@ -218,6 +218,15 @@ class StdmaTalker(Node):
             # 如果下一槽位是自己的且自己已经加入网络：筹谋
             if self.state == "in" and self.slot == self.my_slot:
                 horizon_length = 60 # finite horizon的长度
+                '''
+                寻路机制：有两个参数：required_length和horizon
+                required_length: 所需计划的长度
+                horizon：算法所探测的未来的最大长度
+
+                如果required_length大于horizon： 会用已生成的计划的最后一位补齐长度
+                这样来达到帧长度（通常会影响required_length）和算法运算时间脱钩的目的
+                '''
+                
                 plan = path_finding.find_path(
                     self.map, 2*self.num_slots, horizon_length, self.others_positions, self.position, self.goal, self.inbox_plan, not self.jumped_in)
                 if plan:
@@ -225,12 +234,14 @@ class StdmaTalker(Node):
                     # 如果是第一次筹谋（尚未进入地图变成实体）且成功生成计划：
                     if not self.jumped_in:
                         self.jumped_in = True
+                    '''
                     self.get_logger().fatal("我的当前位置：（%d,%d）， 我的目标位置：（%d, %d）" %
                                             (self.position[0], self.position[1], self.goal[0], self.goal[1]))
                     self.get_logger().fatal("我收到的计划："+str(self.inbox_plan))
                     self.get_logger().fatal("我的计划: "+str(self.plan))
+                    '''
 
-                    # 潜在bug：已入网的节点找不到足够的物理空间来生成计划，会导致节点存在但没有通报的计划，导致隐形
+                    
 
 
 def main(args=None):

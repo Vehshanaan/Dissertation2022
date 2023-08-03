@@ -66,6 +66,9 @@ def log_reader(log_path):
         frame_length = data["num_slots"]
         frames = data["history"]
 
+        print("帧长度："+str(frame_length))
+        print("节点数："+str(node_total))
+
         starts, goals, optimal_dists = scene_reader(scene_path)
 
         # 用帧重构各节点轨迹

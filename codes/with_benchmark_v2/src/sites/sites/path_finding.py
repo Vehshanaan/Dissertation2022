@@ -1,6 +1,8 @@
 from heapq import heappop, heappush
 from math import inf
 
+from numpy import require
+
 
 def transpose_list(input_list):
     '''
@@ -19,14 +21,14 @@ def transpose_list(input_list):
     return transposed_list
 
 
-def find_path(map, max_steps, horizon, others_positions, start=(0, 0), goal=(3, 3), plan_dict={}, first_ever = False):
+def find_path(map, required_length, horizon, others_positions, start=(0, 0), goal=(3, 3), plan_dict={}, first_ever=False):
     '''
     寻路算法
 
     Args:
         map (list[list]): 地图：二维数组，[[行]], 其中True代表可通行，False代表障碍物
-        max_steps (int): 返回计划的长度
-        horizon (int): 生成计划的最大时间维长度
+        required_length (int): 所需计划的长度
+        horizon (int): 生成计划的最大时间维长度 这个和timer的单个帧长度直接相关，60对应0.5，不要随便改
         others_positions (dict): 筹谋时刻的其他节点的位置
         start (tuple, optional): 起始位置坐标. Defaults to (0,0).
         goal (tuple, optional): 终点位置坐标. Defaults to (3,3).
@@ -47,7 +49,7 @@ def find_path(map, max_steps, horizon, others_positions, start=(0, 0), goal=(3, 
 
     # 使用优先级队列来保存待探索的节点，优先级由估计的路径长度决定
     queue = [(heuristic(start, goal), 0, start, [])]
-    visited = set([]) # 已扩展过的点。已扩展过的点后面不会再重复扩了
+    visited = set([])  # 已扩展过的点。已扩展过的点后面不会再重复扩了
 
     paths = []  # 保存所有生成的长度达标的路径，如果一直没有能到终点的路径，就从这里面挑一个
 
@@ -56,9 +58,9 @@ def find_path(map, max_steps, horizon, others_positions, start=(0, 0), goal=(3, 
 
         if len(path) == horizon:
             paths.append(path)  # 如果获得了想要的长度的路径：保存
-        if len(path) >= horizon:
+        if len(path) > horizon:
             continue  # 长度到了就不要继续了，这样实现finite horizon。这后面的这个数值就是horizon的长度
-        if current == goal and cost <= max_steps:
+        if current == goal and cost <= required_length:
             return path  # 节点到达终点后会直接self.destroy_node(), 不用管那么多了
 
         current_others_plan = []
@@ -73,14 +75,16 @@ def find_path(map, max_steps, horizon, others_positions, start=(0, 0), goal=(3, 
             neighbors = [start]
 
         # 去除swap碰撞类型
-        if cost !=0: # 对于非第一步的swap去除
-            neighbors = remove_swap_collision_postions(current, neighbors, cost, plan_dict)
-        else: # 对于第一步的swap去除
-            neighbors = remove_swap_collision_positions_first(current, neighbors, cost, plan_dict, others_positions)
-            
+        if cost != 0:  # 对于非第一步的swap去除
+            neighbors = remove_swap_collision_postions(
+                current, neighbors, cost, plan_dict)
+        else:  # 对于第一步的swap去除
+            neighbors = remove_swap_collision_positions_first(
+                current, neighbors, cost, plan_dict, others_positions)
+
         for neighbor in neighbors:
             new_cost = cost + 1
-            if tuple(list(neighbor)+[new_cost]) not in visited: # 不可重复扩展的是三维空间的点，不是二维
+            if tuple(list(neighbor)+[new_cost]) not in visited:  # 不可重复扩展的是三维空间的点，不是二维
                 heappush(queue, (new_cost + heuristic(neighbor, goal),
                          new_cost, neighbor, path + [neighbor]))
                 visited.add(tuple(list(neighbor)+[new_cost]))
@@ -97,10 +101,16 @@ def find_path(map, max_steps, horizon, others_positions, start=(0, 0), goal=(3, 
                 min_dist = dist
                 label = i
         path = paths[label]
-        return path[:max_steps] # 返回的时候就截一下
+
+        # 长度如果不够：补齐
+        if path and len(path) < required_length:
+            path = path+[path[-1]]*(required_length-len(path))
+
+        return path[:required_length]  # 返回的时候就截一下
 
     else:
-        return None # 如果没能找到计划：返回None 这其实是不应该的，这意味着场地的空间放不下节点了。
+        return None  # 如果没能找到计划：返回None 这其实是不应该的，这意味着场地的空间放不下节点了。
+
 
 def remove_swap_collision_positions_first(current, neighbors_with_swaps, cost, plan_dict, others_positions):
     neighbors = []
@@ -122,6 +132,7 @@ def remove_swap_collision_positions_first(current, neighbors_with_swaps, cost, p
             neighbors.append(neighbor)
     return neighbors
 
+
 def remove_swap_collision_postions(current, neighbors_with_swaps, cost, plan_dict):
     neighbors = []
     # 先生成当前计划和上一步计划
@@ -134,11 +145,11 @@ def remove_swap_collision_postions(current, neighbors_with_swaps, cost, plan_dic
             # 先提取当前步计划
             if cost < len(plan):  # 如果计划有那么长：
                 pos = plan[cost]
-                next_steps[node_id] = pos #tuple(pos)
+                next_steps[node_id] = pos  # tuple(pos)
             # 再提取之前步计划
             if cost-1 >= 0 and cost-1 < len(plan):
                 pos = plan[cost-1]
-                current_positions[node_id] = pos #tuple(pos)
+                current_positions[node_id] = pos  # tuple(pos)
 
     for neighbor in neighbors_with_swaps:
         add = True
@@ -179,7 +190,7 @@ def get_neighbors(pos, map, current_plan=[]):
     return neighbors
 
 
-def is_valid(pos, map):  
+def is_valid(pos, map):
 
     x = pos[0]
     y = pos[1]
@@ -236,6 +247,5 @@ def main():
         print(_)
 
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     pass
-
