@@ -8,14 +8,18 @@
 \contentsline {section}{\numberline {1.3}Objectives}{7}{section.1.3}%
 \contentsline {section}{\numberline {1.4}Motivation}{8}{section.1.4}%
 \contentsline {subsection}{\numberline {1.4.1}Why STDMA?}{8}{subsection.1.4.1}%
-\contentsline {subsection}{\numberline {1.4.2}Why 2D reource sharing?}{8}{subsection.1.4.2}%
-\contentsline {chapter}{\numberline {2}Literature Review}{9}{chapter.2}%
-\contentsline {section}{\numberline {2.1}This is a section}{9}{section.2.1}%
-\contentsline {subsection}{\numberline {2.1.1}This is a subsection}{9}{subsection.2.1.1}%
-\contentsline {subsubsection}{This is subsubsection}{9}{subsection.2.1.1}%
-\contentsline {chapter}{\numberline {3}Research Methodology}{11}{chapter.3}%
-\contentsline {chapter}{\numberline {4}Results}{12}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Common attributes to pay attention to are:}{12}{section.4.1}%
-\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{13}{chapter.5}%
-\contentsline {chapter}{\numberline {A}Appendix}{14}{appendix.A}%
-\contentsline {chapter}{References}{15}{appendix*.8}%
+\contentsline {subsection}{\numberline {1.4.2}Why decentralised 2D resource sharing and path planning?}{9}{subsection.1.4.2}%
+\contentsline {chapter}{\numberline {2}Literature Review}{11}{chapter.2}%
+\contentsline {section}{\numberline {2.1}STDMA Explained}{11}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Distributed Model Predictive Control}{12}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Brief Introduction}{12}{subsection.2.2.1}%
+\contentsline {subsubsection}{What is Model Predictive Control\blx@tocontentsinit {0}\cite {MPC_Review1}?}{12}{subsection.2.2.1}%
+\contentsline {subsubsection}{What is Distributed Model Predictive Control? \blx@tocontentsinit {0}\cite {DMPC_Review2}}{13}{subsection.2.2.1}%
+\contentsline {subsubsection}{Why is this project related to DMPC?}{13}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Latest Researches}{13}{subsection.2.2.2}%
+\contentsline {chapter}{\numberline {3}Research Methodology}{14}{chapter.3}%
+\contentsline {chapter}{\numberline {4}Results}{15}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Common attributes to pay attention to are:}{15}{section.4.1}%
+\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{16}{chapter.5}%
+\contentsline {chapter}{\numberline {A}Appendix}{17}{appendix.A}%
+\contentsline {chapter}{References}{20}{appendix*.8}%

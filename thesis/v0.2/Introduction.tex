@@ -34,6 +34,7 @@ You can then repeat and address these explicitly in your Conclusion when evaluat
 }
 
 \section{Brief Introduction}
+\label{chap:Brief Introduction}
 % 本项目的主旨是尝试将一种用于通讯的时分复用技术的思想用于多机器人之间的去中心化无碰撞路径生成中
 The main idea of this project is to attempt to utilise the principles of a decentralised channel sharing communication protocol (\textit{Self-organised Time Division Multiple Access}, STDMA\cite{STDMA}) to achieve collision-free movement among multiple decentralised agents on a 2D plane.
 
@@ -91,10 +92,56 @@ For detailed assumptions, please see \textbf{PLACEHOLDER}.
 The motivation of this project is to answer a question which is inspired by \cite{Paper_From_Supervisor}, which is:
 
 \begin{quote}
-    \textbf{What would happen if use STDMA for 2D resource sharing?}
+    \textbf{What would happen if use STDMA for dencentralised 2D resource sharing and path planning?}
 \end{quote}
 
 And this quesiton could be seperated to the following two parts:
 
 \subsection{Why STDMA?}
-\subsection{Why 2D reource sharing?}
+
+The reason for using STDMA is its \textbf{characteristics}\cite{STDMA_characteristic}:
+
+\begin{enumerate}
+    \item \textbf{Deterministic}: Agents arrange their data transmission based on a determined timetable.
+    \item \textbf{Decentralised}: Agents listen to the channel first, then independently seek and allocate free slots for themselves to use.
+\end{enumerate}
+
+These characteristics are useful for multiple agents to achieve collision-free (use free slots only), slf-organised (find slots on its own) moving and resource sharing.
+
+There are also \textbf{reasons that making this challenging}:
+\begin{enumerate}
+    \item \textbf{Dimensional Difference}: STDMA is designed for sharing discrete time slots (1D), and cannot be directly applied for resource sharing on a 2D plane. Modification is needed for 2D application.
+    \item \textbf{Moving by Grids}: In the communication scenario, agents don't have destiniations in the timetable, i.e., don't need to move to specific slot in the timetable. But that's different for 2D space moving, where agents have their destinations and need to move grid by grid to reach their goals. Agents could easily be trapped in situations of inefficiency or even deadlock situations \cite{MAPF_Deadlock_Explain1,MAPF_Deadlock_Explain2}.   
+\end{enumerate}
+
+These characteristics and challenges are making this topic interesting and worthy for investigation.
+
+\subsection{Why decentralised 2D resource sharing and path planning?}
+
+There are many algorithms aim to solve this problem, and their shared aspect is a \textbf{focus on the movement of multiple decentralised agents within a grid world}. 
+
+To easily get a better understanding of this problem, please refer to this \href{https://primalgrid.netlify.app/primal}{website}\footnotemark.\footnotetext{https://primalgrid.netlify.app/primal} 
+This website presents the problem scenarios and their solutions through a simple and engaging animation (estimated time required: 1$\sim$2 min). 
+For detailed explanation, please see \textbf{PLACEHOLDER}.
+
+For such situations, \textbf{there are myriad corresponding real-life problems and applications}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\linewidth]{figures/Amazon_Warehouse.jpeg}
+    \caption{Kiva system operating in Amazon warehouse.\protect\footnotemark}
+    \label{fig:Amazon Warehouse Robots}
+\end{figure}
+
+\footnotetext{https://spectrum.ieee.org/interview-brad-porter-vp-of-robotics-at-amazon}
+
+
+\begin{itemize}
+    \item \textbf{Warehouse Automation}: Automated pick-pack-and-ship system in warehouse (like Fig \ref{fig:Amazon Warehouse Robots}.) \cite{Amazon_Kiva}. Delivering items in sorting station\cite{Warehouse_Automation1,Warehouse_Automation2}.
+    \item \textbf{Intersection Management}: Coordinate autonomous vehicle movement through intersections \cite{Intersection_Management}.
+    \item \textbf{Robot Fleet}: Automating fleets of autonomous robots like forklift fleets \cite{Fork_Fleet1,Fork_Fleet2}.  
+    \item \textbf{Agents in video games and CGIs}: Flock simulating and animating\cite{Flocking_1,Flocking_2}.
+    \item \textbf{Swarm Robots}: Controlling self-organised robot swarms\cite{Swarm_Robotics}.
+\end{itemize}
+
+In general, the application of this algorithm is very broad. Furthermore, in the context of Industry 4.0 and flexible manufacturing, it has even better prospects for application\cite{Industry_41,Industry_42,Industry_43}, as centralized control is gradually becoming inadequate to meet new production needs.

@@ -2,7 +2,7 @@
 \chapter{Literature Review} 
 \label{chap:Literature_Review}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+\comment{
 Use your literature review to help the reader to understand the value and the interest in your project.  You should look for related works already published that either support the merit of your project, or provide the background understanding/information to make your new claims.  Try to avoid writing a "catalogue" of related works (e.g this would have little of your own insight added).  Instead, describe to the reader why the related work is interesting or relevant to your own work.  What did they achieve?  What did they overlook?  It is highly recommend you finish your Literature Review with a final subsection "Summary", where you may wish to formulate highly specified research questions or hypotheses, or assert the need for your Research Methodology (next chapter).  
 
 introduction
@@ -41,4 +41,74 @@ results
 \end{figure}
 
 For example, \cite{Robots2020} discusses the two robots depicted in Figure \ref{fig:two_robots}. There is a robot in Figure \ref{fig:left_robot} and another robot in Figure \ref{fig:right_robot}.
+
+}
+
+This section will provide the details of the STDMA\cite{STDMA} protocol and a review of the related \textit{Distributed Model Predictive Control} (DMPC) algorithms.
+
+\section{STDMA Explained}
+
+As previously mentioned in Section \ref{chap:Brief Introduction}, STDMA stands for \textbf{\textit{Self-organised Time-Divided Multiple Access}}, and it allows multiple agents to share the same channel for communication without centralised control.
+The main assumtion of this protocol is that all agents have synchronised clocks. In practice, this is achieved through GPS\cite{STDMA_GPS}.
+
+\textbf{The core idea of STDMA could be summarised as follows}: Represent continuous time with repeating frames that are consisted of discrete time slots.
+While agents are always listening to messages from the channel, they look for free slots to occupy, and therefore use the occupied slots to broadcast their own data.
+
+Agents using STDMA have \textbf{four phases}, which are arranged in chronological order as follows:
+
+\begin{enumerate}
+  \item \textbf{Initialisation}: Agents in this phase have not yet joined the network. The device listens to an entire frame and determines current allocation of each slot.
+  \item \textbf{Network Entry}: Randomly choose an unallocated slot to broadcast their existance and reserve one slot for the next phase.  If the message sent didn't collide with others (i.e., only one agent which is myself choose to use this slot for entering), then the entering is successful. If the entering failed, reverse to the previous phase.
+  \item \textbf{First Frame}: Use the slot reserved in the previous phase to reserve more slots for themselves. The number of reserved slots depends on the size of the data packet that the agent needs to send in each frame.
+  \item \textbf{Continuous Operation}: Use the previously reserved slots to work normally. If some slots are released or more slots are needed, reapply for slots.
+\end{enumerate}
+
+Although the description above omitted some details (such as slot choosing strategy, calculation of required number of slots, etc.), it is clear that \textbf{the core idea of STDMA is the strategy of finding and reserving unallocated slots}.
+
+This protocol also has several limitations, such as: \textbf{(1)} Collision in entering: In the Network Entry phase, multiple agents may accidentally choose the same unallocated slot for entering and broadcast their existance. \textbf{(2)} Capacity: When slots are not enough, conflicts would inevitably occur. 
+There are some studies \cite{STDMA_improv1,STDMA_improv2} that proposed improvements for its limitations, but improving STDMA is not the focus of this project.
+
+For detailed implementation, please see \textbf{PLACEHOLDER}.
+
+\section{Distributed Model Predictive Control}
+
+This section would cover:
+\begin{itemize}
+  \item An brief introduction to DMPC.
+  \item Why is DMPC related to this project.
+  \item A summary of related latest research developments.
+\end{itemize}
+
+\subsection{Brief Introduction}
+\subsubsection{What is Model Predictive Control\cite{MPC_Review1}?}
+
+\textit{Model Predictive Control} or MPC is a form of control that based on the model and the online prediction of the controlled system.
+
+MPC achieves its control objective by optimising the predicted outcome of the model of the controlled system\cite{MPC_Review1}.
+\textbf{On every sampling instant}, a typical MPC controller would \textbf{use the current state of the plant as initial state}, and \textbf{solve a finite-horizon open-loop optimal control problem in real-time speed}, then \textbf{apply the first step of the generated control sequence} as the next control action.
+
+MPC has been extensively studied and is a widely used control algorithm\cite{DMPC_Review1}. 
+It's primarily employed in fields such as process industry, power electronics, building climate and energy management, and manufacturing\cite{MPC_Applications1, MPC_Applications2}.
+
+\subsubsection{What is Distributed Model Predictive Control? \cite{DMPC_Review2}}
+
+% 当系统的规模达到一定大小的时候，单一的中心化MPC控制器就不能完成控制任务了(计算要求过高/只能向有限的邻居发送数据等)。所以需要DMPC：
+
+
+In many scenarios, centralised controllers fail to perform control tasks due to reasons such as the computational load increasing with the expansion of system scale, 
+resulting in the controller's inability to complete real-time computations, 
+or the inability to dispatch control information to all components of the system within a specified time. 
+In summary, \textbf{the limitations of centralised controllers made them incapable of meeting the needs of many control scenarios}, and that is why we need distributed control.
+
+For Distributed Model Predictive Control, a large system is decomposed to numerous subsystems, and each of them:
+\begin{itemize}
+  \item Has its own dynamic.
+  \item Has an MPC controller to control its actions.
+  \item Could exchange messages with controllers of other subsystems.
+  \item Could interact with and be influenced by other subsystems (usually described as \textit{variables} and \textit{constraints}).
+\end{itemize}
+
+\subsubsection{Why is this project related to DMPC?}
+\subsection{Latest Researches}
+
 

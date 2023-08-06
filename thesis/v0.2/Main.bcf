@@ -2378,7 +2378,31 @@
     <bcf:citekey order="1" intorder="1">STDMA</bcf:citekey>
     <bcf:citekey order="2" intorder="1">GridWorld</bcf:citekey>
     <bcf:citekey order="3" intorder="1">Paper_From_Supervisor</bcf:citekey>
-    <bcf:citekey order="4" intorder="1">Robots2020</bcf:citekey>
+    <bcf:citekey order="4" intorder="1">STDMA_characteristic</bcf:citekey>
+    <bcf:citekey order="5" intorder="1">MAPF_Deadlock_Explain1</bcf:citekey>
+    <bcf:citekey order="5" intorder="2">MAPF_Deadlock_Explain2</bcf:citekey>
+    <bcf:citekey order="6" intorder="1">Amazon_Kiva</bcf:citekey>
+    <bcf:citekey order="7" intorder="1">Warehouse_Automation1</bcf:citekey>
+    <bcf:citekey order="7" intorder="2">Warehouse_Automation2</bcf:citekey>
+    <bcf:citekey order="8" intorder="1">Intersection_Management</bcf:citekey>
+    <bcf:citekey order="9" intorder="1">Fork_Fleet1</bcf:citekey>
+    <bcf:citekey order="9" intorder="2">Fork_Fleet2</bcf:citekey>
+    <bcf:citekey order="10" intorder="1">Flocking_1</bcf:citekey>
+    <bcf:citekey order="10" intorder="2">Flocking_2</bcf:citekey>
+    <bcf:citekey order="11" intorder="1">Swarm_Robotics</bcf:citekey>
+    <bcf:citekey order="12" intorder="1">Industry_41</bcf:citekey>
+    <bcf:citekey order="12" intorder="2">Industry_42</bcf:citekey>
+    <bcf:citekey order="12" intorder="3">Industry_43</bcf:citekey>
+    <bcf:citekey order="13" intorder="1">STDMA</bcf:citekey>
+    <bcf:citekey order="14" intorder="1">STDMA_GPS</bcf:citekey>
+    <bcf:citekey order="15" intorder="1">STDMA_improv1</bcf:citekey>
+    <bcf:citekey order="15" intorder="2">STDMA_improv2</bcf:citekey>
+    <bcf:citekey order="16" intorder="1">MPC_Review1</bcf:citekey>
+    <bcf:citekey order="17" intorder="1">MPC_Review1</bcf:citekey>
+    <bcf:citekey order="18" intorder="1">DMPC_Review1</bcf:citekey>
+    <bcf:citekey order="19" intorder="1">MPC_Applications1</bcf:citekey>
+    <bcf:citekey order="19" intorder="2">MPC_Applications2</bcf:citekey>
+    <bcf:citekey order="20" intorder="1">DMPC_Review2</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="none">
