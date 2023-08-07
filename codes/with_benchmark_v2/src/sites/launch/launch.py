@@ -15,6 +15,7 @@ scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/my_o
 
 frame_length = 70
 node_total = 20
+required_length = frame_length # 每次要求生成计划的长度
 
 
 '''
@@ -47,6 +48,7 @@ def generate_launch_description():
                 "scene_path": scene_path,  # 场景文件绝对路径
                 "num_slots": frame_length,  # 信道帧长度
                 "num_nodes": node_total, # 节点数目
+                "required_length": required_length, # 每次所需生成的计划之长度
             }
         ]
     )
@@ -80,6 +82,7 @@ def generate_launch_description():
                     "map_size": map_size, # 地图大小
                     "start": starts[i],  # 起点位置
                     "goal":goals[i],  # 终点位置
+                    "required_length": required_length, # 每次所需生成的计划之长度
                 }
             ]
         )

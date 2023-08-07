@@ -36,6 +36,11 @@ class StdmaTalker(Node):
         self.declare_parameter("num_slots", num_slots)
         self.num_slots = self.get_parameter(
             "num_slots").get_parameter_value().integer_value
+        
+        # 从外部初始化每次要求生成的计划之大小
+        self.declare_parameter("required_length",self.num_slots)
+        required_length = self.get_parameter("required_length").get_parameter_value().integer_value
+        self.required_length = required_length
 
         # 状态机状态
         self.state = "listen"
@@ -45,8 +50,9 @@ class StdmaTalker(Node):
         self.inbox_plan = {}  # 储存别人发过来的计划 “id”: 计划
 
         # 从外部初始化地图大小
-        self.declare_parameter("map_size",[1,1])
-        map_size = self.get_parameter("map_size").get_parameter_value().integer_array_value
+        self.declare_parameter("map_size", [1, 1])
+        map_size = self.get_parameter(
+            "map_size").get_parameter_value().integer_array_value
         self.map_size = tuple(list(map_size))
 
         # 初始化地图
@@ -76,7 +82,7 @@ class StdmaTalker(Node):
         self.position = self.start
 
         # 初始化其他节点的位置记录
-        self.others_positions = {} # node_id(int): pos (tuple)
+        self.others_positions = {}  # node_id(int): pos (tuple)
 
         # 信道分配的话题
         self.control_sub = self.create_subscription(
@@ -206,7 +212,8 @@ class StdmaTalker(Node):
                 '''
                 for key in list(self.inbox_plan.keys()):
                     if self.inbox_plan[key]:
-                        self.others_positions[key] = self.inbox_plan[key].pop(0)  # 弹掉非空计划的头一个, 并更新位置记录
+                        self.others_positions[key] = self.inbox_plan[key].pop(
+                            0)  # 弹掉非空计划的头一个, 并更新位置记录
             # 清除已为空的计划元素
             empty_plans = []
             for key in list(self.inbox_plan.keys()):
@@ -217,7 +224,7 @@ class StdmaTalker(Node):
 
             # 如果下一槽位是自己的且自己已经加入网络：筹谋
             if self.state == "in" and self.slot == self.my_slot:
-                horizon_length = 60 # finite horizon的长度
+                horizon_length = 60  # finite horizon的长度
                 '''
                 寻路机制：有两个参数：required_length和horizon
                 required_length: 所需计划的长度
@@ -226,9 +233,9 @@ class StdmaTalker(Node):
                 如果required_length大于horizon： 会用已生成的计划的最后一位补齐长度
                 这样来达到帧长度（通常会影响required_length）和算法运算时间脱钩的目的
                 '''
-                
+
                 plan = path_finding.find_path(
-                    self.map, 2*self.num_slots, horizon_length, self.others_positions, self.position, self.goal, self.inbox_plan, not self.jumped_in)
+                    self.map, self.required_length, horizon_length, self.others_positions, self.position, self.goal, self.inbox_plan, not self.jumped_in)
                 if plan:
                     self.plan = plan  # 如果成功生成路径：保存计划
                     # 如果是第一次筹谋（尚未进入地图变成实体）且成功生成计划：
@@ -240,8 +247,6 @@ class StdmaTalker(Node):
                     self.get_logger().fatal("我收到的计划："+str(self.inbox_plan))
                     self.get_logger().fatal("我的计划: "+str(self.plan))
                     '''
-
-                    
 
 
 def main(args=None):

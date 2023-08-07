@@ -1037,39 +1037,66 @@
       \field{pages}{415\bibrangedash 424}
       \range{pages}{10}
     \endentry
-    \entry{DMPC_Review2}{article}{}
+    \entry{DMPC_made_easy}{book}{}
+      \true{moreauthor}
+      \true{morelabelname}
       \name{author}{2}{}{%
-        {{hash=c5c37d0e922d0b289bb4d0b76cb7d5e8}{%
-           family={Negenborn},
-           familyi={N\bibinitperiod},
-           given={R.R.},
-           giveni={R\bibinitperiod}}}%
-        {{hash=d90579726b6898cf96cdc2ff311c28ba}{%
+        {{hash=6358ce1dc886b1a03d1050e1b9b50245}{%
            family={Maestre},
            familyi={M\bibinitperiod},
-           given={J.M.},
-           giveni={J\bibinitperiod}}}%
+           given={José\bibnamedelima M},
+           giveni={J\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=879cc3c898c99f1158dc446993b03b3f}{%
+           family={Negenborn},
+           familyi={N\bibinitperiod},
+           given={Rudy\bibnamedelima R},
+           giveni={R\bibinitperiod\bibinitdelim R\bibinitperiod}}}%
       }
-      \strng{namehash}{48de5b56ac9192dc55f4c021018f1480}
-      \strng{fullhash}{48de5b56ac9192dc55f4c021018f1480}
-      \strng{bibnamehash}{48de5b56ac9192dc55f4c021018f1480}
-      \strng{authorbibnamehash}{48de5b56ac9192dc55f4c021018f1480}
-      \strng{authornamehash}{48de5b56ac9192dc55f4c021018f1480}
-      \strng{authorfullhash}{48de5b56ac9192dc55f4c021018f1480}
+      \list{publisher}{1}{%
+        {Springer}%
+      }
+      \strng{namehash}{7df4fa74efec680ec2f12d9e376d6d3d}
+      \strng{fullhash}{7df4fa74efec680ec2f12d9e376d6d3d}
+      \strng{bibnamehash}{7df4fa74efec680ec2f12d9e376d6d3d}
+      \strng{authorbibnamehash}{7df4fa74efec680ec2f12d9e376d6d3d}
+      \strng{authornamehash}{7df4fa74efec680ec2f12d9e376d6d3d}
+      \strng{authorfullhash}{7df4fa74efec680ec2f12d9e376d6d3d}
       \field{sortinit}{2}
       \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{journaltitle}{IEEE Control Systems Magazine}
-      \field{number}{4}
-      \field{title}{Distributed Model Predictive Control: An Overview and Roadmap of Future Research Opportunities}
-      \field{volume}{34}
+      \field{title}{Distributed model predictive control made easy}
+      \field{volume}{69}
       \field{year}{2014}
-      \field{pages}{87\bibrangedash 97}
-      \range{pages}{11}
-      \verb{doi}
-      \verb 10.1109/MCS.2014.2320397
-      \endverb
+    \endentry
+    \entry{Nash_Equi}{book}{}
+      \name{author}{2}{}{%
+        {{hash=70fa925cb5f5e3bd935b997f073ca47a}{%
+           family={Başar},
+           familyi={B\bibinitperiod},
+           given={Tamer},
+           giveni={T\bibinitperiod}}}%
+        {{hash=6a882281493dc524311ad3a6928e540e}{%
+           family={Olsder},
+           familyi={O\bibinitperiod},
+           given={Geert\bibnamedelima Jan},
+           giveni={G\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {SIAM}%
+      }
+      \strng{namehash}{681dce0d4a3c5ab4ffe058a946887aaf}
+      \strng{fullhash}{681dce0d4a3c5ab4ffe058a946887aaf}
+      \strng{bibnamehash}{681dce0d4a3c5ab4ffe058a946887aaf}
+      \strng{authorbibnamehash}{681dce0d4a3c5ab4ffe058a946887aaf}
+      \strng{authornamehash}{681dce0d4a3c5ab4ffe058a946887aaf}
+      \strng{authorfullhash}{681dce0d4a3c5ab4ffe058a946887aaf}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Dynamic noncooperative game theory}
+      \field{year}{1998}
     \endentry
   \enddatalist
 \endrefsection

@@ -75,6 +75,7 @@ class Map(Node):
         map_size = self.get_parameter("map_size").get_parameter_value().integer_array_value
         self.map_size = tuple(list(map_size))
 
+
         # 读取地图
         map = utils.map_load(self.map_path, self.map_size)
         self.map = map
@@ -87,6 +88,11 @@ class Map(Node):
             "num_slots").get_parameter_value().integer_value
         self.num_slots = num_slots
 
+        # 从外部初始化每次要求生成的计划之大小
+        self.declare_parameter("required_length",self.num_slots)
+        required_length = self.get_parameter("required_length").get_parameter_value().integer_value
+        self.required_length = required_length
+
         # 从外界初始化节点数目（写结果保存日志文件用，为了以后自己不蒙圈）
         self.declare_parameter("num_nodes", -1)
         num_nodes = self.get_parameter(
@@ -98,7 +104,7 @@ class Map(Node):
         if not os.path.exists(dir_path):  # 为每个地图创建一个子文件夹保存其对应日志结果文件
             os.makedirs(dir_path)
         self.log_path = dir_path+"FrameLen" + \
-            str(self.num_slots)+"_"+str(self.num_nodes)+"Nodes"+str(time.strftime("%h%d%H%M")) + \
+            str(self.num_slots)+"_"+str(self.num_nodes)+"Nodes"+str(time.strftime("%h%d%H%M")) + "ReLen" + str(self.required_length) + \
             ".log"  # 日期格式：月（英文缩写）日时分
 
         # 自适应调节地图格子大小

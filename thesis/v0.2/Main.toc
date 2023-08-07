@@ -14,12 +14,12 @@
 \contentsline {section}{\numberline {2.2}Distributed Model Predictive Control}{12}{section.2.2}%
 \contentsline {subsection}{\numberline {2.2.1}Brief Introduction}{12}{subsection.2.2.1}%
 \contentsline {subsubsection}{What is Model Predictive Control\blx@tocontentsinit {0}\cite {MPC_Review1}?}{12}{subsection.2.2.1}%
-\contentsline {subsubsection}{What is Distributed Model Predictive Control? \blx@tocontentsinit {0}\cite {DMPC_Review2}}{13}{subsection.2.2.1}%
-\contentsline {subsubsection}{Why is this project related to DMPC?}{13}{subsection.2.2.1}%
-\contentsline {subsection}{\numberline {2.2.2}Latest Researches}{13}{subsection.2.2.2}%
-\contentsline {chapter}{\numberline {3}Research Methodology}{14}{chapter.3}%
-\contentsline {chapter}{\numberline {4}Results}{15}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Common attributes to pay attention to are:}{15}{section.4.1}%
-\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{16}{chapter.5}%
-\contentsline {chapter}{\numberline {A}Appendix}{17}{appendix.A}%
-\contentsline {chapter}{References}{20}{appendix*.8}%
+\contentsline {subsubsection}{What is Distributed Model Predictive Control? \blx@tocontentsinit {0}\cite {DMPC_made_easy}}{13}{subsection.2.2.1}%
+\contentsline {subsubsection}{Why is this project related to DMPC?}{14}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Latest Researches of DMPC}{15}{subsection.2.2.2}%
+\contentsline {chapter}{\numberline {3}Research Methodology}{16}{chapter.3}%
+\contentsline {chapter}{\numberline {4}Results}{17}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Common attributes to pay attention to are:}{17}{section.4.1}%
+\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{18}{chapter.5}%
+\contentsline {chapter}{\numberline {A}Appendix}{19}{appendix.A}%
+\contentsline {chapter}{References}{22}{appendix*.8}%

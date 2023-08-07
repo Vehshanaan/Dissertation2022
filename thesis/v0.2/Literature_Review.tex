@@ -87,10 +87,12 @@ This section would cover:
 MPC achieves its control objective by optimising the predicted outcome of the model of the controlled system\cite{MPC_Review1}.
 \textbf{On every sampling instant}, a typical MPC controller would \textbf{use the current state of the plant as initial state}, and \textbf{solve a finite-horizon open-loop optimal control problem in real-time speed}, then \textbf{apply the first step of the generated control sequence} as the next control action.
 
+The major challenge confronting the MPC algorithm is the stability issue, with several factors contributing to this problem, such as inadequate terminal conditions and limited prediction horizons.
+
 MPC has been extensively studied and is a widely used control algorithm\cite{DMPC_Review1}. 
 It's primarily employed in fields such as process industry, power electronics, building climate and energy management, and manufacturing\cite{MPC_Applications1, MPC_Applications2}.
 
-\subsubsection{What is Distributed Model Predictive Control? \cite{DMPC_Review2}}
+\subsubsection{What is Distributed Model Predictive Control? \cite{DMPC_made_easy}}
 
 % 当系统的规模达到一定大小的时候，单一的中心化MPC控制器就不能完成控制任务了(计算要求过高/只能向有限的邻居发送数据等)。所以需要DMPC：
 
@@ -100,15 +102,42 @@ resulting in the controller's inability to complete real-time computations,
 or the inability to dispatch control information to all components of the system within a specified time. 
 In summary, \textbf{the limitations of centralised controllers made them incapable of meeting the needs of many control scenarios}, and that is why we need distributed control.
 
-For Distributed Model Predictive Control, a large system is decomposed to numerous subsystems, and each of them:
+For \textit{Distributed Model Predictive Control} or DMPC, a large system is decomposed to numerous subsystems, and each of them:
 \begin{itemize}
   \item Has its own dynamic.
-  \item Has an MPC controller to control its actions.
-  \item Could exchange messages with controllers of other subsystems.
+  \item Has an MPC controller to control its actions (predict finite future states and choose the optimal current move).
   \item Could interact with and be influenced by other subsystems (usually described as \textit{variables} and \textit{constraints}).
 \end{itemize}
 
+
+DMPC algorithms have the following \textbf{key characteristics}, which can help readers to understand the algorithms and distinguish one algorithm from another:
+
+\begin{itemize}
+  \item \textbf{Architecture}: Different relationships between local MPC controllers. \textbf{Hierarchical}: The entire system is divided into layers, each containing several subsystems with MPC controllers, and there exists a hierarchical relationship between these layers. \textbf{Decentralised}: Each local MPC controller controls the local subsystem and don't communicate with each other. \textbf{Distributed}: Local MPC controllers cooperate to find better solution for the overall system.   
+  \item \textbf{Local - Global}: How much do the local controllers know about the overall system information.
+  \item \textbf{Selfish - Cooperative}: Whether the local controller only optimizes its own cost.
+  \item \textbf{Iterative - Non-Iterative}: Whether the control strategy is generated through exchange and iteration among multiple local controllers.
+  \item \textbf{Serial - Parallel}: Whether the local controllers transmit their messages in a specific order or multiple controllers could communicate with each other at the same time.
+  \item \textbf{Synchronised - Asynchronised}: Whether the local controllers follow a shared schedule for computation and communication. 
+\end{itemize}
+
+The advantages and disadvantages of DMPC both stem from its decentralised nature. 
+Like many other decentralised algorithms, \textbf{DMPC has better scalability and robustness}, can bypass communication bottlenecks, and to some extent, allows for parallel processing.
+But \textbf{coordination among multiple controllers can be quite complex},
+e.g., all local controllers tend to achieve Nash equilibrium for themselves, but such a tendency may not contribute to reaching Pareto optimality and might even be counterproductive for the entire system\cite{Nash_Equi}.
+
 \subsubsection{Why is this project related to DMPC?}
-\subsection{Latest Researches}
+
+The designed algorithm (detailed explanation please see Section \textbf{PLACEHOLDER}) in this project allows each agent to:
+\begin{itemize}
+  \item Create and join a self-organised serial communication channel.
+  \item Determine the time window for planning and plan broadcasting.
+  \item Use the shared channel to broadcast its own moving plan.
+  \item Receive plans of other agents and use the received information to its own movement.
+\end{itemize}
+
+Which means, the presented algorithm could be classified as a DMPC algorithm, and the problem it solves could be treated as a DMPC problem.
+
+\subsection{Latest Researches of DMPC}
 
 
