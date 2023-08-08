@@ -1,2 +1,3 @@
 {"rule":"EN_COMPOUNDS","sentence":"^\\QDevelop a multi-agent communication scenario with STDMA in ROS2.\\E$"}
 {"rule":"EN_WORD_COHERENCY","sentence":"^\\QSelfish - Cooperative: Whether the local controller only optimizes its own cost.\\E$"}
+{"rule":"ENGLISH_WORD_REPEAT_RULE","sentence":"^\\QThis section would cover: Detail of designed algorithm Algorithm implementation\\E$"}

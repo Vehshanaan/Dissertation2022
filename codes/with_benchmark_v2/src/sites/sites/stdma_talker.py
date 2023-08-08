@@ -224,7 +224,7 @@ class StdmaTalker(Node):
 
             # 如果下一槽位是自己的且自己已经加入网络：筹谋
             if self.state == "in" and self.slot == self.my_slot:
-                horizon_length = 60  # finite horizon的长度
+                horizon_length = 30  # finite horizon的长度
                 '''
                 寻路机制：有两个参数：required_length和horizon
                 required_length: 所需计划的长度
