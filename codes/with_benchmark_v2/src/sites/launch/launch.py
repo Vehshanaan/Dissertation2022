@@ -13,9 +13,9 @@ from launch_ros.actions import Node
 map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/my_own_benchmarks/warehouse-10-20-10-2-1.png"
 scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/my_own_benchmarks/warehouse-10-20-10-2-1.pngJul241220.scen"
 
-frame_length = 40
+frame_length = 60
 node_total = frame_length
-required_length = 50 # 每次要求生成计划的长度
+required_length = 60 # 每次要求生成计划的长度
 
 
 '''

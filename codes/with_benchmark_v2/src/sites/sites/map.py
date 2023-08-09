@@ -195,6 +195,7 @@ class Map(Node):
                 "map_size": (self.width, self.height),
                 "num_slots": self.num_slots,
                 "num_nodes": self.num_nodes,
+                "required_length": self.required_length,
                 "history": self.position_history,
             }
             json.dump(data, log)

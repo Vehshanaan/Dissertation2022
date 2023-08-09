@@ -22,12 +22,15 @@
 \contentsline {subsubsection}{Software}{16}{chapter.3}%
 \contentsline {section}{\numberline {3.1}Algorithm Detail and Implementation}{16}{section.3.1}%
 \contentsline {subsection}{\numberline {3.1.1}STDMA Implementation}{17}{subsection.3.1.1}%
+\contentsline {subsubsection}{Assumptions}{17}{subsection.3.1.1}%
 \contentsline {subsubsection}{Synchronised Clock and Shared Channel}{17}{subsection.3.1.1}%
 \contentsline {subsubsection}{Node Actions within One Slot}{18}{subsection.3.1.1}%
 \contentsline {subsubsection}{Slot Allocation Scheme and the State Machine}{19}{subsection.3.1.1}%
-\contentsline {section}{\numberline {3.2}Experiment Design}{20}{section.3.2}%
-\contentsline {chapter}{\numberline {4}Results}{21}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Common attributes to pay attention to are:}{21}{section.4.1}%
-\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{22}{chapter.5}%
-\contentsline {chapter}{\numberline {A}Appendix}{23}{appendix.A}%
-\contentsline {chapter}{References}{26}{appendix*.7}%
+\contentsline {subsubsection}{Summary}{22}{Item.19}%
+\contentsline {subsection}{\numberline {3.1.2}Path Planning Scheme and Implementation}{22}{subsection.3.1.2}%
+\contentsline {section}{\numberline {3.2}Experiment Design}{22}{section.3.2}%
+\contentsline {chapter}{\numberline {4}Results}{23}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Common attributes to pay attention to are:}{23}{section.4.1}%
+\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{24}{chapter.5}%
+\contentsline {chapter}{\numberline {A}Appendix}{25}{appendix.A}%
+\contentsline {chapter}{References}{28}{appendix*.7}%

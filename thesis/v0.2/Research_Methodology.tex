@@ -92,10 +92,16 @@ In this section, we will sequentially detail the principles and methods of imple
 
 Like mentioned before in Section \ref{chap:STDMA Explained}, in STDMA, agents have synchronised clock, share one channel, determine empty slots in frames, and apply for the slots needed, then use their own occupied slot for broadcasting.
 
+\subsubsection{Assumptions}
 
-\begin{centering}
-\textbf{ADD ASSUMPTIONS HERE!}
-\end{centering}
+
+Before delving into the details of the algorithm, it's necessary to first mention the assumptions of this algorithm.
+
+\begin{itemize}
+    \item \textbf{Synchronised Clock}: Agents have synchronised clock.
+    \item \textbf{Slots and Frames}: Continuous time is represented with frames of equal length, and each frame includes an equal number of discrete slots, with each slot having the same duration.
+    \item \textbf{Uniform Frame Length}: Frame length is predetermined for all agents and the value is the same.
+\end{itemize}
 
 
 \subsubsection{Synchronised Clock and Shared Channel}
@@ -118,16 +124,20 @@ These features are implemented with topics in ROS2\footnotemark. \footnotetext{h
     
     At the end of each slot, the agent increments its internal slot counter. If the slot count reaches one frame, it clears the slot counter and increments the frame counter. The algorithm does not require the frames to be synchronised between agents, i.e., the starting slot of the frame can differ for various agents.
     
+    \textbf{In this implementation, all agents require only one slot.}
+
     \textbf{ADD PICTURE HERE}
 
     \item \textbf{Shared Channel}
     
     In the original STDMA\cite{STDMA}, only one channel is used for communicating and broadcasting. 
-    But in the implemention here, the channel is seperated in two, one for slot occupation messages, and one for other common messages. 
+    But in the implemention here, \textbf{the channel is seperated in two, one for slot occupation messages, and one for other common messages}.
+    
+    \textbf{In the STDMA part, only the channel for slot occupation message is used.}
 
     Both of the channels here are implemented with ROS2 topic: All agent nodes subscribes to channel topics and could publish message to the channel topics.    
 
-    Please note that this modification (splitting the channel into two) is purely for convenience and does not impact its functionality in any way.
+    Please note that this modification (splitting the channel into two) is purely for convenience and \textbf{does not impact its functionality in any way}.
     This modification in the current implementation is equivalent to using just one channel.    
 
 \end{itemize}
@@ -148,24 +158,34 @@ Given the characteristics of ROS2, the node operates in the following manner: ea
     
     The clock signal's \textbf{rising edge}, treated as the \textbf{start of a slot}.
 
-    Agents send their message if this slot belongs to them. 
+    Agents \textbf{send their message} if this slot belongs to them. 
 
     To be specific, agent nodes publish their message to the topic, and whenever an agent node receives a new message from the topic, it pushs the new message into a buffer.
-
 
     
     \item \textbf{False} Received from the Clock Topic:
     
     The clock signal's \textbf{falling edge}, treated as the \textbf{end of a slot}.
     
-    Agents use the received messages to update the current allocation and its state machine.
+    Agents use the received messages to \textbf{update the current slot allocation and its state machine}.
 
     To be specific, agent nodes pop everything from the message buffer on slot's end, then use the messages received in the past slot to take corresponding actions.
+
 \end{itemize}
 
 \textbf{ADD PICTURE HERE}
 
 \subsubsection{Slot Allocation Scheme and the State Machine}
+
+Agents \textbf{always} listen to the channel and updates the local slots' allocation record.
+
+There are two situations of the slot occupation:
+\begin{itemize}
+    \item \textbf{Occupied}: Only one agent sent message during this slot.
+    \item \textbf{Free}: No agent sent message or multiple agents collided within one slot.
+\end{itemize}
+
+\textbf{ADD PICTURE HERE}  %给状态机画转化图解
 
 The agent controls its behaviour through a finite state machine. 
 The various states of this machine represent the agent's status within the network, reflecting the four phases in the STDMA protocol.
@@ -183,7 +203,7 @@ The various states of this machine represent the agent's status within the netwo
     \textbf{Transition Conditions}:
     
     
-    The agent \textbf{always records the allocation of past slots}.
+    The agent \textbf{always records the allocation of past slots}, no matter which state it is in.
     
     \begin{itemize}
         \item \textbf{Empty}: 
@@ -195,14 +215,81 @@ The various states of this machine represent the agent's status within the netwo
     Everytime finished listening to an entire frame, the agent will attempt to leave the Listening state.
     
     \begin{itemize}
-        \item $\rightarrow$ Entering: The number of free slots $\geq$ 1. Agent would randomly choose a free slot for later use, note that this doesn't mean that this chosen slot is already secured by this agent.
-        \item $\circlearrowleft$ Listening: No free slots left. This means the channel has already reached its maximum capacity and cannot take any other agents in. 
+        \item $\rightarrow$ Entering: When the number of free slots $\geq$ 1, transit to 'Entering'. Agent would randomly choose a free slot for later use, note that this doesn't mean that this chosen slot is already secured by this agent.
+        \item $\circlearrowleft$ Listening: When no free slots left, stay in 'Listening'. This means the channel has already reached its maximum capacity and cannot take any other agents in. 
     \end{itemize}
 
     \item \textbf{Entering}
+    
+    Agent in this state would \textbf{wait for the free slot it selected} during the Listening state to arrive and then \textbf{attempt to claim that slot}, i.e., agent \textbf{sends its ID to the slot occupation message channel in the middle of the selected slot}.
+
+    \textbf{Transition Conditions}:
+
+    \begin{itemize}
+        \item $\rightarrow$ Checking: Agent transit to the 'Checking' state after the occupation attempt message send.
+    \end{itemize}
+
+
     \item \textbf{Checking}
+    
+    \textbf{Everytime} an agent sends a message in the middle of its selected slot or its occupied slot, it enters this state. At the end of the slot, based on the number of messages received in that slot, it transitions to another state.
+
+    In a word, agents in this state is 'Checking' its right to use the slot.
+
+    \textbf{Transition Conditions}:
+
+
+
+    \begin{itemize}
+        \item $\rightarrow$ In: If only itself sent a message (receiving only one message and the content is its own ID) in the selected or occupied slot, it means it has successfully occupied that slot or maintain occupation to the slot, i.e., 'In' the network.
+        \item $\rightarrow$ Listening: If the agent doesn't successfully transition to the 'In' state after message broadcasting, it reverts to the 'Listening' state. 
+        
+        This condition encompasses multiple scenarios, including: 
+        \begin{itemize}
+            \item Collision: Multiple agents sent their messages in one slot. In this situation all senders reverse to 'Listening', which means that those attempting to claim the slot have failed, and those who previously occupied the slot relinquish it.
+            \item Sending Failed: No message wasn't sent to the channel in this slot's duration.
+        \end{itemize}
+    \end{itemize}
+
+    \textbf{Reminder about Collision}:
+
+    Within the framework of this algorithm, the only potential collision between agents occurs when multiple agents happen to select the same free slot for occupation while 'Listening' and attempted to occupy that slot while 'Entering'.  
+
+    In this situation, agent recognises the collision and reverse to 'Listening'.
+
     \item \textbf{In}
+    
+    Agents in this state are 'In' the network and not expected to drop off unless the agents decides to drop off (which could be simply done by stop sending regular message on their occupied slots). 
+
+    \textbf{Transition Conditions}:
+
+    \begin{itemize}
+        \item $\rightarrow$ Checking: Like mentioned above, everytime an agent sent their message in the middle of their slot, it transits to 'Checking'.
+    \end{itemize}
+
+    \textbf{ADD PICTURE HERE} % 图示一下in和check和in的转化
+
+    Agents in this state are expected to immediately transit back to 'In' after the checking at the end of the slot, because in theory no agent should try to send message in occupied slots.
+    At times, collisions might occur between agents that haven't joined the network and those that have. However, such situations typically arise when one or more clock pulses are missed, resulting in a loss of synchronisation. Such situations should not happen or should be avoided as much as possible.
+
+    The consequence of this situation is that the agent which has already joined the network is unexpectedly ejected from it. 
+    Depending on the timing, various outcomes might ensue. For instance, if an operational agent is suddenly kicked out of the network, it may be unable to broadcast its information for at least one frame, potentially leading to accidents.
+
 \end{enumerate}
+
+% 写一个小总结？
+\subsubsection{Summary}
+
+Assumptions: Synchronised clock, predetermined frame length.
+
+Functions: Self-organised single serial discrete channel sharing, allows agents to jumpin and leave.
+
+
+\subsection{Path Planning Scheme and Implementation}
+
+
+Now, we have a self-organised method of serial communication for multiple agents. 
+Let's discuss how to implement decentralised collision-free path planning based on this basis.
 
 
 
