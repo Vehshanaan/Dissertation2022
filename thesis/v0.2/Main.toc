@@ -19,7 +19,10 @@
 \contentsline {subsection}{\numberline {3.1.2}Discretisation of Channel Time}{16}{subsection.3.1.2}%
 \contentsline {subsection}{\numberline {3.1.3}State Machine for Channel Allocation}{16}{subsection.3.1.3}%
 \contentsline {subsection}{\numberline {3.1.4}Summary}{18}{subsection.3.1.4}%
-\contentsline {section}{\numberline {3.2}Plan Formulating and Sharing}{19}{section.3.2}%
+\contentsline {section}{\numberline {3.2}Path Planning and Sharing}{19}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Agents' Mobility}{19}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Sharing}{19}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Timing for Planning}{19}{subsection.3.2.3}%
 \contentsline {chapter}{\numberline {4}Results}{20}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Common attributes to pay attention to are:}{20}{section.4.1}%
 \contentsline {chapter}{\numberline {5}Discussion and Conclusion}{21}{chapter.5}%

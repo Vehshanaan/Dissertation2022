@@ -517,4 +517,48 @@ The implementation of this state machine in this paper is as follows:
 % 实现了agent的自组织无碰撞信道分享。信道的时间被表示为包含指定数量槽的重复的帧，agent通过尝试获得帧中的一个槽的方式来加入网络。
 The agent's self-organised collision-free channel sharing is implemented. The channel's time is represented as repetitive frames containing a specified number of slots. Agents join the network by attempting to secure a slot within a frame.
 
-\section{Plan Formulating and Sharing}
+\section{Path Planning and Sharing}
+
+% agent的移动模型
+\subsection{Agents' Mobility}
+
+% 在解释agent的计划制定策略前，需要描述一下本文中agent的移动方式。
+Before explaining the agent's planning strategy, it's necessary to describe the mobility of the agents in this paper:
+\begin{itemize}
+    % 在每一个时间步（即一个stdma槽）中，agent可以选择待在原地，也可以选择移动到非对角的相邻grid。
+    \item In each time step (i.e., an STDMA slot), the agent can choose to remain in its current position or move to an adjacent grid that's not diagonal.
+    % 出于简化的考虑，agent的移动中没有扰动，也就是说，agent可以完全准确地按计划移动。
+    \item Agents could execute their plan with complete accuracy. This is to simplify the model.
+\end{itemize}
+
+\begin{quotation}
+    \textbf{Assumption 3}: 
+    % agent的移动不受外部扰动的干扰，且对自己运动的预测百分之百准确。
+    The agent's movement is not affected by external disturbances, and its prediction of its own motion is completely accurate.
+\end{quotation}
+
+
+% 分享
+\subsection{Sharing}
+% 分享计划的方式
+
+% agent通过藉由STDMA协议所分享的信道通讯，分享的内容为自身未来若干步内的移动计划。
+Agents communicate via the channel shared through the STDMA protocol, sharing their movement plans for the upcoming steps.
+
+% 在本文的模拟中，为了实现的方便，分享的计划信息publish到一个单独的ROS2topic中。此信道的使用时间分配遵守由STDMA决定的顺序。
+In the simulation of this paper, for the sake of implementation convenience, the shared plan is published to a separate ROS2 topic (not the topic used for STDMA). This channel's time slot allocation follows the order determined by STDMA.
+
+% 计划
+% 计划的时机
+\subsection{Timing for Planning}
+
+% 如前文所述，每个agent在属于自己的槽的中间发布信息。
+% 基于这一特性，对于每个agent来说，存在这样一个定期出现的时间窗口：所有其他agent在此窗口中均不会发布新的计划，且自己的计划只要完成就可以立即发布给所有其他agent。
+% 这个时间窗口就是自己的槽的前半部分。
+
+
+% 计划的目的
+% 首先是找一个连续空间，用以存在
+% 然后是越优越好
+
+% 计划的方式
