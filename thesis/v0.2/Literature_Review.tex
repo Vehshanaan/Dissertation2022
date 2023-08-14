@@ -73,7 +73,7 @@ There are some studies \cite{STDMA_improv1,STDMA_improv2} that proposed improvem
 For detailed implementation, please see \textbf{PLACEHOLDER}.
 
 \section{Distributed Model Predictive Control}
-
+\comment{
 This section would cover:
 \begin{itemize}
   \item An brief introduction to DMPC.
@@ -141,5 +141,58 @@ The designed algorithm (detailed explanation please see Section \textbf{PLACEHOL
 Which means, the presented algorithm could be classified as a DMPC algorithm, and the problem it solves could be treated as a DMPC problem.
 
 \subsection{Latest Researches of DMPC}
+}
+
+\textit{Distributed Model Predictive Control} or DMPC is a control strategy based on constraints and optimization\cite{DMPC_Review1}.
+DMPC not only inherits the capability of MPC to handle constraints but also possesses a decentralised characteristic, making it apt for addressing multi-agent swarm motion control problems, 
+such as: formation control\cite{Formation_Control}, path tracking\cite{Path_Tracking}, path planning\cite{Path_Planning}, and obstacle avoidance\cite{Obstacle_Avoid}.
+The commonality of such problems is that agents are subject to static constraints in a dynamic environment.
 
 
+
+The DMPC algorithm applied in this domain can be summarised as: 
+Agents communicate with other agents and solve a finite horizon optimization problem in their local MPC controller, using the solution for action control. 
+The optimization criteria are typically specified based on the agent's task. 
+
+% 罗列论文
+In \cite{xin2023model}, the optimization problem is represented as 0–1 integer linear programming, and then a method based on the alternating direction method of multipliers (ADMM) is developed to coordinate AGVs and alleviate computational burden.
+\cite{matouvs2022distributed} parameterises the trajectory of vehicles using polynomial splines, reducing the number of optimisation variables and achieving path tracking for vehicle platooning.
+\cite{zhao2022distributed} utilises a hierarchical DMPC (HDMPC) path prediction method with a trigger mechanism to control the behaviour of drones post-obstacle avoidance, achieving a more efficient multi-agent multi-different-target search in unknown areas compared to conventional methods.
+\cite{mousavi2020distributed}addresses the issues of vehicle platooning control and obstacle avoidance by modelling the motion of an agent swarm based on animal behaviours. It then transforms the local MPC problem of the agent into a closed-form convex optimization.
+\cite{yang2022cooperative} utilises the grey wolf optimizer (GWO) to enhance the solution process of the DMPC controller, improving convergence speed and achieving 3D spatial path planning for multiple drones.
+\cite{niu2022communication} introduces a drone path planning algorithm based on predicting the motion of surrounding drones without the need for communication. However, this comes at the cost of increased computational load.
+
+% 可以看出，此领域的研究集中在。。。
+% 但是需要注意的是，此领域的研究中通常不关注实际通信问题的解决，常常假设。。。
+% 而且，其使用场景（编队控制）和本项目的目标场景有较大差别，(放解释)
+From the aforementioned papers, it's evident that research in this domain predominantly focuses on the representation of the problem and the methods to solve optimisation challenges. 
+The primary distinction between such algorithms and the subject of this study is:
+the mode of communication between agents is often expressed as a constraint incorporated into the algorithm design\cite{novoth2020distributed}, while the actual implementation of communication is frequently omitted.
+Common communication topology assumptions include: serial\cite{xin2023model}, agents communicating with others freely within a certain range\cite{mousavi2020distributed,yang2022cooperative,zheng2023distributed,zhao2022distributed}, directed graphs\cite{tang2022distributed,zang2022optimal}. On top of this, bandwidth limitations are occasionally overlooked\cite{zheng2023distributed}.
+Moreover, common target scenarios (such as formation control and path tracking) differ significantly from the target scenario of this project.
+
+
+
+Despite the aforementioned differences, the essence of the algorithm implemented in this paper aligns with that of DMPC: 
+agents communicate amongst themselves and, based on the information from other agents, individually solve an optimisation problem within a finite horizon. 
+A portion of the generated solution is then taken as their own control sequence.
+
+\section{Multi Agent Path Finding}
+% 本项目中的目标场景是。。。
+The classical definition of the \textit{Multi Agent Path Finding} (MAPF) problem is: \textbf{Multiple agents moving step by step in an undirected graph in discrete time}\cite{MAPF_Review1}, which is precisely the target scenario of this project.
+
+% 解决此类问题的算法可以分为几大类：
+The MAPF algorithm can be divided into \textbf{several categories: classical, heuristic, rule-based, and machine learning combined}. 
+Among these methods, those that are rule-based are the closest to the approach of this project.
+
+\begin{itemize}
+  \item Classical: The most popular classic MAPF algorithm is the \textit{Artificial Potential Field} (APF) algorithm, which put force fields around obstacles and goals to generate a force to guide the agents. APF methods does not guarantee collision-free and is prone to fall into local minima. There are still some research today dedicated to improving the performance of the APF algorithm, with a primary focus on optimizing the potential field function\cite{APF_improv2,APF_improv3,APF_improv4}.
+  \item Heuristic algorithms mainly include A* and its variants (like  D* \cite{D*}). Heuristic algorithms mainly operate on the principle of searching for the optimal solution. Many researchers combine A* with other algorithms to achieve better performance and goes beyond the original A* \cite{A*_1,A*_2}.
+  \item ML Combined: The machine learning algorithm mainly used in this field is reinforced learning, and usually combined with other non-RL techniques \cite{RL_1,RL_2,RL_3,RL_4}.
+  \item Rule-based:  The rule-based methods are based on the idea that each agent follows a set of identical local decision-making principles (which means it is decentralized) and usually improve algorithm performance by modifying the rules. Most of these algorithms are bio-inspired, including \textit{Particle Swarm Optimisation} (PSO)\cite{PSO_1,PSO_2}, \textit{Genetic Algorithm} (GA)\cite{GA_1,GA_2}, \textit{Ant Colony Optimisation} (ACO)\cite{AGO_1,AGO_2}, \textit{Pegion Inspired Optimisation} (PIO)\cite{PIO_1, PIO_2} and \textit{Grey Wolf Optimisation} (GWO)\cite{GWO,GWO_1,GWO_2}. 
+  Apart from these bio-inspired algorithms, there is also a category of algorithms called push-and-swap\cite{PaS_1, PaS_2}. They address problems through two kinds of actions: push (move towards the goal) and swap (exchanging positions between agents).
+\end{itemize}
+
+% 此类算法的主要权衡是
+Generally speaking, researches in this area are trade-offs between completeness, computational complexity, and optimality. There is currently no perfect algorithm for this question.
+Besides, direct communication between agents isn't always a key component in these methods (e.g. \cite{D*,RL_3}).

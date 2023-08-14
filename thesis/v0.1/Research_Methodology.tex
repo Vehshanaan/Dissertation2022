@@ -1,7 +1,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Research Methodology}
-\label{chap:Literature_Review}
+\chapter{Algorithm}
+\label{chap:Algorithm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \comment{
@@ -52,11 +52,9 @@ where $\sigma$ is the integral (see Equations \ref{eq:sum}).
 
 }
 
-This section provides detailed information on algorithm, its implementation, and experiment design.
+This section provides detailed information on algorithm and its implementation.
 
-\section{Algorithm and Implmentation}
-
-\subsection*{Environment}
+\section*{Environment}
 
 \begin{itemize}
     \item \textbf{Hardware:} ROG Zephyrus M16 Laptop
@@ -71,36 +69,27 @@ This section provides detailed information on algorithm, its implementation, and
     \end{itemize}
 \end{itemize}
 
+\section{Communication with STDMA}
 
-\textbf{The algorithm's idea} could be summarised in the following two parts: 
-\begin{enumerate}
-    \item \textbf{Communicate with STDMA}: Agents establish communication with STDMA protocol.
-    \item \textbf{Plan}: Agents plan their move based on the information received.
-\end{enumerate}
-
-And they are explained as below.
-
-\subsection{Communicate with STDMA}
-
-As previously mentioned in Section \ref{sec:STDMA Explained}, the STDMA protocol mainly consists of the following three parts:
-\begin{enumerate}
-    \item Synchronised Clock: Agents have synchronised clock.
-    \item State Machine: Four states for an agent to control their behaviour and describe network usage.
-    \item Message Publishing and Sending: Agents could monitor the channel and send information through it.
-\end{enumerate}
-
-And these features are implemented within the ROS2 structure.
-
-\subsubsection*{Synchronised Clock}
-
-In this paper, shared clock pulses are used to achieve the purpose of synchronizing clocks between agents.
-A ROS2 publisher sends a square wave with a fixed period and a duty cycle of 50$\%$ to the designated topic, serving as the shared clock signal. 
-Agents subscribe to this clock signal topic to achieve clock synchronisation.
+In STDMA, agents share a single channel by autonomously determining the serial speaking order.
+The method for determining the speaking order involves agents autonomously allocating the right to use free times within the channel.
 
 
+\subsection{Synchronised Clock}
 
+% STDMA假设agent之间拥有同步时钟。
+\begin{quotation}
+    \textbf{Assumption 1}: 
+    STDMA assumes that agents have synchronised clocks. 
+\end{quotation}
 
+% 在实际中，同步时钟一般用GPS实现。在本文的模拟中，用一个ROS2publisher和一个topic来实现。
+In practice, the synchronised clock is typically implemented with GPS. 
+In the implemented simulation of this paper, it's achieved using a ROS2 publisher and a topic.
+% 一个专用的ros2节点定时翻转其成员bool值，并在每次翻转此值时将翻转后的bool值publish到时钟topic中，这样在时钟topic中来形成一个占空比为50%的方波时钟信号。
+A dedicated ROS2 node periodically toggles its member boolean value and publishes the toggled value to the clock topic each time it's flipped. This creates a square wave clock signal with a 50\% duty cycle in the clock topic.
+% 其他普通agent通过订阅时钟话题的方式来获得同步时钟信号。
+Other standard agents obtain the synchronised clock signal by subscribing to the clock topic.
 
-\section{Experiment Design}
-
+\subsection{State Machine for Channel Allocation}
 

@@ -616,8 +616,6 @@ INPUT ./Results.tex
 INPUT Results.tex
 INPUT ./Results.tex
 INPUT Results.tex
-INPUT a:/texlive/2023/texmf-dist/fonts/vf/adobe/times/zptmcm7t.vf
-INPUT a:/texlive/2023/texmf-dist/fonts/tfm/public/cm/cmr10.tfm
 INPUT ./Conclusion.tex
 INPUT Conclusion.tex
 INPUT ./Conclusion.tex

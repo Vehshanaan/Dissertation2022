@@ -1,4 +1,4 @@
-
+\comment{
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Research Methodology}
 \label{chap:Literature_Review}
@@ -295,3 +295,226 @@ Let's discuss how to implement decentralised collision-free path planning based 
 
 
 \section{Experiment Design}
+
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Algorithm}
+\label{chap:Algorithm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\comment{
+
+The Methodology section should provide a clear explanation of the research approach.  You want your reader to agree that you carefully considered your method so that we can trust your results to be both insightful (\underline{mean something}) and credible (\underline{not subject to error}):
+\begin{itemize}
+    \item A clear description of the methodology, how it creates a scientific investigation and operates to collect meaningful data.
+    \item A clear justification of \underline{why} you have chosen this particular approach.
+    \item Information needed for a reader to understand \underline{how} you did it (can a reader \underline{reproduce} your work, and collect equally valid results? e.g. hardware/software used, configuration, number of trials, any procedures used, etc.)
+    \item A description of any approaches taken to process collected data, e.g. metrics are used to combine data in a meaningful way - you should state any used explicitly, their utility, their suitability to your methodology and their limitations.  
+\end{itemize}
+
+
+
+As on can see in Table \ref{tab:Table_with_numbers} there are numbers involved. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% If you have more complex tables you can 
+% get a corresponding LaTeX code here
+% https://www.tablesgenerator.com 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table}[h!]
+\centering
+ \begin{tabular}{|c | c | c | c|} 
+ \hline
+  Frame number & User 1 state & User 2 state & Resulting state \\ [0.5ex] 
+ \hline
+ \hline
+  n & 0 & 0 & 1 \\ 
+ \hline
+  n+1 & 0 & 1 & 2\\
+ \hline
+  n+2 & 1 & 0 & 3 \\
+ \hline
+  n+3 & 1 & 1 & 4 \\
+ \hline
+\end{tabular}
+\caption{\label{tab:Table_with_numbers}An example of a table.}
+\label{table:example}
+\end{table}
+
+For example, if $x>0$ then we can write
+\begin{equation}
+\label{eq:sum}
+\sigma =\int_{x=0}^{\infty} \frac{1}{x^2}dx \quad ,
+\end{equation}
+where $\sigma$ is the integral (see Equations \ref{eq:sum}).  
+
+}
+
+This section provides detailed information on algorithm and its implementation.
+
+\section*{Environment}
+
+\begin{itemize}
+    \item \textbf{Hardware:} ROG Zephyrus M16 Laptop
+    \begin{itemize}
+        \item CPU: 11th Gen Intel(R) Core(TM) 17-11800H @ 2.30GHz
+        \item GPU: NVIDIA GeForce RTX 3060 Laptop GPU (unrelated to the experiment, information provided just for content completeness)
+    \end{itemize}
+    \item \textbf{Software:}
+    \begin{itemize}
+        \item OS: WSL2 (Ubuntu 22.04 LTS) in Windows 11 23H2
+        \item Implementation Platform: ROS2 Humble, all codes written in python
+    \end{itemize}
+\end{itemize}
+
+\section{Communication with STDMA}
+
+In STDMA, agents share a single channel by autonomously determining the serial speaking order.
+The method for determining the speaking order involves agents autonomously allocating the right to use free times within the channel.
+
+
+\subsection{Synchronised Clock}
+
+% STDMA假设agent之间拥有同步时钟。
+\begin{quotation}
+    \textbf{Assumption 1}: 
+    Agents have synchronised clocks. 
+\end{quotation}
+
+% 在实际中，同步时钟一般用GPS实现。在本文的模拟中，用一个ROS2publisher和一个topic来实现。
+In practice, the synchronised clock is typically implemented with GPS. 
+In the implemented simulation of this paper, it's achieved using a ROS2 publisher and a topic.
+% 一个专用的ros2节点定时翻转其成员bool值，并在每次翻转此值时将翻转后的bool值publish到时钟topic中，这样在时钟topic中来形成一个占空比为50%的方波时钟信号。
+A dedicated ROS2 node periodically toggles its member boolean value and publishes the toggled value to the clock topic each time it's flipped. This creates a square wave clock signal with a 50\% duty cycle in the clock topic.
+% 其他普通agent通过订阅时钟话题的方式来获得同步时钟信号。
+Other standard agents obtain the synchronised clock signal by subscribing to the clock topic.
+
+% 信道时间的离散化
+\subsection{Discretisation of Channel Time}
+
+% agent将一个完整的时钟信号周期视作一个slot，将若干slot视作一帧。
+Agents consider a complete clock signal cycle as one slot and consider several slots as one frame.
+
+\begin{quotation}
+    \textbf{Assumption 2:} 
+    The number of slots in a frame is predefined within the agents, and this parameter value is the same for all agents.
+\end{quotation}
+
+% 注意，不要求各agent的帧起始点相同，允许agent有不同的agent起始点offset
+Note that it's not required for each agent to have the same frame starting point, 
+i.e., agents are allowed to have different frame starting point offsets.
+
+\subsection{State Machine for Channel Allocation}
+
+% 使用STDMA的agent有四个阶段，每个阶段对应一个在网络中的状态。因此，agent加入网络的过程可以用状态机来管理，随着状态逐步转化，agent逐步加入网络并获得自己的槽
+Agents using STDMA have four phases\cite{STDMA}, with each phase corresponding to a status of an agent joining the network. Therefore, the process of an agent joining the network can be managed using a state machine. As the state transitions progressively, the agent gradually joins the network and obtains its slot.
+
+% 在解释状态机的运作前，有必要简述信道中对槽使用情况的表示和判断方式
+Before explaining the operation of the state machine, it's necessary to briefly describe how the usage of slots in the channel is represented and determined: 
+% 每当某agent占用的槽到来时，agent向信道中发送自己的id。
+Agents publish their ID to the channel (which is a ROS2 topic) in the middle of the slot they occupy.
+% agent保持对信道的监听以实时更新槽位分配情况记录。若一个槽中仅有一个agent发送信息，则此槽被此agent占有；若在一槽中无agent发送消息（未被使用）或有多个agent同时发送消息（碰撞），则此槽未被占有。
+Agents keep listening to the channel (subscribe to the channel topic) to update their slot allocation records. If only one agent sends a message in a slot, that slot is occupied by that agent. If no agents send a message in a slot (i.e., it's unused) or if multiple agents send messages simultaneously (i.e., a collision), then the slot is considered unoccupied.
+% Agent在每个槽结束时对本槽中接收到的消息数量计数，并进行上述判断。
+At the end of each slot, agents count the number of messages received during that slot and make the aforementioned determination.
+
+\textbf{ADD PIC HERE} % 绘制一个槽，槽中agent发信，槽末agent数数
+
+% 本文中对此状态机的实现如下：
+The implementation of this state machine in this paper is as follows:
+
+\begin{enumerate}
+    \item \textbf{Listening}
+    
+    % 在此状态下的agent如何如何如何
+
+    % 此状态下的agent的目的是确定当前的信道槽位分配情况，此状态下的agent尚未进入网络
+    In this state, the agent's objective is to determine the current channel slot allocation by 'Listening' to the channel. 
+    Agents in this state have not yet joined the network.
+
+    An agent's initial state is this state.
+
+    % Transition Condition: 每次听完完整的一帧后，尝试离开此状态
+    \textbf{Transition Condition}: After listening to a complete frame, the agent attempts to exit this state.
+    \begin{itemize}
+        % 当信道中有一个或多个未被使用的槽时，进入entering状态
+        \item $\rightarrow$ Entering: There are one or more unoccupied slots in the frame.
+        % 信道中无空闲槽时：呆在listening.
+        \item $\circlearrowleft$ Listening: No free slot left in the frame. This indicates that the channel's capacity has reached its limit and the agent can only stay idle.
+    \end{itemize}
+    
+    \item \textbf{Entering}
+    
+    % 在此状态下的agent的目的是如何，agent的状态是如何
+    In this state, the agent attempts to occupy a free slot in order to try 'Entering' the network.
+
+    % Transition Condition: 
+    \textbf{Transition Condition}: 
+    The agent tries to occupy an unused random slot. In the middle of this slot, the agent publishes its ID.
+
+    \begin{itemize}
+        \item $\rightarrow$ Checking: Agent transit to the 'Checking' state immediately after the occupation attempt message send.
+    \end{itemize}
+
+
+    \item \textbf{Checking}
+    
+    % 在此状态下的agent的目的是如何，agent的状态是如何
+    % 此状态下的Agent刚刚在某一槽中发布了一条信息，需要根据槽内收到的消息的数量判断自己对此槽的所有权。
+    In this state, the agent has just published a message in a certain slot and needs to determine its ownership of the slot based on the number of messages received within it.
+    % 通过检查自己对此槽的所有权，变更自身状态。
+    By 'Checking' its ownership of that slot, the agent transits its own state.
+
+    % 注意，未进入网络和已进入网络的agent都会在发布消息后进入此状态。
+    Note, both agents that haven't entered the network and those that have will enter this state after releasing a message.
+
+    % Transition Condition:
+    \textbf{Transition Condition}: Transit state based on the number of messages received in the slot where one has sent a message.
+    \begin{itemize}
+        % 如果只收到一条消息且来自自己：说明自己拥有此槽位，即在网络中
+        \item $\rightarrow$ In: If only one message is received and it's from itself, it indicates that the agent has ownership of that slot, meaning it is 'In' the network.
+        % 任何其他情况：自己不拥有此槽位，重新尝试获得槽位。
+        \item $\rightarrow$ Listening: In any other situation: The agent does not have ownership of that slot and should try to secure a slot again.
+        
+        % 解释：所有其他情况包含：
+        Explanation: All other situations include:
+        \begin{itemize}
+            % 没有收到自己的消息
+            \item Didn't receive its own message: This indicates that the broadcast is not successful or receiving is not successful (e.g. hardware damaged or scheduled broadcasting prevented, etc.). In both situation, we don't want the agent to enter network, since its communicating function is not always fully functional. 
+            % 多个节点尝试在同一槽内发送消息:
+            \item Multiple agents sent messages within one slot (i.e. collision):
+            
+            % 碰撞情景1：多个正在进入网络的agent恰好选择了同一个槽位。此种碰撞在本算法框架下无法避免，但由于仅发生在未进入网络的agent之间，对其他有效通讯没有影响。
+            Collision Scenario 1: Multiple agents trying to join the network happen to choose the same slot. Such collisions are inevitable within the framework of this algorithm, but since they only occur among agents that haven't entered the network, they don't affect other communications.
+
+            % 碰撞情景2：已加入网络的agent与未加入网络的agent发生碰撞。此种碰撞在理论上是不应该发生的，因为未加入网络的节点应当只尝试获得未被使用的槽位。若agent错过了时钟脉冲，则可能会出现此种情况。若某agent失去时钟脉冲，则会导致其和所有其他agent失去同步，进而导致事故。这一情况要尽可能避免。
+            Collision Scenario 2: A collision occurs between an agent that has joined the network and one that hasn't. Theoretically, this kind of collision shouldn't happen, as agents not yet in the network should only attempt to secure unused slots. If an agent misses a clock pulse, this situation might arise. If an agent misses the clock pulse, it will result in it falling out of sync with all other agents, potentially leading to accidents. This situation should be avoided as much as possible.
+
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{In}
+    
+    % 在此状态下的agent的目的是如何，agent的状态是如何
+    % 在此状态下的agent已经进入网络，且应当始终在网络中，直到其通过停止定期发送消息来放弃其槽位。
+    In this state, the agent is 'In' the network and should remain within the network, until it releases its slot by ceasing to send messages regularly.
+    
+    % Transition Condition:
+    \textbf{Transition Condition}:
+    \begin{itemize}
+        % 每次发送消息后，检查自己对此槽的所有权
+        \item $\rightarrow$ Checking: After message publishing, check its ownership of that slot.
+    \end{itemize}
+
+\end{enumerate}
+
+\textbf{ADD PIC HERE} % 画一个状态机的图片 
+
+\subsection{Summary}
+
+% 实现了agent的自组织无碰撞信道分享。信道的时间被表示为包含指定数量槽的重复的帧，agent通过尝试获得帧中的一个槽的方式来加入网络。
+The agent's self-organised collision-free channel sharing is implemented. The channel's time is represented as repetitive frames containing a specified number of slots. Agents join the network by attempting to secure a slot within a frame.
+
+\section{Plan Formulating and Sharing}

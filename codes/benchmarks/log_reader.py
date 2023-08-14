@@ -1,3 +1,4 @@
+from shlex import join
 import matplotlib.pyplot as plt
 import numpy as np
 import json
@@ -151,15 +152,19 @@ def log_reader(log_path):
         sum_actural_vs_optimal = sum_actural/sum_optimal # 实际路径总长度vs最优总长度
         print("总实际路径长度/最优路径长度：%f"%sum_actural_vs_optimal)
 
-        return node_total, frame_length, avg_real_vs_optimal, finish_time, avg_join_spent_time, sum_actural_vs_optimal
+        return node_total, frame_length, avg_real_vs_optimal, finish_time, avg_join_spent_time, sum_actural_vs_optimal, required_length
 
 
 def main():
     log_files = traverse_directory(log_parent_path)
     
-
+    # 硬参数
     node_total = []
     frame_length = []
+    required_length = []
+
+
+    # 性能指标
     real_vs_optimal_avg=[]
     finishtime = []
     join_spent_time = []
@@ -167,13 +172,48 @@ def main():
 
     for log in log_files:
         print(log)
-        a,b,c,d,e,f= log_reader(log)
+        a,b,c,d,e,f,g= log_reader(log)
         node_total.append(a)
         frame_length.append(b)
         real_vs_optimal_avg.append(c)
         finishtime.append(d)
         join_spent_time.append(e)
         real_vs_optimal_sum.append(f)
+        required_length.append(g)
+
+    # 画图
+    fig = plt.figure(figsize=(15,15))
+    # 创建第一个子图
+    ax1 = fig.add_subplot(2, 2, 1, projection='3d')
+    ax1.scatter(node_total, required_length, real_vs_optimal_sum, c=real_vs_optimal_sum, cmap='viridis', marker='o')
+    ax1.set_title('real/optimal sum')
+    ax1.set_xlabel("node number = frame length")
+    ax1.set_ylabel("required plan length")
+    ax1.set_zlabel("actural/optimal sum")
+
+    ax2 = fig.add_subplot(2, 2, 2, projection='3d')
+    ax2.scatter(node_total, required_length, real_vs_optimal_avg, c=real_vs_optimal_avg, cmap='viridis', marker='o')
+    ax2.set_title('real/optimal avg')
+    ax2.set_xlabel("node number = frame length")
+    ax2.set_ylabel("required plan length")
+    ax2.set_zlabel("actural/optimal avg")
+
+    ax3 = fig.add_subplot(2, 2, 3, projection='3d')
+    ax3.scatter(node_total, required_length, finishtime, c=finishtime, cmap='viridis', marker='o')
+    ax3.set_title('finish time')
+    ax3.set_xlabel("node number = frame length")
+    ax3.set_ylabel("required plan length")
+    ax3.set_zlabel("finish time")
+
+    ax4 = fig.add_subplot(2, 2, 4, projection='3d')
+    ax4.scatter(node_total, required_length, join_spent_time, c=join_spent_time, cmap='viridis', marker='o')
+    ax4.set_title('avg join spent time')
+    ax4.set_xlabel("node number = frame length")
+    ax4.set_ylabel("required plan length")
+    ax4.set_zlabel("join spent time")
+
+    plt.tight_layout()
+    plt.show()
 
 
 
