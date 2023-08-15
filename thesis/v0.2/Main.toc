@@ -23,16 +23,15 @@
 \contentsline {subsection}{\numberline {3.2.1}Necessary Explanation}{19}{subsection.3.2.1}%
 \contentsline {subsubsection}{Agent Mobility}{19}{subsection.3.2.1}%
 \contentsline {subsubsection}{Definition of Plan}{19}{subsection.3.2.1}%
-\contentsline {subsubsection}{Map}{19}{subsection.3.2.1}%
-\contentsline {subsubsection}{Plan Sharing}{19}{subsection.3.2.1}%
-\contentsline {subsection}{\numberline {3.2.2}Time Window for Planning}{20}{subsection.3.2.2}%
-\contentsline {subsection}{\numberline {3.2.3}Plan Generating}{20}{subsection.3.2.3}%
-\contentsline {subsubsection}{Purpose of the Plan}{20}{subsection.3.2.3}%
-\contentsline {subsubsection}{Constraints of the Plan}{20}{Item.19}%
-\contentsline {subsubsection}{Collision Definition}{21}{Item.22}%
-\contentsline {subsubsection}{Plan Generating Scheme}{21}{Item.22}%
-\contentsline {chapter}{\numberline {4}Results}{22}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Common attributes to pay attention to are:}{22}{section.4.1}%
-\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{23}{chapter.5}%
-\contentsline {chapter}{\numberline {A}Appendix}{24}{appendix.A}%
-\contentsline {chapter}{References}{31}{appendix*.7}%
+\contentsline {subsubsection}{Constraints of the Plan}{19}{subsection.3.2.1}%
+\contentsline {subsubsection}{Collision Definition}{20}{Item.20}%
+\contentsline {subsubsection}{Map}{20}{Item.20}%
+\contentsline {subsubsection}{Plan Sharing}{20}{Item.20}%
+\contentsline {subsubsection}{Time Window for Planning}{20}{Item.20}%
+\contentsline {subsubsection}{Purpose of the Plan}{21}{Item.20}%
+\contentsline {subsubsection}{Path Planning Scheme}{21}{Item.22}%
+\contentsline {chapter}{\numberline {4}Results}{23}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Common attributes to pay attention to are:}{23}{section.4.1}%
+\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{24}{chapter.5}%
+\contentsline {chapter}{\numberline {A}Appendix}{25}{appendix.A}%
+\contentsline {chapter}{References}{32}{appendix*.7}%

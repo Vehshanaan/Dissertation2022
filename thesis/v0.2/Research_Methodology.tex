@@ -223,7 +223,7 @@ The agent's self-organised collision-free channel sharing is implemented. The ch
 \subsection{Necessary Explanation}
 
 % 在解释agent的计划制定策略前，需要描述一下本文中agent的移动方式。
-Before explaining the agent's planning strategy, it's necessary to state several details:
+Before explaining the agent's planning strategy, it's necessary to state the details:
 
 \subsubsection{Agent Mobility}
 
@@ -253,59 +253,6 @@ Due to the constraints on agent mobility, the 2D coordinate part of adjacent poi
 % 计划一经发布，则agent必须按照已发布的计划部分移动。
 Once a plan is published, the agent must move according to the published part of the plan.
 
-\subsubsection{Map}
-% 本文中所使用的地图仅包含静止障碍物
-\begin{quotation}
-    \textbf{Assumption 4}:
-    % 所有的障碍物都是静止的
-    All obstacles in the map are stationary.
-\end{quotation}
-
-% 分享
-\subsubsection{Plan Sharing}
-% 分享计划的方式
-
-% agent通过藉由STDMA协议所分享的信道通讯，分享的内容为自身未来若干步内的移动计划。
-Agents communicate via the channel shared through the STDMA protocol, sharing their movement plans for the upcoming steps.
-
-% 在本文的模拟中，为了实现的方便，分享的计划信息publish到一个单独的ROS2topic中。此信道的使用时间分配遵守由STDMA决定的顺序。
-In the simulation of this paper, for the sake of implementation convenience, the shared plan is published to a separate ROS2 topic (not the topic used for STDMA). This channel's time slot allocation follows the order determined by STDMA.
-
-
-% 计划的时机
-\subsection{Time Window for Planning}
-
-% 如前文所述，每个agent在属于自己的槽的中间发布信息。
-As previously mentioned, each agent publishes their message (their plan and ID) in the middle of the slot that belongs to it.
-% 基于这一特性，对于每个agent来说，存在这样一个定期出现的时间窗口：涉及计划制订的所有变量都是确定的，且自己的计划只要制订完成就可以立即发布。
-Based on this rule, for each agent, there exists a regularly occurring time window 
-in which all variables involved in plan-making are fixed, and the agent's own plan can be immediately published as soon as it is formulated.
-
-% 这个时间窗口就是自己的槽的前半部分。在这段时间内，不会有其他agent发布新的计划，且此时段结束后就可以立即发布自身的计划。
-This time window is the first half of the agent's own slot. During this time, no other agents will publish new plans, and as soon as this period ends, the agent can immediately publish its own plan.
-% 由于此窗口是一个槽，这一窗口在每一帧中会出现一次
-Since this time window is part of a slot, it will appear once in every frame.
-
-\textbf{ADD PIC HERE}% 画图解释进行计划的时机
-
-% 计划的生成方式
-\subsection{Plan Generating}
-% 计划的作用
-% 计划有两个作用：1. 寻找一个agent可以使用的连续二维空间。 2. 帮助agent接近并到达终点
-\subsubsection{Purpose of the Plan}
-\begin{enumerate}
-    \item Finding a continuous collision-free two-dimensional space that the agent can use.
-    \item Assisting the agent in getting closer and reaching its destination.
-\end{enumerate}
-
-% 其中，第一个功能比第二个更重要。
-The first purpose is more important than the second.
-
-%本文中agent并不初始位于地图中的某个点，为agent指定的起点都位于地图的边缘且不重复，agent必须生成一个以其自身指定起点为开头的计划并publish才能进入地图中。
-In this paper, agents do not initially occupy a specific point on the map. The starting points assigned to agents are all on the edge of the map and do not overlap. Agents must generate and publish a plan starting at their designated starting point in order to enter the map.
-% 成功生成并发布一个计划就代表地图中存在足够的空间供此agent使用，故而此时允许agent进入地图。
-Successfully generating and publishing a plan indicates that there is enough space in the map for this agent to use, so the agent is allowed to enter the map at this time.
-
 % 计划的约束
 \subsubsection{Constraints of the Plan}
 
@@ -328,10 +275,108 @@ In this paper, the following two scenarios are considered as collisions:
 
 \textbf{ADD PIC HERE} % 放一张描述碰撞的图
 
+\subsubsection{Map}
+The map is a grid world with obstacles, and:
+% 本文中所使用的地图仅包含静止障碍物
+\begin{quotation}
+    \textbf{Assumption 4}:
+    % 所有的障碍物都是静止的
+    All obstacles in the map are stationary.
+\end{quotation}
 
-% 计划的方法
-\subsubsection{Plan Generating Scheme}
+% 分享
+\subsubsection{Plan Sharing}
+% 分享计划的方式
 
-% 路径生成采用A*方法。启发式函数是点与终点之间的曼哈顿距离。
-% 算法函数的输入：
-% 算法函数的输出：
+% agent通过藉由STDMA协议所分享的信道通讯，分享的内容为自身未来若干步内的移动计划。
+Agents communicate via the channel shared through the STDMA protocol, sharing their movement plans for the upcoming steps.
+
+% 在本文的模拟中，为了实现的方便，分享的计划信息publish到一个单独的ROS2topic中。此信道的使用时间分配遵守由STDMA决定的顺序。
+In the simulation of this paper, for the sake of implementation convenience, the shared plan is published to a separate ROS2 topic (not the topic used for STDMA). This channel's time slot allocation follows the order determined by STDMA.
+
+
+% 计划的时机
+\subsubsection{Time Window for Planning}
+
+% 如前文所述，每个agent在属于自己的槽的中间发布信息。
+As previously mentioned, each agent publishes their message (their plan and ID) in the middle of the slot that belongs to it.
+% 基于这一特性，对于每个agent来说，存在这样一个定期出现的时间窗口：涉及计划制订的所有变量都是确定的，且自己的计划只要制订完成就可以立即发布。
+Based on this rule, for each agent, there exists a regularly occurring time window 
+in which all variables involved in plan-making are fixed, and the agent's own plan can be immediately published as soon as it is formulated.
+
+% 这个时间窗口就是自己的槽的前半部分。在这段时间内，不会有其他agent发布新的计划，且此时段结束后就可以立即发布自身的计划。
+This time window is the first half of the agent's own slot. During this time, no other agents will publish new plans, and as soon as this period ends, the agent can immediately publish its own plan.
+% 由于此窗口是一个槽，这一窗口在每一帧中会出现一次
+Since this time window is part of a slot, it will appear once in every frame.
+
+\textbf{ADD PIC HERE}% 画图解释进行计划的时机
+
+\subsubsection{Purpose of the Plan}
+\begin{enumerate}
+    \item Finding a continuous collision-free two-dimensional space that the agent can use.
+    \item Help the agent to gradually approach and reach its goal..
+\end{enumerate}
+
+% 其中，第一个功能比第二个更重要。
+The first purpose is more important than the second.
+
+%本文中agent并不初始位于地图中的某个点，为agent指定的起点都位于地图的边缘且不重复，agent必须生成一个以其自身指定起点为开头的计划并publish才能进入地图中。
+In this paper, agents do not initially occupy a specific point on the map. The starting points assigned to agents are all on the edge of the map and do not overlap. Agents must generate and publish a plan starting at their designated starting point in order to enter the map.
+% 成功生成并发布一个计划就代表地图中存在足够的空间供此agent使用，故而此时允许agent进入地图。
+Successfully generating and publishing a plan indicates that there is enough space in the map for this agent to use, so the agent is allowed to enter the map at this time.
+
+
+\subsubsection{Path Planning Scheme}
+
+% 在每个计划窗口开始时，计划函数被调用，用以生成接下来agent的移动计划。
+At the start of each planning window, the planning function is called to generate the upcoming movement plan for the agent.
+
+\textbf{Inputs of the function}:
+\begin{itemize}
+    % 地图，起点终点： 计划所需的基础信息
+    \item map data, current position, goal
+    
+    These are basic information required for planning. 
+
+    % 其他agent的计划
+    \item plans of other agents
+    
+    Information for collision avoidance.
+
+    % 是否是第一次进入地图？ 
+    \item first ever plan or not? (bool lean flag)
+    
+    % 指示是否是agent的第一个计划的bool值flag。若是，则计划起点须为分配给此agent的起始点
+    A boolean value flag indicating whether it is the agent's first plan. If it is, the 2D coordinates of the first point of the plan must be the start assigned to this agent.
+    
+    % 所需计划之长度
+    \item required plan length
+    
+    % 每次生成计划时要求生成的长度。
+    The required length of the plan to be generated each time.
+
+    % 由于agent每帧进行一次计划，而agent必须遵循其计划移动，所以每次生成的计划之长度必须至少等于一帧中slot的数量（即帧长度）。
+    Since the agent plans once per frame, and the agent must follow its planned movement, the length of each generated plan must be at least equal to the number of slots in a frame (i.e., the frame length).
+
+    % 如果agent的计划长度短于帧长度，会导致在帧末尾agent没有可使用的计划，其存在不为其他agent所知，而导向潜在的碰撞。
+    If the agent's plan length is shorter than the frame length, it will result in the agent having no available plan near the end of the frame, and its presence will be unknown to other agents, leading to potential collisions.
+    % 这一限制可以通过一些适当的技巧解决，如：agent之间对无计划时的移动有一些共识，进而可以用这一共识预测其他agent的行动，来允许计划长度短于两次计划之间的间隔。
+    This limitation can be addressed through some appropriate techniques, such as having a consensus among agents on movement when there is no plan, which can then be used to predict the actions of other agents, allowing the plan length to be shorter than the interval between two planning windows.
+    % horizon
+    \item predicting horizon
+    
+    % 算法所允许预测的horizon上限
+    The upper limit of the horizon length allowed for prediction in single planning window.
+    % 若一条可能路径的长度达到horizon，则本次计划中不再继续扩展此路径。
+    If the length of a potential path reaches the horizon, then this path will not be further extended in the current planning session.
+    
+    % 这一限制主要来自于运算速度。
+    This limitation mainly arises from the computational speed, and:
+    \begin{quotation}
+        \textbf{Assumption 5}: 
+        The predicting horizon upper limit is predefined within the agents, and this parameter value is the same for all agents.
+    \end{quotation}
+    % 固定的horizon是一种简化处理，统一的horizon有利于控制的简化。
+    % Assumption n: agent有默认的预测horizon上限长度。
+
+\end{itemize}
