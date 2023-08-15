@@ -1,304 +1,3 @@
-\comment{
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Research Methodology}
-\label{chap:Literature_Review}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\comment{
-
-The Methodology section should provide a clear explanation of the research approach.  You want your reader to agree that you carefully considered your method so that we can trust your results to be both insightful (\underline{mean something}) and credible (\underline{not subject to error}):
-\begin{itemize}
-    \item A clear description of the methodology, how it creates a scientific investigation and operates to collect meaningful data.
-    \item A clear justification of \underline{why} you have chosen this particular approach.
-    \item Information needed for a reader to understand \underline{how} you did it (can a reader \underline{reproduce} your work, and collect equally valid results? e.g. hardware/software used, configuration, number of trials, any procedures used, etc.)
-    \item A description of any approaches taken to process collected data, e.g. metrics are used to combine data in a meaningful way - you should state any used explicitly, their utility, their suitability to your methodology and their limitations.  
-\end{itemize}
-
-
-
-As on can see in Table \ref{tab:Table_with_numbers} there are numbers involved. 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% If you have more complex tables you can 
-% get a corresponding LaTeX code here
-% https://www.tablesgenerator.com 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{table}[h!]
-\centering
- \begin{tabular}{|c | c | c | c|} 
- \hline
-  Frame number & User 1 state & User 2 state & Resulting state \\ [0.5ex] 
- \hline
- \hline
-  n & 0 & 0 & 1 \\ 
- \hline
-  n+1 & 0 & 1 & 2\\
- \hline
-  n+2 & 1 & 0 & 3 \\
- \hline
-  n+3 & 1 & 1 & 4 \\
- \hline
-\end{tabular}
-\caption{\label{tab:Table_with_numbers}An example of a table.}
-\label{table:example}
-\end{table}
-
-For example, if $x>0$ then we can write
-\begin{equation}
-\label{eq:sum}
-\sigma =\int_{x=0}^{\infty} \frac{1}{x^2}dx \quad ,
-\end{equation}
-where $\sigma$ is the integral (see Equations \ref{eq:sum}).  
-
-}
-
-% 本节中主要包含：程序的实现细节，实验场景的选择和设计
-
-This section would cover:
-\begin{itemize}
-    \item Algorithm detail and implementation.
-    \item Experiment designaiton.
-\end{itemize}
-
-\subsection*{Environment}
-\subsubsection{Hardware}
-
-\indent All the content mentioned in this project was carried out on a ROG Zephyrus M16 laptop.
-
-The CPU in the laptop is 11th Gen Intel Core i7-11800H @ 2.30GHz.
-
-All experiments and simulations in this study were conducted without GPU acceleration.
-
-\subsubsection{Software}
-
-\indent System: Ubuntu 22.04 LTS installed on WSL2 of Windows 11 23H2 22631.2129
-
-ROS2: ROS2 Humble
-
-All programs involved in this experiment were written in Python within this software environment.
-
-\section{Algorithm Detail and Implementation}
-
-The algorithm can be described as: 
-\begin{enumerate}
-    \item Agents establish self-organised communication among themselves using STDMA.
-    \item Use the information transmitted in the channel for planning, and subsequently send their plans at the designated times.
-\end{enumerate}
-
-In this section, we will sequentially detail the principles and methods of implementation for these two components.
-
-\subsection{STDMA Implementation}
-\label{chap:STDMA Implementation}
-
-Like mentioned before in Section \ref{chap:STDMA Explained}, in STDMA, agents have synchronised clock, share one channel, determine empty slots in frames, and apply for the slots needed, then use their own occupied slot for broadcasting.
-
-\subsubsection{Assumptions}
-
-
-Before delving into the details of the algorithm, it's necessary to first mention the assumptions of this algorithm.
-
-\begin{itemize}
-    \item \textbf{Synchronised Clock}: Agents have synchronised clock.
-    \item \textbf{Slots and Frames}: Continuous time is represented with frames of equal length, and each frame includes an equal number of discrete slots, with each slot having the same duration.
-    \item \textbf{Uniform Frame Length}: Frame length is predetermined for all agents and the value is the same.
-\end{itemize}
-
-
-\subsubsection{Synchronised Clock and Shared Channel}
-
-These features are implemented with topics in ROS2\footnotemark. \footnotetext{http://docs.ros.org/en/humble/Concepts/Basic/About-Topics.html}
-\begin{itemize}
-    \item \textbf{Clock}
-    
-    A ROS2 node is created as clock signal generator and publisher.
-
-    At specified intervals, this node toggles an internal Boolean value and sends this Boolean value to the clock topic. This results in a square wave with a 50\% duty cycle in the clock topic, where the period is adjustable.
-
-    Agent nodes subscribe the clock topic to get the synchronised clock.
-
-    \item \textbf{Division of Slots and Frames}
-    
-    A pair of True and False signal in the clock topic is considered as one slot by the agents.
-
-    The frame length is predetermined within the agents, and all agents have a consistent frame length parameter.
-    
-    At the end of each slot, the agent increments its internal slot counter. If the slot count reaches one frame, it clears the slot counter and increments the frame counter. The algorithm does not require the frames to be synchronised between agents, i.e., the starting slot of the frame can differ for various agents.
-    
-    \textbf{In this implementation, all agents require only one slot.}
-
-    \textbf{ADD PICTURE HERE}
-
-    \item \textbf{Shared Channel}
-    
-    In the original STDMA\cite{STDMA}, only one channel is used for communicating and broadcasting. 
-    But in the implemention here, \textbf{the channel is seperated in two, one for slot occupation messages, and one for other common messages}.
-    
-    \textbf{In the STDMA part, only the channel for slot occupation message is used.}
-
-    Both of the channels here are implemented with ROS2 topic: All agent nodes subscribes to channel topics and could publish message to the channel topics.    
-
-    Please note that this modification (splitting the channel into two) is purely for convenience and \textbf{does not impact its functionality in any way}.
-    This modification in the current implementation is equivalent to using just one channel.    
-
-\end{itemize}
-
-
-\subsubsection{Node Actions within One Slot}
-
-% 上升沿是开始，下降沿是中间
-
-Before understanding how agents allocate slots, it's essential to know how agent acts within a slot.
-
-As mentioned above, a slot is divided into two equal parts: one half with the clock signal being True, and the other half with the clock signal being False.
-
-Given the characteristics of ROS2, the node operates in the following manner: each time it receives a new clock signal (when the clock node's boolean value changes and broadcasts the new boolean value), it executes a corresponding callback function.
-
-\begin{itemize}
-    \item \textbf{True} Received from the Clock Topic: 
-    
-    The clock signal's \textbf{rising edge}, treated as the \textbf{start of a slot}.
-
-    Agents \textbf{send their message} if this slot belongs to them. 
-
-    To be specific, agent nodes publish their message to the topic, and whenever an agent node receives a new message from the topic, it pushs the new message into a buffer.
-
-    
-    \item \textbf{False} Received from the Clock Topic:
-    
-    The clock signal's \textbf{falling edge}, treated as the \textbf{end of a slot}.
-    
-    Agents use the received messages to \textbf{update the current slot allocation and its state machine}.
-
-    To be specific, agent nodes pop everything from the message buffer on slot's end, then use the messages received in the past slot to take corresponding actions.
-
-\end{itemize}
-
-\textbf{ADD PICTURE HERE}
-
-\subsubsection{Slot Allocation Scheme and the State Machine}
-
-Agents \textbf{always} listen to the channel and updates the local slots' allocation record.
-
-There are two situations of the slot occupation:
-\begin{itemize}
-    \item \textbf{Occupied}: Only one agent sent message during this slot.
-    \item \textbf{Free}: No agent sent message or multiple agents collided within one slot.
-\end{itemize}
-
-\textbf{ADD PICTURE HERE}  %给状态机画转化图解
-
-The agent controls its behaviour through a finite state machine. 
-The various states of this machine represent the agent's status within the network, reflecting the four phases in the STDMA protocol.
-\textbf{Through the gradual transition of states within the state machine, the agent could join the network.}
-
-\textbf{There are four states in the state machine}:
-
-\begin{enumerate}
-    \item \textbf{Listening}
-    
-    % 节点尚未进入网络，仅监听信道中的信息
-    Agents in this state \textbf{have not joined the network yet}, and they only \textit{listen} to the messages in the channel.
-
-    % Transition Conditions
-    \textbf{Transition Conditions}:
-    
-    
-    The agent \textbf{always records the allocation of past slots}, no matter which state it is in.
-    
-    \begin{itemize}
-        \item \textbf{Empty}: 
-        If no agent sends a message within a slot, or if messages from multiple agents collide in a slot, then that slot is recorded as empty. The reason for recording a slot as empty when a collision occurs is that, whenever an agent detects a collision, it will abandon the collided slot and seek a new slot for itself. 
-        \item \textbf{Occupied}: 
-        When only one agent attempts to send a message within a slot, that slot is recorded as occupied.       
-    \end{itemize}
-
-    Everytime finished listening to an entire frame, the agent will attempt to leave the Listening state.
-    
-    \begin{itemize}
-        \item $\rightarrow$ Entering: When the number of free slots $\geq$ 1, transit to 'Entering'. Agent would randomly choose a free slot for later use, note that this doesn't mean that this chosen slot is already secured by this agent.
-        \item $\circlearrowleft$ Listening: When no free slots left, stay in 'Listening'. This means the channel has already reached its maximum capacity and cannot take any other agents in. 
-    \end{itemize}
-
-    \item \textbf{Entering}
-    
-    Agent in this state would \textbf{wait for the free slot it selected} during the Listening state to arrive and then \textbf{attempt to claim that slot}, i.e., agent \textbf{sends its ID to the slot occupation message channel in the middle of the selected slot}.
-
-    \textbf{Transition Conditions}:
-
-    \begin{itemize}
-        \item $\rightarrow$ Checking: Agent transit to the 'Checking' state after the occupation attempt message send.
-    \end{itemize}
-
-
-    \item \textbf{Checking}
-    
-    \textbf{Everytime} an agent sends a message in the middle of its selected slot or its occupied slot, it enters this state. At the end of the slot, based on the number of messages received in that slot, it transitions to another state.
-
-    In a word, agents in this state is 'Checking' its right to use the slot.
-
-    \textbf{Transition Conditions}:
-
-
-
-    \begin{itemize}
-        \item $\rightarrow$ In: If only itself sent a message (receiving only one message and the content is its own ID) in the selected or occupied slot, it means it has successfully occupied that slot or maintain occupation to the slot, i.e., 'In' the network.
-        \item $\rightarrow$ Listening: If the agent doesn't successfully transition to the 'In' state after message broadcasting, it reverts to the 'Listening' state. 
-        
-        This condition encompasses multiple scenarios, including: 
-        \begin{itemize}
-            \item Collision: Multiple agents sent their messages in one slot. In this situation all senders reverse to 'Listening', which means that those attempting to claim the slot have failed, and those who previously occupied the slot relinquish it.
-            \item Sending Failed: No message wasn't sent to the channel in this slot's duration.
-        \end{itemize}
-    \end{itemize}
-
-    \textbf{Reminder about Collision}:
-
-    Within the framework of this algorithm, the only potential collision between agents occurs when multiple agents happen to select the same free slot for occupation while 'Listening' and attempted to occupy that slot while 'Entering'.  
-
-    In this situation, agent recognises the collision and reverse to 'Listening'.
-
-    \item \textbf{In}
-    
-    Agents in this state are 'In' the network and not expected to drop off unless the agents decides to drop off (which could be simply done by stop sending regular message on their occupied slots). 
-
-    \textbf{Transition Conditions}:
-
-    \begin{itemize}
-        \item $\rightarrow$ Checking: Like mentioned above, everytime an agent sent their message in the middle of their slot, it transits to 'Checking'.
-    \end{itemize}
-
-    \textbf{ADD PICTURE HERE} % 图示一下in和check和in的转化
-
-    Agents in this state are expected to immediately transit back to 'In' after the checking at the end of the slot, because in theory no agent should try to send message in occupied slots.
-    At times, collisions might occur between agents that haven't joined the network and those that have. However, such situations typically arise when one or more clock pulses are missed, resulting in a loss of synchronisation. Such situations should not happen or should be avoided as much as possible.
-
-    The consequence of this situation is that the agent which has already joined the network is unexpectedly ejected from it. 
-    Depending on the timing, various outcomes might ensue. For instance, if an operational agent is suddenly kicked out of the network, it may be unable to broadcast its information for at least one frame, potentially leading to accidents.
-
-\end{enumerate}
-
-% 写一个小总结？
-\subsubsection{Summary}
-
-Assumptions: Synchronised clock, predetermined frame length.
-
-Functions: Self-organised single serial discrete channel sharing, allows agents to jumpin and leave.
-
-
-\subsection{Path Planning Scheme and Implementation}
-
-
-Now, we have a self-organised method of serial communication for multiple agents. 
-Let's discuss how to implement decentralised collision-free path planning based on this basis.
-
-
-
-
-\section{Experiment Design}
-
-}
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Algorithm}
 \label{chap:Algorithm}
@@ -519,16 +218,20 @@ The agent's self-organised collision-free channel sharing is implemented. The ch
 
 \section{Path Planning and Sharing}
 
-% agent的移动模型
-\subsection{Agents' Mobility}
+
+% agent的移动模型, 计划的作用，分享的方式
+\subsection{Necessary Explanation}
 
 % 在解释agent的计划制定策略前，需要描述一下本文中agent的移动方式。
-Before explaining the agent's planning strategy, it's necessary to describe the mobility of the agents in this paper:
+Before explaining the agent's planning strategy, it's necessary to state several details:
+
+\subsubsection{Agent Mobility}
+
 \begin{itemize}
     % 在每一个时间步（即一个stdma槽）中，agent可以选择待在原地，也可以选择移动到非对角的相邻grid。
     \item In each time step (i.e., an STDMA slot), the agent can choose to remain in its current position or move to an adjacent grid that's not diagonal.
     % 出于简化的考虑，agent的移动中没有扰动，也就是说，agent可以完全准确地按计划移动。
-    \item Agents could execute their plan with complete accuracy. This is to simplify the model.
+    \item Agents could execute their plan with complete accuracy. This is to simplify the mobility model.
 \end{itemize}
 
 \begin{quotation}
@@ -537,9 +240,29 @@ Before explaining the agent's planning strategy, it's necessary to describe the 
     The agent's movement is not affected by external disturbances, and its prediction of its own motion is completely accurate.
 \end{quotation}
 
+% 本文中所指的计划具体是什么
+\subsubsection{Definition of Plan}
+% 本文中，agent仅负责生成自身的计划。
+In this paper, an agent is only responsible for generating its own plan.
+
+% 计划的定义就是一串三维坐标点，其中每个坐标点都由一个二维坐标和一个时间点构成。
+The definition of a plan is a sequence of 3D coordinate points, where each coordinate point is composed of a 2D coordinate and a time point, i.e. where and when.
+% 由于agent mobility的约束，计划中相邻点的二维坐标部分必须为非对角的相邻点。此外，计划中的相邻点的时间点也必须是单调以1的步长递增。
+Due to the constraints on agent mobility, the 2D coordinate part of adjacent points in the plan must be non-diagonal neighbors. Moreover, the time points of adjacent points in the plan must be monotonically increasing with a step length of 1.
+
+% 计划一经发布，则agent必须按照已发布的计划部分移动。
+Once a plan is published, the agent must move according to the published part of the plan.
+
+\subsubsection{Map}
+% 本文中所使用的地图仅包含静止障碍物
+\begin{quotation}
+    \textbf{Assumption 4}:
+    % 所有的障碍物都是静止的
+    All obstacles in the map are stationary.
+\end{quotation}
 
 % 分享
-\subsection{Sharing}
+\subsubsection{Plan Sharing}
 % 分享计划的方式
 
 % agent通过藉由STDMA协议所分享的信道通讯，分享的内容为自身未来若干步内的移动计划。
@@ -548,17 +271,67 @@ Agents communicate via the channel shared through the STDMA protocol, sharing th
 % 在本文的模拟中，为了实现的方便，分享的计划信息publish到一个单独的ROS2topic中。此信道的使用时间分配遵守由STDMA决定的顺序。
 In the simulation of this paper, for the sake of implementation convenience, the shared plan is published to a separate ROS2 topic (not the topic used for STDMA). This channel's time slot allocation follows the order determined by STDMA.
 
-% 计划
+
 % 计划的时机
-\subsection{Timing for Planning}
+\subsection{Time Window for Planning}
 
 % 如前文所述，每个agent在属于自己的槽的中间发布信息。
-% 基于这一特性，对于每个agent来说，存在这样一个定期出现的时间窗口：所有其他agent在此窗口中均不会发布新的计划，且自己的计划只要完成就可以立即发布给所有其他agent。
-% 这个时间窗口就是自己的槽的前半部分。
+As previously mentioned, each agent publishes their message (their plan and ID) in the middle of the slot that belongs to it.
+% 基于这一特性，对于每个agent来说，存在这样一个定期出现的时间窗口：涉及计划制订的所有变量都是确定的，且自己的计划只要制订完成就可以立即发布。
+Based on this rule, for each agent, there exists a regularly occurring time window 
+in which all variables involved in plan-making are fixed, and the agent's own plan can be immediately published as soon as it is formulated.
+
+% 这个时间窗口就是自己的槽的前半部分。在这段时间内，不会有其他agent发布新的计划，且此时段结束后就可以立即发布自身的计划。
+This time window is the first half of the agent's own slot. During this time, no other agents will publish new plans, and as soon as this period ends, the agent can immediately publish its own plan.
+% 由于此窗口是一个槽，这一窗口在每一帧中会出现一次
+Since this time window is part of a slot, it will appear once in every frame.
+
+\textbf{ADD PIC HERE}% 画图解释进行计划的时机
+
+% 计划的生成方式
+\subsection{Plan Generating}
+% 计划的作用
+% 计划有两个作用：1. 寻找一个agent可以使用的连续二维空间。 2. 帮助agent接近并到达终点
+\subsubsection{Purpose of the Plan}
+\begin{enumerate}
+    \item Finding a continuous collision-free two-dimensional space that the agent can use.
+    \item Assisting the agent in getting closer and reaching its destination.
+\end{enumerate}
+
+% 其中，第一个功能比第二个更重要。
+The first purpose is more important than the second.
+
+%本文中agent并不初始位于地图中的某个点，为agent指定的起点都位于地图的边缘且不重复，agent必须生成一个以其自身指定起点为开头的计划并publish才能进入地图中。
+In this paper, agents do not initially occupy a specific point on the map. The starting points assigned to agents are all on the edge of the map and do not overlap. Agents must generate and publish a plan starting at their designated starting point in order to enter the map.
+% 成功生成并发布一个计划就代表地图中存在足够的空间供此agent使用，故而此时允许agent进入地图。
+Successfully generating and publishing a plan indicates that there is enough space in the map for this agent to use, so the agent is allowed to enter the map at this time.
+
+% 计划的约束
+\subsubsection{Constraints of the Plan}
+
+% 计划的约束是：1. 不能与其他agent或地图中的障碍物发生碰撞。 2. 计划中相邻的点，空间上必须是非对角的相邻点，时间上后一点必须比前一点增加1。 3. 计划的第一个点必须在空间上与开始计划时刻的agent位置位于非对角的相邻点。
+\begin{enumerate}
+    \item Agent must not collide with other agents or obstacles on the map.
+    \item Adjacent points in the plan must be non-diagonal neighbour points in 2D space, and the subsequent point in the plan must be one step further in time compared to the previous point.
+    \item The first point of the plan must be a non-diagonal neighboring point in space to the agent's current position.
+\end{enumerate}
+
+\subsubsection{Collision Definition}
+% 在本文中，以下两种情形被视为碰撞：
+In this paper, the following two scenarios are considered as collisions:
+\begin{itemize}
+    % 两个或以上节点在同一时刻位于地图上的同一2D位置
+    \item Two or more agents are located at the same 2D position on the map at the same time.
+    % 两个节点交换位置。即，t时刻agentA位于位置a，agentB位于位置b，t+1时刻A位于b，而B位于A
+    \item Two agents swapping their positions. That is, at time $t$, agent $A$ is at position $a$, and agent $B$ is at position $b$. At time $t+1$, agent $A$ is at position $b$, while $B$ is at position $a$.
+\end{itemize}
+
+\textbf{ADD PIC HERE} % 放一张描述碰撞的图
 
 
-% 计划的目的
-% 首先是找一个连续空间，用以存在
-% 然后是越优越好
+% 计划的方法
+\subsubsection{Plan Generating Scheme}
 
-% 计划的方式
+% 路径生成采用A*方法。启发式函数是点与终点之间的曼哈顿距离。
+% 算法函数的输入：
+% 算法函数的输出：
