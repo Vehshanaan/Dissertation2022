@@ -29,9 +29,12 @@
 \contentsline {subsubsection}{Plan Sharing}{20}{Item.20}%
 \contentsline {subsubsection}{Time Window for Planning}{20}{Item.20}%
 \contentsline {subsubsection}{Purpose of the Plan}{21}{Item.20}%
-\contentsline {subsubsection}{Path Planning Scheme}{21}{Item.22}%
-\contentsline {chapter}{\numberline {4}Results}{23}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Common attributes to pay attention to are:}{23}{section.4.1}%
-\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{24}{chapter.5}%
-\contentsline {chapter}{\numberline {A}Appendix}{25}{appendix.A}%
-\contentsline {chapter}{References}{32}{appendix*.7}%
+\contentsline {subsection}{\numberline {3.2.2}Path Planning Function and Implementation}{21}{subsection.3.2.2}%
+\contentsline {section}{\numberline {3.3}Summary}{24}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Assumptions:}{24}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Implemented Functions}{24}{subsection.3.3.2}%
+\contentsline {chapter}{\numberline {4}Results}{26}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Common attributes to pay attention to are:}{26}{section.4.1}%
+\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{27}{chapter.5}%
+\contentsline {chapter}{\numberline {A}Appendix}{28}{appendix.A}%
+\contentsline {chapter}{References}{35}{appendix*.7}%

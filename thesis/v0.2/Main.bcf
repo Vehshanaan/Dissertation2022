@@ -2375,3 +2375,93 @@
     <bcf:datasource type="file" datatype="bibtex" glob="false">References.bib</bcf:datasource>
   </bcf:bibdata>
   <bcf:section number="0">
+    <bcf:citekey order="1" intorder="1">STDMA</bcf:citekey>
+    <bcf:citekey order="2" intorder="1">GridWorld</bcf:citekey>
+    <bcf:citekey order="3" intorder="1">Paper_From_Supervisor</bcf:citekey>
+    <bcf:citekey order="4" intorder="1">STDMA_characteristic</bcf:citekey>
+    <bcf:citekey order="5" intorder="1">MAPF_Deadlock_Explain1</bcf:citekey>
+    <bcf:citekey order="5" intorder="2">MAPF_Deadlock_Explain2</bcf:citekey>
+    <bcf:citekey order="6" intorder="1">Amazon_Kiva</bcf:citekey>
+    <bcf:citekey order="7" intorder="1">Warehouse_Automation1</bcf:citekey>
+    <bcf:citekey order="7" intorder="2">Warehouse_Automation2</bcf:citekey>
+    <bcf:citekey order="8" intorder="1">Intersection_Management</bcf:citekey>
+    <bcf:citekey order="9" intorder="1">Fork_Fleet1</bcf:citekey>
+    <bcf:citekey order="9" intorder="2">Fork_Fleet2</bcf:citekey>
+    <bcf:citekey order="10" intorder="1">Flocking_1</bcf:citekey>
+    <bcf:citekey order="10" intorder="2">Flocking_2</bcf:citekey>
+    <bcf:citekey order="11" intorder="1">Swarm_Robotics</bcf:citekey>
+    <bcf:citekey order="12" intorder="1">Industry_41</bcf:citekey>
+    <bcf:citekey order="12" intorder="2">Industry_42</bcf:citekey>
+    <bcf:citekey order="12" intorder="3">Industry_43</bcf:citekey>
+    <bcf:citekey order="13" intorder="1">STDMA</bcf:citekey>
+    <bcf:citekey order="14" intorder="1">STDMA_GPS</bcf:citekey>
+    <bcf:citekey order="15" intorder="1">STDMA_improv1</bcf:citekey>
+    <bcf:citekey order="15" intorder="2">STDMA_improv2</bcf:citekey>
+    <bcf:citekey order="16" intorder="1">DMPC_Review1</bcf:citekey>
+    <bcf:citekey order="17" intorder="1">Formation_Control</bcf:citekey>
+    <bcf:citekey order="18" intorder="1">Path_Tracking</bcf:citekey>
+    <bcf:citekey order="19" intorder="1">Path_Planning</bcf:citekey>
+    <bcf:citekey order="20" intorder="1">Obstacle_Avoid</bcf:citekey>
+    <bcf:citekey order="21" intorder="1">xin2023model</bcf:citekey>
+    <bcf:citekey order="22" intorder="1">matouvs2022distributed</bcf:citekey>
+    <bcf:citekey order="23" intorder="1">zhao2022distributed</bcf:citekey>
+    <bcf:citekey order="24" intorder="1">mousavi2020distributed</bcf:citekey>
+    <bcf:citekey order="25" intorder="1">yang2022cooperative</bcf:citekey>
+    <bcf:citekey order="26" intorder="1">niu2022communication</bcf:citekey>
+    <bcf:citekey order="27" intorder="1">novoth2020distributed</bcf:citekey>
+    <bcf:citekey order="28" intorder="1">xin2023model</bcf:citekey>
+    <bcf:citekey order="29" intorder="1">mousavi2020distributed</bcf:citekey>
+    <bcf:citekey order="29" intorder="2">yang2022cooperative</bcf:citekey>
+    <bcf:citekey order="29" intorder="3">zheng2023distributed</bcf:citekey>
+    <bcf:citekey order="29" intorder="4">zhao2022distributed</bcf:citekey>
+    <bcf:citekey order="30" intorder="1">tang2022distributed</bcf:citekey>
+    <bcf:citekey order="30" intorder="2">zang2022optimal</bcf:citekey>
+    <bcf:citekey order="31" intorder="1">zheng2023distributed</bcf:citekey>
+    <bcf:citekey order="32" intorder="1">MAPF_Review1</bcf:citekey>
+    <bcf:citekey order="33" intorder="1">APF_improv2</bcf:citekey>
+    <bcf:citekey order="33" intorder="2">APF_improv3</bcf:citekey>
+    <bcf:citekey order="33" intorder="3">APF_improv4</bcf:citekey>
+    <bcf:citekey order="34" intorder="1">D*</bcf:citekey>
+    <bcf:citekey order="35" intorder="1">A*_1</bcf:citekey>
+    <bcf:citekey order="35" intorder="2">A*_2</bcf:citekey>
+    <bcf:citekey order="36" intorder="1">RL_1</bcf:citekey>
+    <bcf:citekey order="36" intorder="2">RL_2</bcf:citekey>
+    <bcf:citekey order="36" intorder="3">RL_3</bcf:citekey>
+    <bcf:citekey order="36" intorder="4">RL_4</bcf:citekey>
+    <bcf:citekey order="37" intorder="1">PSO_1</bcf:citekey>
+    <bcf:citekey order="37" intorder="2">PSO_2</bcf:citekey>
+    <bcf:citekey order="38" intorder="1">GA_1</bcf:citekey>
+    <bcf:citekey order="38" intorder="2">GA_2</bcf:citekey>
+    <bcf:citekey order="39" intorder="1">AGO_1</bcf:citekey>
+    <bcf:citekey order="39" intorder="2">AGO_2</bcf:citekey>
+    <bcf:citekey order="40" intorder="1">PIO_1</bcf:citekey>
+    <bcf:citekey order="40" intorder="2">PIO_2</bcf:citekey>
+    <bcf:citekey order="41" intorder="1">GWO</bcf:citekey>
+    <bcf:citekey order="41" intorder="2">GWO_1</bcf:citekey>
+    <bcf:citekey order="41" intorder="3">GWO_2</bcf:citekey>
+    <bcf:citekey order="42" intorder="1">PaS_1</bcf:citekey>
+    <bcf:citekey order="42" intorder="2">PaS_2</bcf:citekey>
+    <bcf:citekey order="43" intorder="1">D*</bcf:citekey>
+    <bcf:citekey order="43" intorder="2">RL_3</bcf:citekey>
+    <bcf:citekey order="44" intorder="1">STDMA</bcf:citekey>
+  </bcf:section>
+  <!-- SORTING TEMPLATES -->
+  <bcf:sortingtemplate name="none">
+    <bcf:sort order="1">
+      <bcf:sortitem order="1">citeorder</bcf:sortitem>
+    </bcf:sort>
+    <bcf:sort order="2">
+      <bcf:sortitem order="1">intciteorder</bcf:sortitem>
+    </bcf:sort>
+  </bcf:sortingtemplate>
+  <!-- DATALISTS -->
+  <bcf:datalist section="0"
+                name="none/global//global/global"
+                type="entry"
+                sortingtemplatename="none"
+                sortingnamekeytemplatename="global"
+                labelprefix=""
+                uniquenametemplatename="global"
+                labelalphanametemplatename="global">
+  </bcf:datalist>
+</bcf:controlfile>

@@ -1,0 +1,12 @@
+PWD a:/OneDrive/MScRobotics/Dissertation2022/thesis/v0.2
+INPUT a:/texlive/2023/texmf.cnf
+INPUT a:/texlive/2023/texmf-dist/web2c/texmf.cnf
+INPUT a:/texlive/2023/texmf-var/web2c/pdftex/pdflatex.fmt
+INPUT a:/OneDrive/MScRobotics/Dissertation2022/thesis/v0.2/Research_Methodology.tex
+OUTPUT Research_Methodology.log
+INPUT a:/texlive/2023/texmf-dist/fonts/map/fontname/texfonts.map
+INPUT a:/texlive/2023/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm
+INPUT a:/texlive/2023/texmf-dist/tex/latex/base/omscmr.fd
+INPUT a:/texlive/2023/texmf-dist/tex/latex/base/omscmr.fd
+INPUT a:/texlive/2023/texmf-dist/tex/latex/base/omscmr.fd
+INPUT a:/texlive/2023/texmf-dist/tex/latex/base/omscmr.fd
