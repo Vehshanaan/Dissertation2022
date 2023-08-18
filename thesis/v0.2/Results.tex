@@ -2,6 +2,7 @@
 \chapter{Results}
 \label{chap:Results}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\comment{
 The Results section should provide
 \begin{itemize}
     \item An overview of all obtained results
@@ -23,3 +24,97 @@ The Results section should provide
 \end{itemize}
 
 \
+}
+
+
+% 实验场景设置
+\section{Experiment Design}
+
+\subsection*{Map}
+
+% 本文中的所有实验在一张模拟库房场景的地图中进行。
+All experiments in this paper were conducted on a map simulating a warehouse scenario.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics*[width = \linewidth]{figures/map(color).png}
+    \caption{The map used in the experiments. The outer border is not included in the map.}
+    \label{fig:Map}
+\end{figure}
+
+% 地图的大小为161*63（外侧的框不是地图的一部分），图中的绿色代表障碍物，白色代表可通行。所有狭窄通道（边缘和障碍物之间的通道）均为一格/一像素宽。
+The size of the map is 161$\times$63 (the outermost green frame is not part of the map), 
+with green representing obstacles and white representing passable areas.
+All narrow corridors (channels at the border and between obstacles) are one grid / pixel wide.
+
+\subsection*{Agent Initialisation and Behaviour}
+% agent的起点和终点是如何生成。。。
+% 生成若干起点-终点对，保存为单独的文件，每次启动实验时从此文件中依次读入起点-终点对，并依次分配给启动的agent。
+The starting points and their corresponding goal points for agents are pre-generated and stored in a launch file. 
+During each experiment, sequentially read the start-goal point pairs from this file and assign them to the agents as they are launched.
+(e.g. if 50 agents are launched in a experiment run, the first 50 start-goal pairs are read from the launch file and assigned to the agents in order. The same approach is applied for different numbers of agents.)
+% 如何生成的：
+% 起点是位于地图最外圈的一圈可用位置（Fig4.1中的最外圈不是地图的一部分）。起点序列的顺序是随机打乱后存储在launch file中的。
+The starting points are located in the outermost circle of the map (the outermost green obstacle border in Fig \ref{fig:Map} is not part of the map). The sequence of starting points is stored in the launch file after being randomly shuffled.
+% 终点是跨过地图的另一侧，起点与终点的映射关系如下：
+The goal points are on the opposite side of the map, and the mapping relationship between the starting points and the goal points is as follows:
+\begin{align}
+    x_{goal} = width(map) - x_{start}  \\
+    y_{goal} = height(map) - y_{start} 
+\end{align}
+
+Where $x$ refers to the horizontal coordinate, and $y$ refers to the vertical coordinate.
+% 这一映射的效果如下图所示：
+The effect of this mapping is shown in the following figure:
+\textbf{ADD PIC HERE} % 展示起点终点映射效果
+
+% agent如何加入地图
+% agent到达终点后的行为
+% agent在成功加入网络后，尝试生成一个以给定起点起始的计划。若没有满足此要求的计划，则不存在于地图内（可视为在地图外等待）。
+After successfully joining the network, the agent attempts to generate a plan starting from the given start. If no plan meeting this requirement is available, the agent is not present on the map (since the start is on the map boundary, it can be considered as waiting outside the map).
+% 若在某时刻到达终点，则关机并从地图中消失（由于终点也位于地图边界，可视为退出地图）。
+If the agent reaches the goal, it will shut down and disappear from the map (since the goal is also on the map boundary, it can be considered as exiting the map).
+
+\subsection*{Parameters and Metrics}
+% 算法共有四个参数：预测horizon，requied plan length, frame length, agent number
+There are four adjustable parameters in the algorithm: 
+\begin{enumerate}
+    %每次进行计划时所预测的未来时间步上限。超过此长度的计划不会被进一步扩展，算法将转而扩展其他长度未达到此值的可能计划。
+    \item predicting horizon: The maximum future time steps predicted in each planning session. If a potential plan generated in this planning session exceeds this length, it will not be further extended, and the algorithm will instead extend other possible plans whose length has not yet reached this limit.
+    % 每个plan session要求生成的计划长度。至少需要等于帧长度。若此值超过predicting horizon，则不会产生超过predicting horizon长度的计划，后续的缺省部分由共识（待在原地）补全。
+    \item required plan length: The length of the plan that needs to be generated in each planning session. This value must be at least equal to the frame length. If this value exceeds the predicting horizon, plans exceeding the predicting horizon length will not be generated, and the subsequent missing part will be completed by consensus (when an agent's plan is exhausted, it will stay in place and not move in the rest of current frame) when other agents receiving these short plans.
+    % 一帧中槽的数量
+    \item frame length: The number of slots in a frame.
+    % 本次实验中启动的agent数量。所有agent均同时启动。
+    \item agent number: The number of agents launched in this experiment. All agents are started simultaneously.
+\end{enumerate}
+
+There are four performance metrics:
+\begin{enumerate}
+    \item total path efficiency ratio: sum of actual path lengths / sum of optimal path lengths.
+    \item average path efficiency ratio: average of individual agent's (actual path length / optimal path length)
+    \item final agent arrival time: when did the last agent arrived its goal.
+    \item average network join time: average of agent's time spend to join the network.
+\end{enumerate}
+
+\section{Experiment Results}
+% 实验结果及讨论
+% 数值结果
+\subsection{Numerical Results}
+% 基于实验中观察的现象，将四个parameter分为两组来研究它们对性能的影响。
+Based on the observations from the experiments, we will categorize the four parameters into two groups to investigate their impact on performance.
+
+% required length, predicting horizon
+\subsubsection{predicting horizon, required plan length}
+
+% 这两个参数主要在计划路径时起作用。
+These two parameters are mainly involved in the path planning process. 
+
+% agent number, frame length
+\subsubsection{frame length, agent number}
+        % 结果及讨论
+
+    % 在某些场景中的行为
+\subsection{Other Results}
+        % 避障行为及讨论
+        % 死锁情形

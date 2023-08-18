@@ -639,6 +639,15 @@ INPUT ./Results.tex
 INPUT Results.tex
 INPUT ./Results.tex
 INPUT Results.tex
+INPUT ./figures/map(color).png
+INPUT ./figures/map(color).png
+INPUT figures/map(color).png
+INPUT ./figures/map(color).png
+INPUT ./figures/map(color).png
+INPUT a:/texlive/2023/texmf-dist/fonts/vf/adobe/times/zptmcm7m.vf
+INPUT a:/texlive/2023/texmf-dist/fonts/tfm/adobe/times/psyro.tfm
+INPUT a:/texlive/2023/texmf-dist/fonts/tfm/public/cm/cmmi10.tfm
+INPUT a:/texlive/2023/texmf-dist/fonts/tfm/adobe/times/ptmri8r.tfm
 INPUT ./Conclusion.tex
 INPUT Conclusion.tex
 INPUT ./Conclusion.tex

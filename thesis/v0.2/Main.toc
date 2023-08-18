@@ -34,7 +34,12 @@
 \contentsline {subsection}{\numberline {3.3.1}Assumptions:}{24}{subsection.3.3.1}%
 \contentsline {subsection}{\numberline {3.3.2}Implemented Functions}{24}{subsection.3.3.2}%
 \contentsline {chapter}{\numberline {4}Results}{26}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Common attributes to pay attention to are:}{26}{section.4.1}%
-\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{27}{chapter.5}%
-\contentsline {chapter}{\numberline {A}Appendix}{28}{appendix.A}%
-\contentsline {chapter}{References}{35}{appendix*.7}%
+\contentsline {section}{\numberline {4.1}Experiment Design}{26}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Experiment Results}{28}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Numerical Results}{28}{subsection.4.2.1}%
+\contentsline {subsubsection}{predicting horizon, required plan length}{28}{subsection.4.2.1}%
+\contentsline {subsubsection}{frame length, agent number}{28}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Other Results}{28}{subsection.4.2.2}%
+\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{29}{chapter.5}%
+\contentsline {chapter}{\numberline {A}Appendix}{30}{appendix.A}%
+\contentsline {chapter}{References}{37}{appendix*.8}%
