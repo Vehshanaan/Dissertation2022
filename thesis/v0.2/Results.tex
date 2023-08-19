@@ -34,6 +34,8 @@ The Results section should provide
 
 % 本文中的所有实验在一张模拟库房场景的地图中进行。
 All experiments in this paper were conducted on a map simulating a warehouse scenario.
+% 此地图是从一组被广泛使用的benchmark中选出的。
+This map was selected from a widely-used benchmark set\cite{stern2019mapf}\footnote{https://movingai.com/benchmarks/mapf.html} for testing, due to its appropriate size and obstacle distribution.
 
 \begin{figure}[htbp]
     \centering
@@ -100,21 +102,49 @@ There are four performance metrics:
 \section{Experiment Results}
 % 实验结果及讨论
 % 数值结果
-\subsection{Numerical Results}
-% 基于实验中观察的现象，将四个parameter分为两组来研究它们对性能的影响。
-Based on the observations from the experiments, we will categorize the four parameters into two groups to investigate their impact on performance.
+\subsection{Quantitative Results}
 
-% required length, predicting horizon
-\subsubsection{predicting horizon, required plan length}
+% 用数值化的结果衡量上述参数对算法性能的影响
+Measure the impact of the above parameters on algorithm performance using quantitative results.
 
-% 这两个参数主要在计划路径时起作用。
-These two parameters are mainly involved in the path planning process. 
+\subsubsection{required plan length and predicting horizon}
 
-% agent number, frame length
-\subsubsection{frame length, agent number}
-        % 结果及讨论
+% 这两个参数主要影响生成的计划长度及质量
+These two parameters mainly affect the length and quality of the generated plans.
+Here are two possible effects they might have:
 
-    % 在某些场景中的行为
+\begin{enumerate}
+    % 2. 与frame length的关系：
+    \item The relationship between required plan length and frame length.
+    
+    % 算法要求required plan length 至少与frame length长度相等，这是因为每次计划时至少要产生可以使用到下个计划窗口的计划
+    The required plan length should be no less than the frame length, as it is necessary to generate a plan during each planning session that will last until the next planning window.
+    % 但如果在此基础上进一步增加required plan length, 生成并广播更长的计划，则可以令agent之间分享更远的行动规划，从而可能对效率有所帮助。
+    However, if we further increase the required plan length beyond the frame length, generating and broadcasting longer plans, it allows agents to share action plans that extend further into the future, which could potentially help improve efficiency.
+    
+    % 1. 与predicting horizon的关系：
+    \item The effect of the length of the predicting horizon.
+    
+    % predicting horizon一定是越长越好的，因为单次计划中能产生的有效计划长度只有这么长。如果有效计划在下次计划窗口到来前用尽，则agent只能采取默认行动（原地不动）来补充剩余的长度。这是非常低效率的。
+    A longer predicting horizon is definitely better, as the effective plan length that can be generated in a single planning session is only as long as the horizon. 
+    If the effective plan runs out before the next planning window arrives, the agent can only take default action (remaining stationary) to fill in the remaining gap and this is highly inefficient.
+    % 但此种情况在帧长度（即两次计划的间隔）较长时是无法避免的。
+    However, this situation is unavoidable when the frame length (i.e., the interval between two planning sessions) is longer than predicting horizon.
+\end{enumerate}
+
+% 针对上述的两方面，设计实验如下：将predicting horizon保持为30，agent number保持与frame length一致，以10为步长，遍历10-60的frame length和required plan lenth构成的参数空间。注意，required plan length不能低于frame length.
+For the two aspects mentioned above, the experiment is designed as follows: Keep the predicting horizon constant at 30, and maintain the agent number consistent with the frame length. Using a step size of 10, explore the parameter space formed by frame length and required plan length ranging from 10 to 60. Please note that the required plan length cannot be lower than the frame length.
+    
+\textbf{PLACEHOLDER} % 实验结果
+
+\subsubsection{agent number and frame length}
+
+% 这两个参数主要描述系统容量和系统中运行的agent数量。
+These two parameters mainly describe the system capacity and the number of agents operating within the system.
+
+
+
+% 在某些场景中的行为
 \subsection{Other Results}
         % 避障行为及讨论
         % 死锁情形

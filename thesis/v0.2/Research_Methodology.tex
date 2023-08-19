@@ -70,9 +70,11 @@ This section provides detailed information on algorithm and its implementation.
 
 \section{Communication with STDMA}
 
-In STDMA, agents share a single channel by autonomously determining the serial speaking order.
-The method for determining the speaking order involves agents autonomously allocating the right to use free times within the channel.
+% 这是算法的第一部分：agent间的自组织通讯
+This is the \textbf{first part of the algorithm: self-organised communication between agents}.
 
+In STDMA, agents share a single channel by autonomously determining the serial speaking order.
+The approach to determining the speaking order involves agents independently assigning the right to use available time slots within the channel.
 
 \subsection{Synchronised Clock}
 
@@ -86,15 +88,17 @@ The method for determining the speaking order involves agents autonomously alloc
 In practice, the synchronised clock is typically implemented with GPS. 
 In the implemented simulation of this paper, it's achieved using a ROS2 publisher and a topic.
 % 一个专用的ros2节点定时翻转其成员bool值，并在每次翻转此值时将翻转后的bool值publish到时钟topic中，这样在时钟topic中来形成一个占空比为50%的方波时钟信号。
-A dedicated ROS2 node periodically toggles its member boolean value and publishes the toggled value to the clock topic each time it's flipped. This creates a square wave clock signal with a 50\% duty cycle in the clock topic.
+A dedicated ROS2 node periodically toggles its member boolean value and publishes this boolean value to the clock topic each time it's toggled. This creates a square wave clock signal with a 50\% duty cycle in the clock topic.
 % 其他普通agent通过订阅时钟话题的方式来获得同步时钟信号。
-Other standard agents obtain the synchronised clock signal by subscribing to the clock topic.
+Agents obtain the synchronised clock signal by subscribing to the clock topic.
 
 % 信道时间的离散化
 \subsection{Discretisation of Channel Time}
 
 % agent将一个完整的时钟信号周期视作一个slot，将若干slot视作一帧。
-Agents consider a complete clock signal cycle as one slot and consider several slots as one frame.
+Agents consider a complete clock signal cycle (a high and a low) as one slot and consider a specific number of slots as a frame.
+Time frames continuously cycle, providing a continuous and reusable slot resource for agents to use.
+
 
 \begin{quotation}
     \textbf{Assumption 2:} 
@@ -102,22 +106,18 @@ Agents consider a complete clock signal cycle as one slot and consider several s
 \end{quotation}
 
 % 注意，不要求各agent的帧起始点相同，允许agent有不同的agent起始点offset
-Note that it's not required for each agent to have the same frame starting point, 
-i.e., agents are allowed to have different frame starting point offsets.
+
+Please note that it is not necessary for each agent to have the same starting point for their frame. 
+In other words, agents are permitted to have different frame starting point offsets.
+
+% agent在槽的正中央发送消息。
+The exact middle of each slot is the timing for message transmission.
+This divides a slot into two parts: before sending the message and after sending the message.
 
 \subsection{State Machine for Channel Allocation}
 
 % 使用STDMA的agent有四个阶段，每个阶段对应一个在网络中的状态。因此，agent加入网络的过程可以用状态机来管理，随着状态逐步转化，agent逐步加入网络并获得自己的槽
-Agents using STDMA have four phases\cite{STDMA}, with each phase corresponding to a status of an agent joining the network. Therefore, the process of an agent joining the network can be managed using a state machine. As the state transitions progressively, the agent gradually joins the network and obtains its slot.
-
-% 在解释状态机的运作前，有必要简述信道中对槽使用情况的表示和判断方式
-Before explaining the operation of the state machine, it's necessary to briefly describe how the usage of slots in the channel is represented and determined: 
-% 每当某agent占用的槽到来时，agent向信道中发送自己的id。
-Agents publish their ID to the channel (which is a ROS2 topic) in the middle of the slot they occupy.
-% agent保持对信道的监听以实时更新槽位分配情况记录。若一个槽中仅有一个agent发送信息，则此槽被此agent占有；若在一槽中无agent发送消息（未被使用）或有多个agent同时发送消息（碰撞），则此槽未被占有。
-Agents keep listening to the channel (subscribe to the channel topic) to update their slot allocation records. If only one agent sends a message in a slot, that slot is occupied by that agent. If no agents send a message in a slot (i.e., it's unused) or if multiple agents send messages simultaneously (i.e., a collision), then the slot is considered unoccupied.
-% Agent在每个槽结束时对本槽中接收到的消息数量计数，并进行上述判断。
-At the end of each slot, agents count the number of messages received during that slot and make the aforementioned determination.
+Agents employing STDMA go through four phases\cite{STDMA}, with each phase representing a stage in an agent's integration into the network. Consequently, a state machine can effectively manage the process of an agent joining the network. Through progressive state transitions, the agent incrementally integrates into the network and secures its slot.
 
 \textbf{ADD PIC HERE} % 绘制一个槽，槽中agent发信，槽末agent数数
 
@@ -133,15 +133,23 @@ The implementation of this state machine in this paper is as follows:
     In this state, the agent's objective is to determine the current channel slot allocation by 'Listening' to the channel. 
     Agents in this state have not yet joined the network.
 
-    An agent's initial state is this state.
+    Slot allocation determination: In a slot:
+    \begin{itemize}
+        % 如果仅收到一条消息：槽有主
+        \item If only one message was sent: the slot is occupied by the sender.
+        % 如果收到多条消息
+        \item If multiple messages were sent or no message was sent: the slot is considered free.
+    \end{itemize}
 
-    % Transition Condition: 每次听完完整的一帧后，尝试离开此状态
+    The initial state of an agent is this state.
+
+    % Transition Condition: 每次听完完整的一帧后，agent尝试离开此状态
     \textbf{Transition Condition}: After listening to a complete frame, the agent attempts to exit this state.
     \begin{itemize}
         % 当信道中有一个或多个未被使用的槽时，进入entering状态
-        \item $\rightarrow$ Entering: There are one or more unoccupied slots in the frame.
+        \item $\rightarrow$ Entering: There are one or more unoccupied slots within the frame.
         % 信道中无空闲槽时：呆在listening.
-        \item $\circlearrowleft$ Listening: No free slot left in the frame. This indicates that the channel's capacity has reached its limit and the agent can only stay idle.
+        \item $\circlearrowleft$ Listening: There are no free slots remaining in the frame. This suggests that the channel's capacity has been fully utilized, and the agent can only stay 'Listening' and remain idle.
     \end{itemize}
     
     \item \textbf{Entering}
@@ -151,10 +159,13 @@ The implementation of this state machine in this paper is as follows:
 
     % Transition Condition: 
     \textbf{Transition Condition}: 
-    The agent tries to occupy an unused random slot. In the middle of this slot, the agent publishes its ID.
+    % Agent尝试占用一个随机的在lisening状态中确认的free slot.
+    The agent tries to occupy a random free slot that was identified during the 'Listening' state. 
+    % 在这一槽中，agent发送其id，来尝试获得此槽
+    Within this slot, the agent \textbf{transmits its unique ID} in an effort to occupy the slot.
 
     \begin{itemize}
-        \item $\rightarrow$ Checking: Agent transit to the 'Checking' state immediately after the occupation attempt message send.
+        \item $\rightarrow$ Checking: The agent transitions to the 'Checking' state immediately after sending the occupation attempt message.
     \end{itemize}
 
 
@@ -162,16 +173,17 @@ The implementation of this state machine in this paper is as follows:
     
     % 在此状态下的agent的目的是如何，agent的状态是如何
     % 此状态下的Agent刚刚在某一槽中发布了一条信息，需要根据槽内收到的消息的数量判断自己对此槽的所有权。
-    In this state, the agent has just published a message in a certain slot and needs to determine its ownership of the slot based on the number of messages received within it.
+    In this state, the agent has just broadcast a message in a specific slot and must ascertain its ownership of that slot, based on the quantity and content of messages received within it.
     % 通过检查自己对此槽的所有权，变更自身状态。
-    By 'Checking' its ownership of that slot, the agent transits its own state.
+    By 'Checking' its ownership of that slot, the agent transits its state.
 
     % 注意，未进入网络和已进入网络的agent都会在发布消息后进入此状态。
-    Note, both agents that haven't entered the network and those that have will enter this state after releasing a message.
+    Note that both agents that have not yet entered the network and those that have will transition to this state after sending a message.
 
     % Transition Condition:
-    \textbf{Transition Condition}: Transit state based on the number of messages received in the slot where one has sent a message.
+    \textbf{Transition Condition}: Transition the state based on the number of messages received in the slot where a message has been sent.
     \begin{itemize}
+
         % 如果只收到一条消息且来自自己：说明自己拥有此槽位，即在网络中
         \item $\rightarrow$ In: If only one message is received and it's from itself, it indicates that the agent has ownership of that slot, meaning it is 'In' the network.
         % 任何其他情况：自己不拥有此槽位，重新尝试获得槽位。
@@ -181,30 +193,31 @@ The implementation of this state machine in this paper is as follows:
         Explanation: All other situations include:
         \begin{itemize}
             % 没有收到自己的消息
-            \item Didn't receive its own message: This indicates that the broadcast is not successful or receiving is not successful (e.g. hardware damaged or scheduled broadcasting prevented, etc.). In both situation, we don't want the agent to enter network, since its communicating function is not always fully functional. 
+            \item Didn't receive its own message: This suggests that either the broadcast was unsuccessful or the reception was unsuccessful (e.g., due to hardware damage or scheduled broadcasting being prevented, etc.). In both situations, we do not want the agent to enter the network, as its communication function may not be consistently reliable.
             % 多个节点尝试在同一槽内发送消息:
             \item Multiple agents sent messages within one slot (i.e. collision):
             
             % 碰撞情景1：多个正在进入网络的agent恰好选择了同一个槽位。此种碰撞在本算法框架下无法避免，但由于仅发生在未进入网络的agent之间，对其他有效通讯没有影响。
-            Collision Scenario 1: Multiple agents trying to join the network happen to choose the same slot. Such collisions are inevitable within the framework of this algorithm, but since they only occur among agents that haven't entered the network, they don't affect other communications.
-
+            Collision Scenario 1: Multiple agents attempting to join the network coincidentally select the same slot. While such collisions are unavoidable within the context of this algorithm, they only occur among agents that have not yet entered the network and thus do not impact other normal communications.
+            
             % 碰撞情景2：已加入网络的agent与未加入网络的agent发生碰撞。此种碰撞在理论上是不应该发生的，因为未加入网络的节点应当只尝试获得未被使用的槽位。若agent错过了时钟脉冲，则可能会出现此种情况。若某agent失去时钟脉冲，则会导致其和所有其他agent失去同步，进而导致事故。这一情况要尽可能避免。
-            Collision Scenario 2: A collision occurs between an agent that has joined the network and one that hasn't. Theoretically, this kind of collision shouldn't happen, as agents not yet in the network should only attempt to secure unused slots. If an agent misses a clock pulse, this situation might arise. If an agent misses the clock pulse, it will result in it falling out of sync with all other agents, potentially leading to accidents. This situation should be avoided as much as possible.
-
+            Collision Scenario 2: A collision occurs between an agent that has already joined the network and one that has not. In theory, this type of collision should not occur, as agents not yet in the network should only attempt to occupy unoccupied slots. However, this situation may arise if an agent misses a clock pulse. Missing a clock pulse can cause an agent to fall out of synchronization with all other agents, potentially leading to conflicts and accidents. Efforts should be made to prevent this situation as much as possible.
         \end{itemize}
-    \end{itemize}
+
+    \end{itemize}    
+
 
     \item \textbf{In}
     
     % 在此状态下的agent的目的是如何，agent的状态是如何
     % 在此状态下的agent已经进入网络，且应当始终在网络中，直到其通过停止定期发送消息来放弃其槽位。
-    In this state, the agent is 'In' the network and should remain within the network, until it releases its slot by ceasing to send messages regularly.
+    In this state, the agent is 'In' the network and should stay in the network until it relinquishes its slot by stopping its regular message transmission.
     
     % Transition Condition:
     \textbf{Transition Condition}:
     \begin{itemize}
         % 每次发送消息后，检查自己对此槽的所有权
-        \item $\rightarrow$ Checking: After message publishing, check its ownership of that slot.
+        \item $\rightarrow$ Checking: After publishing a message, verify ownership of that slot.
     \end{itemize}
 
 \end{enumerate}
@@ -213,57 +226,53 @@ The implementation of this state machine in this paper is as follows:
 
 \subsection{Summary}
 
-% 实现了agent的自组织无碰撞信道分享。信道的时间被表示为包含指定数量槽的重复的帧，agent通过尝试获得帧中的一个槽的方式来加入网络。
-The agent's self-organised collision-free channel sharing is implemented. The channel's time is represented as repetitive frames containing a specified number of slots. Agents join the network by attempting to secure a slot within a frame.
+% 实现了agent的自组织无碰撞信道分享。信道的时间被表示为包含指定数量槽的重复的帧，
+% agent通过尝试占有帧中一个槽的方式来加入网络，此过程由状态机管理并实现。
+This achieves agent self-organization and collision-free channel sharing. The channel's time is represented as repeating frames containing a specified number of slots. An agent attempts to join the network by trying to occupy one slot within a frame, the joining process is managed and implemented by a state machine.
 
 \section{Path Planning and Sharing}
 
 
 % agent的移动模型, 计划的作用，分享的方式
-\subsection{Necessary Explanation}
+\subsection{Planning Framework and Definition}
 
-% 在解释agent的计划制定策略前，需要描述一下本文中agent的移动方式。
-Before explaining the agent's planning strategy, it's necessary to state the details:
 
-\subsubsection{Agent Mobility}
+\subsubsection{Map}
+The map is a grid world with obstacles, and:
+% 本文中所使用的地图仅包含静止障碍物
+\begin{quotation}
+    \textbf{Assumption 3}:
+    % 所有的障碍物都是静止的
+    All obstacles in the map are stationary.
+\end{quotation}
 
+\subsubsection{Agent Capabilities and Constraints}
+
+\textbf{Capabilities}:
 \begin{itemize}
-    % 在每一个时间步（即一个stdma槽）中，agent可以选择待在原地，也可以选择移动到非对角的相邻grid。
-    \item In each time step (i.e., an STDMA slot), the agent can choose to remain in its current position or move to an adjacent grid that's not diagonal.
-    % 出于简化的考虑，agent的移动中没有扰动，也就是说，agent可以完全准确地按计划移动。
-    \item Agents could execute their plan with complete accuracy. This is to simplify the mobility model.
+    % 每时间步可以不动或移动一格
+    \item Agents can choose to either remain stationary or move to an adjacent non-diagonal grid cell at each time step (corresponding to a slot in the STDMA section).
+    % 可以完美执行计划
+    \item Agents can execute their own plans with complete accuracy.
 \end{itemize}
 
 \begin{quotation}
-    \textbf{Assumption 3}: 
+    \textbf{Assumption 4}: 
     % agent的移动不受外部扰动的干扰，且对自己运动的预测百分之百准确。
     The agent's movement is not affected by external disturbances, and its prediction of its own motion is completely accurate.
 \end{quotation}
 
-% 本文中所指的计划具体是什么
-\subsubsection{Definition of Plan}
-% 本文中，agent仅负责生成自身的计划。
-In this paper, an agent is only responsible for generating its own plan.
+\textbf{Constraints}
 
-% 计划的定义就是一串三维坐标点，其中每个坐标点都由一个二维坐标和一个时间点构成。
-The definition of a plan is a sequence of 3D coordinate points, where each coordinate point is composed of a 2D coordinate and a time point, i.e. where and when.
-% 由于agent mobility的约束，计划中相邻点的二维坐标部分必须为非对角的相邻点。此外，计划中的相邻点的时间点也必须是单调以1的步长递增。
-Due to the constraints on agent mobility, the 2D coordinate part of adjacent points in the plan must be non-diagonal neighbors. Moreover, the time points of adjacent points in the plan must be monotonically increasing with a step length of 1.
-
-% 计划一经发布，则agent必须按照已发布的计划部分移动。
-Once a plan is published, the agent must move according to the published part of the plan.
-
-% 计划的约束
-\subsubsection{Constraints of the Plan}
-
-% 计划的约束是：1. 不能与其他agent或地图中的障碍物发生碰撞。 2. 计划中相邻的点，空间上必须是非对角的相邻点，时间上后一点必须比前一点增加1。 3. 计划的第一个点必须在空间上与开始计划时刻的agent位置位于非对角的相邻点。
-\begin{enumerate}
-    \item Agent must not collide with other agents or obstacles on the map.
-    \item Adjacent points in the plan must be non-diagonal neighbour points in 2D space, and the subsequent point in the plan must be one step further in time compared to the previous point.
-    \item The first point of the plan must be a non-diagonal neighboring point in space to the agent's current position.
-\end{enumerate}
+\begin{itemize}
+    % 不能碰撞
+    \item Agents should not collide with each other.
+    % 不能穿墙
+    \item Agents should not use positions on the map that are occupied by obstacles.
+\end{itemize}
 
 \subsubsection{Collision Definition}
+
 % 在本文中，以下两种情形被视为碰撞：
 In this paper, the following two scenarios are considered as collisions:
 \begin{itemize}
@@ -275,87 +284,105 @@ In this paper, the following two scenarios are considered as collisions:
 
 \textbf{ADD PIC HERE} % 放一张描述碰撞的图
 
-\subsubsection{Map}
-The map is a grid world with obstacles, and:
-% 本文中所使用的地图仅包含静止障碍物
-\begin{quotation}
-    \textbf{Assumption 4}:
-    % 所有的障碍物都是静止的
-    All obstacles in the map are stationary.
-\end{quotation}
+\subsubsection{Plan Definition and Constraints}
+
+\textbf{Definition}
+
+% 计划的定义就是一串三维坐标点，其中每个坐标点都由一个二维坐标和一个时间点构成。
+A plan is a sequence of 3D coordinate points. Each coordinate point comprises a 2D location and a specific time, essentially indicating both the spatial and temporal aspects.
+% 由于agent mobility的约束，计划中相邻点的二维坐标部分必须为非对角的相邻点。此外，计划中的相邻点的时间点也必须是单调以1的步长递增。
+
+
+% 计划的约束
+\textbf{Constraints}
+
+% 计划的约束是：1. 不能与其他agent或地图中的障碍物发生碰撞。 2. 计划中相邻的点，空间上必须是非对角的相邻点，时间上后一点必须比前一点增加1。 3. 计划的第一个点必须在空间上与开始计划时刻的agent位置位于非对角的相邻点。
+\begin{enumerate}
+    % 计划中的点必须符合agent的移动能力与约束
+    \item The points in the plan must align with the agents' capabilities and constraints.
+    % 计划中的第一个点必须是是agent开始计划时刻的位置的非对角相邻点，且满足agent的其他约束
+    \item The first point in the plan must be a non-diagonal adjacent point to the agent's initial position at the start of planning, and it must also satisfy the agent's other constraints.
+\end{enumerate}
+
 
 % 分享
-\subsubsection{Plan Sharing}
+\subsubsection{Plan Broadcasting Method and Time Window for Planning}
 % 分享计划的方式
 
-% agent通过藉由STDMA协议所分享的信道通讯，分享的内容为自身未来若干步内的移动计划。
-Agents communicate via the channel shared through the STDMA protocol, sharing their movement plans for the upcoming steps.
+\textbf{Broadcasting}
 
-% 在本文的模拟中，为了实现的方便，分享的计划信息publish到一个单独的ROS2topic中。此信道的使用时间分配遵守由STDMA决定的顺序。
-In the simulation of this paper, for the sake of implementation convenience, the shared plan is published to a separate ROS2 topic (not the topic used for STDMA). This channel's time slot allocation follows the order determined by STDMA.
+% agent通过stdma所分享的信道进行自身计划的分享，即，在每个属于自己的槽的中央在信道中广播自身的计划。
+Through the channel facilitated by STDMA, agents broadcast their individual plans. This entails agents broadcasting their plans in the middle of each slot allocated to them within the channel.
+
+% 注意，计划制订时仅生成二维坐标的序列，时间在计划过程中是隐含的。计划中的时间维度在计划被接收时由接收者自己添加。
+Note that during plan formulation, only a sequence of 2D coordinates is generated, and time is implicit in the planning process. The time dimension of the plan is added by the recipient upon receiving the plan.
+% 因此，每次仅传输一组二维坐标序列即可。
+As a result, only a set of 2D coordinate sequences needs to be transmitted each time broadcasting.
+
 
 
 % 计划的时机
-\subsubsection{Time Window for Planning}
+\textbf{Time Window for Planning}
 
 % 如前文所述，每个agent在属于自己的槽的中间发布信息。
-As previously mentioned, each agent publishes their message (their plan and ID) in the middle of the slot that belongs to it.
+As previously mentioned, each agent publishes their message (their plan and ID) in the middle of the slot allocated to it.
 % 基于这一特性，对于每个agent来说，存在这样一个定期出现的时间窗口：涉及计划制订的所有变量都是确定的，且自己的计划只要制订完成就可以立即发布。
-Based on this rule, for each agent, there exists a regularly occurring time window 
-in which all variables involved in plan-making are fixed, and the agent's own plan can be immediately published as soon as it is formulated.
+Based on this rule, for every agent, there exists a periodically repeating time window where all variables related to planning are constant, 
+and the agent's own plan can be immediately published as soon as it is formulated.
 
 % 这个时间窗口就是自己的槽的前半部分。在这段时间内，不会有其他agent发布新的计划，且此时段结束后就可以立即发布自身的计划。
-This time window is the first half of the agent's own slot. During this time, no other agents will publish new plans, and as soon as this period ends, the agent can immediately publish its own plan.
+This time window is the first half of the agent's own slot. Within this interval, no other agents will broadcast new plans, and as soon as this interval ends, the agent can immediately publish its own plan.
 % 由于此窗口是一个槽，这一窗口在每一帧中会出现一次
-Since this time window is part of a slot, it will appear once in every frame.
+Given that this time window is a segment within a slot, it will occur once in each frame. 
 
 \textbf{ADD PIC HERE}% 画图解释进行计划的时机
 
-\subsubsection{Purpose of the Plan}
-\begin{enumerate}
-    \item Finding a continuous collision-free two-dimensional space that the agent can use.
-    \item Help the agent to gradually approach and reach its goal..
-\end{enumerate}
+% 模型预测和receding horizon
+\subsubsection{Model Predicting and Receding Horizon}
 
-% 其中，第一个功能比第二个更重要。
-The first purpose is more important than the second.
+\textbf{Model Predicting}
 
-%本文中agent并不初始位于地图中的某个点，为agent指定的起点都位于地图的边缘且不重复，agent必须生成一个以其自身指定起点为开头的计划并publish才能进入地图中。
-In this paper, agents do not initially occupy a specific point on the map. The starting points assigned to agents are all on the edge of the map and do not overlap. Agents must generate and publish a plan starting at their designated starting point in order to enter the map.
-% 成功生成并发布一个计划就代表地图中存在足够的空间供此agent使用，故而此时允许agent进入地图。
-Successfully generating and publishing a plan indicates that there is enough space in the map for this agent to use, so the agent is allowed to enter the map at this time.
+% 本文中通过假设agent可以绝对准确执行自身计划的方式对模型预测进行了大幅度简化。
+In this paper, the model predictions have been significantly simplified by assuming that agents can execute their own plans with absolute accuracy.
+% 只要自己的计划中的点满足agent的移动能力，就一定可以按时抵达目标位置。同样，其他agent的计划也是绝对准确的。
+As long as the points in an agent's plan adhere to its mobility capabilities, the agent will invariably reach the planned position on time. Similarly, plans of other agents are also assumed to be entirely accurate.
 
-\begin{quotation}
-    \textbf{Assumption 5:}
-    % 空间中至少存在一条连续的2D路径供agent使用。
-    There always exists at least one continuous 2D path in the space for the agent to use.
-\end{quotation}
+
+\textbf{Receding Horizon}
+
+% 在模型预测控制中，随着时间的推进，预测窗口会不断向未来推进。
+Within the context of model predictive controlling, as time progresses, the prediction horizon continuously advances into the future (horizon receding).
+% 本算法中，预测窗口基于以下几条规则得以推进：
+Within this algorithm, the horizon advances based on the following set of rules:
+
+
+% agent进入地图的流程
+\subsubsection{The process of an agent entering the map}
+
+% 由于agent在进入网络前无法发言，其存在是不被其他agent知道的。
+    
+
+
 
 \subsection{Path Planning Function and Implementation}
 
 % 在每个计划窗口开始时，计划函数被调用，用以生成接下来agent的移动计划。
 At the start of each planning window, the path planning function is called to generate the upcoming movement plan for the agent.
 
-\textbf{Inputs of the function}:
-\begin{itemize}
-    % 地图，起点终点： 计划所需的基础信息
-    \item map data, current position, goal
-    
-    These are basic information required for planning. 
+\subsubsection{Inputs of the function}
 
-    % 其他agent的计划
-    \item plans of other agents
-    
-    Information for collision avoidance.
+\begin{itemize}
+    % 地图，自己的当前位置，目标点，其他agent的计划
+    \item map, agent's current position, goal, plans of other agents
+
+    % 这些是计划所需的基础信息。
+    Foundational information required for the planning process.
 
     % 是否是第一次进入地图？ 
-    \item first ever plan or not?
+    \item first ever plan
     
-    % 指示是否是agent的第一个计划的bool值flag。若是，则计划起点须为分配给此agent的起始点
-    A boolean value flag indicating whether it is the agent's first plan. If it is True, the 2D coordinates of the first point of the plan must be the start assigned to this agent.
-    
-    % 此值初始为False，只要成功生成一次计划，此bool值则改为True。此时agent成功进入地图。
-    This boolean value is initially set to False. As soon as a plan is successfully generated, this boolean value is changed to True. At this point, the agent successfully enters the map.
+    % 这是一个bool值，指示当前计划是否为agent的进入地图时的首个计划。
+    This is a boolean value that indicates whether the current plan is the first plan for the agent upon entering the map.
 
 
 
@@ -474,6 +501,9 @@ At the start of each planning window, the path planning function is called to ge
     }
 \end{algorithm}
 
+% 注：上述流程意味着算法每次都冷启动，从头开始路径规划而不是继承上一次计划的剩余可用部分。这是有原因的。原因将在PLACCEHOLDER处介绍。
+Note: The process described above means that the planning always starts fresh, beginning path planning anew rather than carrying over any remaining usable portions from the previous plan. The reason behind it will be explained in the \textbf{PLACEHOLDER} section.
+
 \textbf{Output of the function}:
 
 % 若agent当前位于地图内，则生成一个从当前点相邻位置开始的长度指定的计划。
@@ -508,13 +538,13 @@ The agent shuts itself down, stops sending messages to the channel (meaning it g
     agents, and this parameter value is the same for all agents.
 \end{enumerate}
 
-\subsection{Implemented Functions}:
+\subsection{Implemented Functions:}
 
 % agent启动后，自主尝试加入当前的通讯网络。加入网络后，尝试从指定起点进入地图。进入地图后，根据他人的移动计划和地图信息，不断寻找可以令自己接近终点的无碰撞连续二维坐标序列，并分享自己的移动计划。到达终点时，放弃自己在网络中的位置，停止活动。
 After the agent is activated, it autonomously attempts to join the current communication network. 
 After joining the network, it tries to enter the map from the specified starting point. 
 Once inside the map, based on the movement plans of others and map information, it continuously searches for a collision-free continuous 2D coordinate sequence that can bring it closer to its goal, and broadcasts its own movement plan. 
-When it reaches the goal, it releases its position in the communication network and ceases activity.
+When it reaches the goal, it releases its position in the communication network, exits the map and ceases activity.
 
 
 

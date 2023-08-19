@@ -266,6 +266,7 @@
       \strng{authorbibnamehash}{14a089a7ff176a355b5c10d5cdc463bb}
       \strng{authornamehash}{14a089a7ff176a355b5c10d5cdc463bb}
       \strng{authorfullhash}{80456c1cc221f8627b384ab4e622746b}
+      \field{extraname}{1}
       \field{sortinit}{5}
       \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
       \field{labelnamesource}{author}
@@ -2516,6 +2517,86 @@
       \verb{doi}
       \verb 10.1109/LRA.2020.2967317
       \endverb
+    \endentry
+    \entry{stern2019mapf}{article}{}
+      \name{author}{12}{}{%
+        {{hash=28a17dd42adfbe88290bb3d370d53070}{%
+           family={Stern},
+           familyi={S\bibinitperiod},
+           given={Roni},
+           giveni={R\bibinitperiod}}}%
+        {{hash=e088625a70e86d25de784a18261647cd}{%
+           family={Sturtevant},
+           familyi={S\bibinitperiod},
+           given={Nathan\bibnamedelima R.},
+           giveni={N\bibinitperiod\bibinitdelim R\bibinitperiod}}}%
+        {{hash=090820c15422fa559364ad660e9cecbd}{%
+           family={Felner},
+           familyi={F\bibinitperiod},
+           given={Ariel},
+           giveni={A\bibinitperiod}}}%
+        {{hash=6e0da33fcadd327da8ebc74eea9cafe2}{%
+           family={Koenig},
+           familyi={K\bibinitperiod},
+           given={Sven},
+           giveni={S\bibinitperiod}}}%
+        {{hash=bd18c879f9e29c587d042f725f23e5cb}{%
+           family={Ma},
+           familyi={M\bibinitperiod},
+           given={Hang},
+           giveni={H\bibinitperiod}}}%
+        {{hash=f1012ae1f6f545fec84fffb88aefa120}{%
+           family={Walker},
+           familyi={W\bibinitperiod},
+           given={Thayne\bibnamedelima T.},
+           giveni={T\bibinitperiod\bibinitdelim T\bibinitperiod}}}%
+        {{hash=3e8ee84b5cf0f6c7813e54088700ce0f}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Jiaoyang},
+           giveni={J\bibinitperiod}}}%
+        {{hash=5243814e91385f8aefa08d68b7df7419}{%
+           family={Atzmon},
+           familyi={A\bibinitperiod},
+           given={Dor},
+           giveni={D\bibinitperiod}}}%
+        {{hash=0c95e714680d33d0c807a3640affbf33}{%
+           family={Cohen},
+           familyi={C\bibinitperiod},
+           given={Liron},
+           giveni={L\bibinitperiod}}}%
+        {{hash=6321ad6e5ab21657628e6d7ab09e418a}{%
+           family={Kumar},
+           familyi={K\bibinitperiod},
+           given={T.\bibnamedelimi K.\bibnamedelimi Satish},
+           giveni={T\bibinitperiod\bibinitdelim K\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=bb44e6c9dce3dc2638b86e8e9c1e43ac}{%
+           family={Boyarski},
+           familyi={B\bibinitperiod},
+           given={Eli},
+           giveni={E\bibinitperiod}}}%
+        {{hash=4dbe02af0755da521b510155cacba36e}{%
+           family={Bartak},
+           familyi={B\bibinitperiod},
+           given={Roman},
+           giveni={R\bibinitperiod}}}%
+      }
+      \strng{namehash}{34aab3faea7ab21cf73d5554d187cf82}
+      \strng{fullhash}{1eff5416b103990023227907645b767f}
+      \strng{bibnamehash}{34aab3faea7ab21cf73d5554d187cf82}
+      \strng{authorbibnamehash}{34aab3faea7ab21cf73d5554d187cf82}
+      \strng{authornamehash}{34aab3faea7ab21cf73d5554d187cf82}
+      \strng{authorfullhash}{1eff5416b103990023227907645b767f}
+      \field{extraname}{2}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Symposium on Combinatorial Search (SoCS)}
+      \field{title}{Multi-Agent Pathfinding: Definitions, Variants, and Benchmarks}
+      \field{year}{2019}
+      \field{pages}{151\bibrangedash 158}
+      \range{pages}{8}
     \endentry
   \enddatalist
 \endrefsection

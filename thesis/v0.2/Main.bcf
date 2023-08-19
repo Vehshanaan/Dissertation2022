@@ -2444,6 +2444,7 @@
     <bcf:citekey order="43" intorder="1">D*</bcf:citekey>
     <bcf:citekey order="43" intorder="2">RL_3</bcf:citekey>
     <bcf:citekey order="44" intorder="1">STDMA</bcf:citekey>
+    <bcf:citekey order="45" intorder="1">stern2019mapf</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="none">
