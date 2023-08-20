@@ -351,16 +351,44 @@ As long as the points in an agent's plan adhere to its mobility capabilities, th
 \textbf{Receding Horizon}
 
 % 在模型预测控制中，随着时间的推进，预测窗口会不断向未来推进。
-Within the context of model predictive controlling, as time progresses, the prediction horizon continuously advances into the future (horizon receding).
+Within the context of model predictive control, as time progresses, the prediction horizon continuously advances into the future (horizon receding).
 % 本算法中，预测窗口基于以下几条规则得以推进：
-Within this algorithm, the horizon advances based on the following set of rules:
+In this algorithm, the horizon advances based on the following set of rules:
 
+% 如前所述，agent在自己的槽中进行计划，也就是说每帧中计划一次。
+As previously explained, agents conduct planning within their allocated slots, meaning that planning occurs once per frame.
+% 每次计划时都遍历时间长度为planning horizon的未来，并返回一个长度为planning horizon的计划
+During each planning window, due to computational constraints, agents are only able to solve an optimization problem with a limited horizon. Consequently, when planning, agents will only explore paths with a length less than or equal to the planning horizon. From these paths, they select the one that maximizes their approach towards the goal.
+% 如果帧长度（即两次计划间隔）大于计划长度，则在计划结束后，agent执行默认行为：原地不动。
+If the frame length (i.e., the interval between two planning windows) is greater than the planning horizon, then once the plan is exhausted, the agent will execute its default behavior: remaining stationary.
+
+% 计划结束后执行默认行为是为了将planning horizon和frame length解耦，因为计划的作用就是为agent寻找未来的可用点，若没有默认行为，则frame length必须不能大于planning horizon.
+Executing the default behaviour after the planned actions aims to decouple the planning horizon from the frame length. This is because the purpose of planning is to identify available points for the agent to use in the future. If there were no default behavior, the frame length would be constrained to not exceed the planning horizon.
+
+% 另外，由于默认行为不是像计划一样遵循约束生成的，为了使其满足无碰撞约束，默认行为必须在没有其他agent计划的时域中进行。
+Moreover, as the default behaviour does not adhere to constraints like the planned actions do, to ensure collision-free behaviour, the default behaviour must operate within time domains where no other plans could reach.
+% 为了达到这一条件，引入了如下约束: 每次计划时，agent必须生成同样长度的计划。
+To fulfil this condition, the following constraint is introduced: Each time planning occurs, agents must generate plans of the same length. 
+% 这样保证了每个计划的末尾都是全体agent horizon的最前端，在此时间点后没有其他计划，也就可以忽略无碰撞约束而执行默认行为（原地待机）。
+This ensures that at the end of each plan, the furthest point in the collective agent horizon is reached. Beyond this point, there are no other plans, so agents can disregard collision constraints and engage in the default behaviour of remaining stationary.
+
+% 也是因为这个原因，每次寻路算法都冷启动，因为每次计划必须生成同样长度的计划，就必须用最坏情况来对计划长度进行限制。最坏情况是agent必须舍弃所有的先前工作，从头开始进行计划。由于这一原因，热启动寻路算法不能提高算法性能及planning horizon.
+For this reason, the pathfinding algorithm always starts from scratch. Since each plan must be of the same length, the plan length is constrained by the worst-case scenario. In the worst case, an agent must abandon all previous work and start planning anew. Due to this, a warm start for the pathfinding algorithm does not improve algorithm performance or the planning horizon.
+
+\textbf{ADD PIC HERE} % 画图，展示为什么默认行为得位于尖尖上。
 
 % agent进入地图的流程
 \subsubsection{The process of an agent entering the map}
 
-% 由于agent在进入网络前无法发言，其存在是不被其他agent知道的。
-    
+% 由于agent之间的感知只依靠计划和对默认行为的共识，agent在进入网络并成功生成计划前是不为其他agent所知的，这可能导向潜在的碰撞。因此，agent在开机时并不在地图中占据位置，而是遵循以下流程来进入地图：
+Since agents' awareness of each other relies solely on planning and consensus on default behaviour, an agent is not known to others before it enters the network and successfully generates a plan, which can lead to potential collisions. Therefore, when an agent starts up, it does not occupy a position on the map; instead, it follows the following process to enter the map:
+
+\begin{itemize}
+    % agent尝试加入网络
+    \item The agent attempts to join the network.
+    \item The agent tries to generate a plan with its starting point as the origin. If successful, it executes according to the plan (thus acquiring a place on the map). If unsuccessful, it repeatedly attempts to generate this plan.
+    \item The agent operates continuously on the map.
+\end{itemize}
 
 
 
@@ -381,51 +409,37 @@ At the start of each planning window, the path planning function is called to ge
     % 是否是第一次进入地图？ 
     \item first ever plan
     
-    % 这是一个bool值，指示当前计划是否为agent的进入地图时的首个计划。
-    This is a boolean value that indicates whether the current plan is the first plan for the agent upon entering the map.
+    % 这是一个bool值，指示当前计划是否为agent的进入地图时的首个计划，其初始值为False.
+    This is a boolean value that indicates whether the current plan is the agent's first plan upon entering the map, with an initial value of False.
+
+
+    % 这是为了前述的agent进入地图的流程而准备的参数。此值为真时，计划的首个点必须为agent的起点。此值为假时，计划的第一个点从agent当前位置的相邻点中选出
+    This parameter is prepared for the aforementioned process of an agent entering the map. When this value is true, the first point of the plan must be the agent's starting point. When this value is false, the first point of the plan is selected from points adjacent to the agent's current position.
+    % 当agent成功生成首个计划后，此bool值则翻为真。
+    Once the agent successfully generates its first plan, this boolean value is set to True.
+
+
+    % horizon
+    \item planning horizon
+
+    % 在单次计划中所探索的时间范围上限。若一个可能计划的长度达到此值，则该计划将不再被扩展，转而扩展其他未达到此长度的计划
+    The upper limit of the time range explored within a single plan session. 
+    If a possible plan reaches this length, it will no longer be extended, and other plans that have not reached this length will be extended instead.
+    % 若horizon内的所有可能性被探索完或产生了抵达终点的计划，则停止计划，返回生成的计划中能令agent最大化接近终点的计划。
+    If all possibilities within the horizon have been explored or a plan that reaches the goal has been generated, planning is stopped, 
+    and the plan that allows the agent to approach the goal most closely among the generated potential plans is returned.
 
 
 
     % 所需计划之长度
-    \item required plan length
+    \item plan length limit
     
-    % 每次生成计划时要求生成的长度。
-    The required length of the plan to be generated each time.
+    % 这一参数的目的是限制返回的计划的长度上限。仅返回生成的计划中不超过此长度的部分。
+    The purpose of this parameter is to limit the maximum length of the returned plan. Only the portions of the generated plan that do not exceed this length are returned.
+    
 
-    % 由于agent每帧进行一次计划，而agent必须遵循其计划移动，所以每次生成的计划之长度必须至少等于一帧中slot的数量（即帧长度）。
-    Since the agent plans once per frame, and the agent must follow its planned movement, the length of each generated plan must be at least equal to the number of slots in a frame (i.e., the frame length).
-
-    % 如果agent的计划长度短于帧长度，会导致在帧末尾agent没有可使用的计划，其存在不为其他agent所知，而导向潜在的碰撞。
-    If the agent's plan length is shorter than the frame length, it will result in the agent having no available plan near the end of the frame, and its presence will be unknown to other agents, leading to potential collisions.
-    % 这一限制可以通过一些适当的技巧解决，如：agent之间对无计划时的移动有一些共识，进而可以用这一共识预测其他agent的行动，来允许计划长度短于两次计划之间的间隔。
-    This limitation can be addressed through some appropriate techniques, such as having a consensus among agents on movement when there is no plan, which can then be used to predict the actions of other agents when their plans expire, allowing the plan length to be shorter than the interval between two planning windows.
     
-    % 在本实现中，只有当终点在要求计划长度以内可达时，才会返回比要求长度更短的计划。
-    In this implementation, a plan shorter than the required length will only be returned if the goal is reachable within the required plan length.
-    
-    % horizon
-    \item predicting horizon
-    
-    % 算法所允许预测的horizon上限
-    The upper limit of the horizon length allowed for prediction in single planning window.
-    % 若一条可能路径的长度达到horizon，则本次计划中不再继续扩展此路径。
-    If the length of a potential path reaches the horizon, then this path will not be further extended in the current planning session.
-    
-    % 这一限制主要来自于运算速度。
-    This limitation mainly arises from the computational speed, and:
-    \begin{quotation}
-        \textbf{Assumption 6}: 
-        The predicting horizon upper limit is predefined within the agents, and this parameter value is the same for all agents.
-    \end{quotation}
-
-    % 如果要求的计划长度比horizon长如何处理？对此，agent的共识是，当计划用尽时，其他agent待在原地不动。虽然待在原地不动并不是由计划生成的无碰撞行动，但是由于每次计划时，正在计划的agent所生成的计划都一定是时间上最远的（依次按顺序进行计划，每次计划都只生成固定长度），所以这一共识不会导致潜在的碰撞。
-    What if the required plan length is longer than the horizon? 
-    There is a consensus among agents on this: 
-    when the plan is exhausted, the agent stays in place without moving. 
-    Although staying in place is not a collision-free action generated by planning, 
-    since every time an agent plans, the plan it generates is always the furthest in time 
-    (planning in sequence, each plan only generates a fixed length), 
-    so this consensus will not lead to potential collisions.
+    % 每次生成计划时要求生成的
 \end{itemize}
 
 % 创建一个成员为当前位置的openset（即已发现但还未访问的点）。起点的时间维度为0（对应正在计划的这一槽）
@@ -458,7 +472,7 @@ At the start of each planning window, the path planning function is called to ge
     \SetKwIF{If}{Elseif}{Else}{if}{then}{elseif}{else}{end}
     
     \Fn{\pathplan{
-        map, current position (2D coordinate), goal (2D coordinate), others' plans, first plan or not, required plan length, predicting horizon
+        map, current position (2D coordinate), goal (2D coordinate), plans of other agents, first ever plan, planning horizon, plan length limit
         }}{
         current position $\leftarrow$ set (current position, time = 0, cost = time + Manhattan distance (heuristic cost) of current position and goal, path = empty list)\;
         frontier $\leftarrow$ [current position]\;
@@ -468,13 +482,13 @@ At the start of each planning window, the path planning function is called to ge
             current point $\leftarrow$ pop the point with the lowest cost in frontier\;
             current path $\leftarrow$ the path corresponding to the current point\;
             current time $\leftarrow$ the time corresponding to the current point\;
-            \If{current path length = predicting horizon}{
+            \If{current path length = planning horizon}{
                 path list append current path\;
             }
-            \If {current path length > predicting horizon}{
+            \If {current path length > planning horizon}{
                 \textbf{continue}\;
             }
-            \If{current point = goal and current plan length $\leq$ required length}{
+            \If{current point = goal and current plan length $\leq$ plan length limit}{
                 \Return{current path}\;
             }
             \If{first plan}{
@@ -493,16 +507,13 @@ At the start of each planning window, the path planning function is called to ge
 
         \If{path list}{
             path $\leftarrow$ the plan with the last point having the smallest Manhattan distance to the goal\;
-            \Return{The portion of the plan that does not exceed the required length}\;
+            \Return{The portion of the plan that does not exceed the plan length limit}\;
             }
         \Else{
             \Return None
         }
     }
 \end{algorithm}
-
-% 注：上述流程意味着算法每次都冷启动，从头开始路径规划而不是继承上一次计划的剩余可用部分。这是有原因的。原因将在PLACCEHOLDER处介绍。
-Note: The process described above means that the planning always starts fresh, beginning path planning anew rather than carrying over any remaining usable portions from the previous plan. The reason behind it will be explained in the \textbf{PLACEHOLDER} section.
 
 \textbf{Output of the function}:
 

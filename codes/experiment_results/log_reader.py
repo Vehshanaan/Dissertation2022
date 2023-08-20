@@ -4,8 +4,21 @@ import numpy as np
 import json
 import utils
 import os
-log_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/experiment_results/Berlin_1_256.png/FrameLen10_20NodesJul181544.log"
-log_parent_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/experiment_results/Performance_vs_Required_Plan_Length"
+import pandas as pd
+log_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/experiment_results/agent_number vs frame_length/v3/FrameLen60_60agentsAug192138ReLen60.log"
+log_parent_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/experiment_results/agent_number vs frame_length/v3"
+
+
+def average_performance(params1, params2, performance):
+    # Create a DataFrame from the input arrays
+    df = pd.DataFrame({'param1': params1, 'param2': params2, 'performance': performance})
+    
+    # Group by the parameters and calculate the mean performance for each group
+    grouped = df.groupby(['param1', 'param2']).mean().reset_index()
+    
+    # Return the unique parameters and averaged performance as separate arrays
+    return grouped['param1'].values, grouped['param2'].values, grouped['performance'].values
+
 
 def traverse_directory(directory_path):
     result = []
@@ -64,13 +77,13 @@ def log_reader(log_path):
         #print(scene_path)
         map_path = data["map_path"]
         map_size = data["map_size"]
-        node_total = data["num_nodes"]
+        agent_total = data["num_nodes"]
         frame_length = data["num_slots"]
         frames = data["history"]
         required_length = data["required_length"]
 
         print("帧长度："+str(frame_length))
-        print("节点数："+str(node_total))
+        print("节点数："+str(agent_total))
         print("要求的计划长度："+str(required_length))
 
         starts, goals, optimal_dists = scene_reader(scene_path)
@@ -79,14 +92,14 @@ def log_reader(log_path):
         traces = {}  # 格式： 节点名：[[位置]]
         for key, values in frames.items():
             # key = 时间，value = [ [节点id（int），[x,y] ] ]
-            for nodes in values:
-                node_id = nodes[0]  # 节点名
-                position = nodes[1]  # [x,y]
+            for agents in values:
+                agent_id = agents[0]  # 节点名
+                position = agents[1]  # [x,y]
                 # 在后面加上新位置
-                if node_id in traces:
-                    traces[node_id].append(position)
+                if agent_id in traces:
+                    traces[agent_id].append(position)
                 else:
-                    traces[node_id] = [position]
+                    traces[agent_id] = [position]
 
         # 指标：
 
@@ -99,7 +112,7 @@ def log_reader(log_path):
             goal = goals[index]  # 对应的终点
             optimal = optimal_dists[index]  # 最优距离
             sum += len(trace)/optimal
-        avg_real_vs_optimal = sum/node_total
+        avg_real_vs_optimal = sum/agent_total
         print("实际路径长度/最优路径总长度："+str(avg_real_vs_optimal))
 
         
@@ -121,25 +134,43 @@ def log_reader(log_path):
             print("全部抵达终点时间：%d步。" % finish_time)
         else:
             print("没有全部到达终点")
-        # 3. 加入网络的平均耗时
+
+        # 3. 平均完成时间
+        avg_finish_time = 0
+        # 对于每个agent，找出其在网络中存在的最后一刻
+        agents_ended = set()
+        found_agents = 0
+        for time, frame in reversed(frames.items()):
+            for agent in frame:
+                if agent[0] not in agents_ended:
+                    agents_ended.add(agent[0])
+                    avg_finish_time+=int(time)
+                    found_agents+=1
+        if found_agents!=agent_total: print("FATAL!")
+        print("全部耗时：%d"%avg_finish_time)
+        
+        avg_finish_time=avg_finish_time/agent_total
+        print("平均抵达终点时间：%f"%avg_finish_time)
+
+        # 4. 加入网络的平均耗时
         # 先看出每人的耗时
         join_time = {}
-        nodes_visited = set()
+        agents_visited = set()
         for time, frame in frames.items():
-            for node in frame:
-                node_id = node[0]
-                if node_id not in nodes_visited:
-                    nodes_visited.add(node_id)
-                    join_time[node_id] = int(time)
+            for agent in frame:
+                agent_id = agent[0]
+                if agent_id not in agents_visited:
+                    agents_visited.add(agent_id)
+                    join_time[agent_id] = int(time)
         times = list(join_time.values())
         sum_time = 0
         for time in times:
             sum_time += time
         avg_join_spent_time = sum_time/len(times)
         print("有%d/%d个节点成功入网，每个节点加入网络的平均耗时是：%d" %
-              (len(times), node_total, avg_join_spent_time))
+              (len(times), agent_total, avg_join_spent_time))
         
-        # 4. 实际路径总长度vs最优路径总长度
+        # 5. 实际路径总长度vs最优路径总长度
         sum_actural = 0
         sum_optimal = 0
         for trace in traces.values():
@@ -152,73 +183,58 @@ def log_reader(log_path):
         sum_actural_vs_optimal = sum_actural/sum_optimal # 实际路径总长度vs最优总长度
         print("总实际路径长度/最优路径长度：%f"%sum_actural_vs_optimal)
 
-        return node_total, frame_length, avg_real_vs_optimal, finish_time, avg_join_spent_time, sum_actural_vs_optimal, required_length
+        return agent_total, frame_length, avg_real_vs_optimal, finish_time, avg_finish_time, avg_join_spent_time, sum_actural_vs_optimal, required_length
 
 
 def main():
-    log_files = traverse_directory(log_parent_path)
-    
-    # 硬参数
-    node_total = []
-    frame_length = []
-    required_length = []
+    logs = traverse_directory(log_parent_path)
 
+    agent_totals = []
+    frame_lengths = []
+    avg_real_vs_optimals = []
+    finish_times = []
+    avg_finish_times = []
+    sum_actural_vs_optimals = []
+    avg_join_spent_times = []
+    required_lengths = []
 
-    # 性能指标
-    real_vs_optimal_avg=[]
-    finishtime = []
-    join_spent_time = []
-    real_vs_optimal_sum = []
-
-    for log in log_files:
-        print(log)
-        a,b,c,d,e,f,g= log_reader(log)
-        node_total.append(a)
-        frame_length.append(b)
-        real_vs_optimal_avg.append(c)
-        finishtime.append(d)
-        join_spent_time.append(e)
-        real_vs_optimal_sum.append(f)
-        required_length.append(g)
+    for log in logs:
+        agent_total, frame_length, avg_real_vs_optimal, finish_time, avg_finish_time, avg_join_spent_time, sum_actural_vs_optimal, required_length = log_reader(log)
+        
+        agent_totals.append(agent_total)
+        frame_lengths.append(frame_length)
+        avg_real_vs_optimals.append(avg_real_vs_optimal)
+        finish_times.append(finish_time)
+        avg_finish_times.append(avg_finish_time)
+        avg_join_spent_times.append(avg_join_spent_time)
+        sum_actural_vs_optimals.append(sum_actural_vs_optimal)
+        required_lengths.append(required_length)
 
     # 画图
     fig = plt.figure(figsize=(15,15))
-    
     # 创建第一个子图
     ax1 = fig.add_subplot(2, 2, 1, projection='3d')
-    ax1.scatter(node_total, required_length, real_vs_optimal_sum, c=real_vs_optimal_sum, cmap='viridis', marker='o')
-    ax1.plot_trisurf(node_total, required_length, real_vs_optimal_sum, cmap='viridis', alpha=0.5)
-    ax1.set_title('real/optimal sum')
-    ax1.set_xlabel("node number = frame length")
-    ax1.set_ylabel("required plan length")
-    ax1.set_zlabel("actural/optimal sum")
+    ax1.scatter(agent_totals, frame_lengths, avg_finish_times, c=avg_finish_times, cmap='viridis', marker='o')
+    ax1.plot_trisurf(agent_totals, frame_lengths, avg_finish_times, cmap='viridis', alpha=0.5)
+    ax1.set_title('avg finish times')
+    ax1.set_xlabel("agent number")
+    ax1.set_ylabel("frame_length")
+    ax1.set_zlabel("avg finish times")   
+    ax1.set_zlim(100,500)
 
     ax2 = fig.add_subplot(2, 2, 2, projection='3d')
-    ax2.scatter(node_total, required_length, real_vs_optimal_avg, c=real_vs_optimal_avg, cmap='viridis', marker='o')
-    ax2.plot_trisurf(node_total, required_length, real_vs_optimal_avg, cmap='viridis', alpha=0.5)
-    ax2.set_title('real/optimal avg')
-    ax2.set_xlabel("node number = frame length")
-    ax2.set_ylabel("required plan length")
-    ax2.set_zlabel("actural/optimal avg")
+    ax2.scatter(agent_totals, frame_lengths, finish_times, c=finish_times, cmap='viridis', marker='o')
+    ax2.plot_trisurf(agent_totals, frame_lengths, finish_times, cmap='viridis', alpha=0.5)
+    ax2.set_title('finish times')
+    ax2.set_xlabel("agent number")
+    ax2.set_ylabel("frame_length")
+    ax2.set_zlabel("finish times")   
+    ax2.set_zlim(100,700)
 
-    ax3 = fig.add_subplot(2, 2, 3, projection='3d')
-    ax3.scatter(node_total, required_length, finishtime, c=finishtime, cmap='viridis', marker='o')
-    ax3.plot_trisurf(node_total, required_length, finishtime, cmap='viridis', alpha=0.5)
-    ax3.set_title('finish time')
-    ax3.set_xlabel("node number = frame length")
-    ax3.set_ylabel("required plan length")
-    ax3.set_zlabel("finish time")
-
-    ax4 = fig.add_subplot(2, 2, 4, projection='3d')
-    ax4.scatter(node_total, required_length, join_spent_time, c=join_spent_time, cmap='viridis', marker='o')
-    ax4.plot_trisurf(node_total, required_length, join_spent_time, cmap='viridis', alpha=0.5)
-    ax4.set_title('avg join spent time')
-    ax4.set_xlabel("node number = frame length")
-    ax4.set_ylabel("required plan length")
-    ax4.set_zlabel("join spent time")
 
     plt.tight_layout()
-    plt.show()
+    plt.show()  
+
 
 
 

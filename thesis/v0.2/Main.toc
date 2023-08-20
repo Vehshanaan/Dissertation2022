@@ -27,19 +27,19 @@
 \contentsline {subsubsection}{Plan Definition and Constraints}{20}{subsection.3.2.1}%
 \contentsline {subsubsection}{Plan Broadcasting Method and Time Window for Planning}{20}{Item.19}%
 \contentsline {subsubsection}{Model Predicting and Receding Horizon}{21}{Item.19}%
-\contentsline {subsubsection}{The process of an agent entering the map}{21}{Item.19}%
-\contentsline {subsection}{\numberline {3.2.2}Path Planning Function and Implementation}{21}{subsection.3.2.2}%
-\contentsline {subsubsection}{Inputs of the function}{21}{subsection.3.2.2}%
-\contentsline {section}{\numberline {3.3}Summary}{24}{section.3.3}%
-\contentsline {subsection}{\numberline {3.3.1}Assumptions:}{24}{subsection.3.3.1}%
-\contentsline {subsection}{\numberline {3.3.2}Implemented Functions:}{24}{subsection.3.3.2}%
+\contentsline {subsubsection}{The process of an agent entering the map}{22}{Item.19}%
+\contentsline {subsection}{\numberline {3.2.2}Path Planning Function and Implementation}{22}{subsection.3.2.2}%
+\contentsline {subsubsection}{Inputs of the function}{22}{subsection.3.2.2}%
+\contentsline {section}{\numberline {3.3}Summary}{25}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Assumptions:}{25}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Implemented Functions:}{25}{subsection.3.3.2}%
 \contentsline {chapter}{\numberline {4}Results}{26}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Experiment Design}{26}{section.4.1}%
 \contentsline {section}{\numberline {4.2}Experiment Results}{28}{section.4.2}%
 \contentsline {subsection}{\numberline {4.2.1}Quantitative Results}{28}{subsection.4.2.1}%
-\contentsline {subsubsection}{required plan length and predicting horizon}{28}{subsection.4.2.1}%
-\contentsline {subsubsection}{agent number and frame length}{29}{Item.35}%
-\contentsline {subsection}{\numberline {4.2.2}Other Results}{29}{subsection.4.2.2}%
-\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{30}{chapter.5}%
-\contentsline {chapter}{\numberline {A}Appendix}{31}{appendix.A}%
-\contentsline {chapter}{References}{38}{appendix*.8}%
+\contentsline {subsubsection}{plan length limit and planning horizon}{28}{subsection.4.2.1}%
+\contentsline {subsubsection}{frame length and agent number}{32}{figure.caption.8}%
+\contentsline {subsection}{\numberline {4.2.2}Other Results}{32}{subsection.4.2.2}%
+\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{33}{chapter.5}%
+\contentsline {chapter}{\numberline {A}Appendix}{34}{appendix.A}%
+\contentsline {chapter}{References}{41}{appendix*.9}%
