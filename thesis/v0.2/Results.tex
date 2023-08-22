@@ -200,6 +200,134 @@ Overall, these experimental results indicate that, within the context of this te
 
 \subsubsection{frame length and agent number}
 
+% 这两组参数主要影响系统容量。frame length是一帧中槽的数量，agent number是同时启动agent的个数。
+These two parameters are related to the system capacity. Frame length refers to the quantity of slots within a frame, while agent number represents the number of agents initiated simultaneously at the beginning of simmulation run.
+
+% 帧长度较长和较短各有利弊。
+The advantages and disadvantages exist for both longer and shorter frame lengths.
+\begin{itemize}
+    % 帧长度较长时，信道中有更多空间供agent使用，也就允许更多的agent加入信道。但若在加入过程中发生碰撞，根据协议，agent需要重听一整帧来重新确定分配情况来再次尝试加入，这一时长会随帧长度的增加而增加，因而帧长度并不是越长越好。
+    \item Longer frame lengths:  there is more channel space available for agents, allowing a larger number of agents to join the channel. However, if collisions occur during the joining process, according to the protocol, agents need to re-listen to the entire frame to reconfirm the allocation and make another attempt to join. This time duration for re-listening increases with the longer frame length. Consequently, longer frame lengths do not necessarily lead to better outcomes.
+    % 帧长度较短时，信道中空间不足，大量agent会停留在信道加入阶段，会导致效率的降低。此时虽然没有帧长度较长时重听一帧耗时长的弊端，但其信道容量本身就较低。
+    \item Shorter frame lengths: When the frame length is shorter, there is limited channel space, which can result in a significant number of agents lingering in the channel joining phase. This can lead to reduced efficiency. Although this scenario may not suffer from the prolonged re-listening disadvantage seen with longer frame lengths, the inherent channel capacity is already low due to the shorter frame length.
+\end{itemize}
+
+% 从此处也可以看出，frame length的大小是相对于agent number的
+From this perspective, it is apparent that the magnitude of the frame length is relative to the agent number.
+
+% 为了验证帧长度的相对长短对系统性能的影响，进行如下实验：
+To investigate the impact of varying frame lengths on system performance, the following experiments are conducted:
+
+\begin{itemize}
+    % 遍历以下的参数空间两次：planning horizon = 60, plan length limit = 60, agent number 10-60 步长为10，frame length 10-60 步长为5
+    \item Group 2: The parameter space will be traversed twice with the following settings: planning horizon = 60, plan length limit = 60 (these two are independent parameters), agent number ranging from 10 to 60 with a step size of 10, and frame length ranging from 10 to 60 with a step size of 5.
+    % 参数空间中的某些点由于耗时过长性能过差，予以省略
+    Certain points in the parameter space (specifically, those with agent numbers significantly surpassing frame lengths) are omitted due to excessive time consumption and clearly inadequate performance.
+\end{itemize}
+
+% 实验中仍然存在与前一组实验相同的随机因素，即agent在加入信道时随机选择free slot尝试加入的这一因素。由于实验耗时比较可观（一个slot耗时1秒），仅遍历参数空间两次并取性能参数的平均值作为结果。虽然这样不能完全消除结果中的随机性，但性能随参数变化的趋势仍然表现得很明显。
+Similar to the previous group of experiments, the same random factor exists in this group as well: the randomness associated with agents randomly selecting free slots to attempt joining the channel upon entry. 
+Due to the considerable time required for the experiment (with each slot taking 1 second), the parameter space is traversed only twice, and the average values of performance metrics are taken as results. 
+Although this approach doesn't entirely eliminate randomness from the outcomes, the performance trends with parameter variations are still quite evident.
+
+\textbf{Performance Result}
+
+
+\begin{figure}[htb]
+    \centering
+    \begin{subfigure}[t]{0.45\linewidth}
+      \centering
+      \includegraphics[width = \linewidth]{figures/avg_arrival_time.png}
+      \caption{Average agent arrival time results}
+      \label{fig:Performance1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.45\linewidth}
+        \centering
+        \includegraphics[width = \linewidth]{figures/final_agent_arrival_time.png}
+        \caption{Final agent arrival time results}
+        \label{fig:Performance2}
+    \end{subfigure}
+    
+    \vspace{1cm}
+    
+    \begin{subfigure}[t]{0.45\linewidth}
+        \centering
+        \includegraphics[width = \linewidth]{figures/avg_network_join_time.png}
+        \caption{Average network join time results}
+        \label{fig:Performance3}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.45\linewidth}
+        \centering
+        \includegraphics[width = \linewidth]{figures/total_path_effi_ratio.png}
+        \caption{Total path efficiency ratio result}
+        \label{fig:Performance4}
+    \end{subfigure}
+    \caption{Experiment Group 2: Performance versus agent number and frame length.}
+    \label{fig:Performance}
+\end{figure}
+\FloatBarrier
+
+% 能影响最重要的参数：arrival time的因素只有两个：（1）agent加入网络的耗时。（2）agent的路径效率。
+There are only two factors that can influence the most important parameter, which is the arrival time. These factors are: (1) the duration it takes for an agent to join the network, and (2) the efficiency of the agent's path. 
+
+% 而在这两个因素中，agent的路径效率在本实验场景中对arrival time的影响几乎没有，因为其本身在整个参数空间内的变化不大。
+In these two factors, the path efficiency of the agent has almost no impact on the arrival time in this experimental scenario, as its variation across the entire parameter space is minimal.
+% 从Figure \ref{fig:Performance4}可以看出，agent的路径效率始终保持在较高的水平（图中的所有点的z轴值均低于1.05，与第一组实验中的结果相同）
+As can be seen from Figure \ref{fig:Performance4}, the efficiency of the agent's path is consistently high (all the points on the z-axis in the figure are below 1.05, which is in line with the results from the first group of experiments).
+% Figure \ref{fig:Performance1,fig:Performance2,fig:Performance3}之间形状的相似也能证明这一点。虽然final arrival time由于更高的随机性（不像average arrival time那样由平均产生）而稍有走形，但其总体趋势仍然是一样的。
+The similarity in shape between Figure \ref{fig:Performance1}, Figure \ref{fig:Performance2}, and Figure \ref{fig:Performance3} further supports this observation. While the final arrival time may deviate slightly due to higher randomness (as opposed to the average arrival time which is generated by averaging), the overall trend remains consistent.
+
+
+% 因此，本实验场景中的性能参数主要由agent加入网络的耗时决定。性能在参数空间中的变化可以从这一方面来解释。
+Consequently, the performance parameters in this scenario are primarily determined by the time it takes for an agent to join the network. The variation in performance across the parameter space can be explained from this perspective.
+
+
+% 从图中可以看出，对于每个agent number,性能最优的点集中在agent number与frame length值接近或相等的地方。这一现象可以从以下两方面解释：
+As can be seen from Figure \ref{fig:Performance1}, \ref{fig:Performance2}, \ref{fig:Performance3}, for each agent number, the points of optimal performance tend to concentrate where the agent number and frame length values are close or equal. 
+% 以agent number = frame length的线为界，可以将结果分为两部分讨论：
+Using the line where agent number = frame length as a reference, the results can be divided into two parts for discussion:
+
+\begin{itemize}
+    \item Agent Number < Frame Length:
+    
+    This part corresponds to the upper-right part of each figure in  Fig \ref{fig:Performance}. 
+    When the agent number increases relative to the frame length, there is a significant negative impact on performance.
+    
+    % 这是因为此时信道容量过小，一部分agent必须待机，直到信道中有可用空间出现，才能开始运行。
+    This is because, in this part, the channel capacity is relatively limited, and a portion of agents must remain idle until available channel space emerges, allowing them to start their operations.
+    
+    \item Agent Number > Frame Length
+    
+    This part corresponds to the bottom-left part of each figure in Fig \ref{fig:Performance}. 
+    As the frame length increases relative to the agent number, the performance gradually declines.
+   
+
+    % 此时，channel的容量允许全部agent在网络中运行，但是根据协议，若多个agent在尝试加入网络时发生碰撞（碰巧尝试占用同一个空闲槽位），则在下一次尝试之前必须听完完整的一帧。这一机制使得过长的frame length对agent join time有负面影响。
+    In this part, the channel has enough capacity for all the agents to operate in the network at same time. 
+    However, according to the protocol, if multiple agents collides in the channel (accidentally trying to occupy the same free slot when entering), they must wait and listen through an entire frame before attempting again. This mechanism means that an excessively long frame length has a negative impact on the agent join time.
+
+\end{itemize}
+
+
+% 这就可以理解为什么对于每个agent number来说，性能最优的点大多是frame length = agent number或稍高于 agent number。因为此时信道中有足够的位置，不会出现只能待机的agent，同时帧长度又没有过长，加入网络中重试的过程不会耗时过长。
+This explains why, for each agent number, the points with the optimal performance are mostly when the frame length equals the agent number or slightly higher than the agent number. In these cases, there is enough room in the channel to avoid having agents solely in idle mode, while the frame length is also not excessively long, preventing a prolonged process of retrying to join the network.
+
+\textbf{Channel Utilization}
+
+% 基于stdma的agent对channel的利用率也影响了系统的性能，因为在本文的算法中，只有在channel中的agent才能在地图中移动（见 Section \ref{chap:join map}）。
+The channel's utilization by agents also affects the system's performance. In the algorithm proposed in this study, only the agents present in the channel are able to move within the map, as discussed in Section \ref{chap:join map}.
+% 这与上述"只有两个因素影响性能"的结论不矛盾，因为信道使用率可以看作agent join time的另一种表现方式。
+This is consistent with the conclusion mentioned above that only two factors impact performance, as channel utilization can be viewed as another manifestation of network join time.
+
+% 为了分析agent number和frame length对信道的利用情况的影响，从Experiment Group2的结果中挑选出以下两组数据，
+To analyze the impact of agent number and frame length on channel utilization, we have selected the following two sets of data from the results of Experiment Group 2:
+
+\begin{itemize}
+    \item Experiment Subgroup 2.1: select data from Experiment Group 2 where the agent number is 60 and the frame length varies in increments of 10 from 20 to 60 (frame length = 10 was originally skipped in Experiment Group 2 due to the excessive time it took).
+    \item Experiment Subgroup 2.2: select data from Experiment Group 2 where the frame length is 60 and the agent number varies in increments of 10 from 10 to 60.
+\end{itemize}
 
 % 在某些场景中的行为
 \subsection{Other Results}

@@ -39,7 +39,7 @@
 \contentsline {subsection}{\numberline {4.2.1}Quantitative Results}{28}{subsection.4.2.1}%
 \contentsline {subsubsection}{plan length limit and planning horizon}{28}{subsection.4.2.1}%
 \contentsline {subsubsection}{frame length and agent number}{32}{figure.caption.8}%
-\contentsline {subsection}{\numberline {4.2.2}Other Results}{32}{subsection.4.2.2}%
-\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{33}{chapter.5}%
-\contentsline {chapter}{\numberline {A}Appendix}{34}{appendix.A}%
-\contentsline {chapter}{References}{41}{appendix*.9}%
+\contentsline {subsection}{\numberline {4.2.2}Other Results}{36}{subsection.4.2.2}%
+\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{37}{chapter.5}%
+\contentsline {chapter}{\numberline {A}Appendix}{38}{appendix.A}%
+\contentsline {chapter}{References}{45}{appendix*.10}%

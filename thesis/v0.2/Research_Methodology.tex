@@ -379,6 +379,7 @@ For this reason, the pathfinding algorithm always starts from scratch. Since eac
 
 % agent进入地图的流程
 \subsubsection{The process of an agent entering the map}
+\label{chap:join map}
 
 % 由于agent之间的感知只依靠计划和对默认行为的共识，agent在进入网络并成功生成计划前是不为其他agent所知的，这可能导向潜在的碰撞。因此，agent在开机时并不在地图中占据位置，而是遵循以下流程来进入地图：
 Since agents' awareness of each other relies solely on planning and consensus on default behaviour, an agent is not known to others before it enters the network and successfully generates a plan, which can lead to potential collisions. Therefore, when an agent starts up, it does not occupy a position on the map; instead, it follows the following process to enter the map:
