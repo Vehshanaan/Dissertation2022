@@ -28,8 +28,9 @@
 \contentsline {subsubsection}{Plan Broadcasting Method and Time Window for Planning}{20}{Item.19}%
 \contentsline {subsubsection}{Model Predicting and Receding Horizon}{21}{Item.19}%
 \contentsline {subsubsection}{The process of an agent entering the map}{22}{Item.19}%
-\contentsline {subsection}{\numberline {3.2.2}Path Planning Function and Implementation}{22}{subsection.3.2.2}%
-\contentsline {subsubsection}{Inputs of the function}{22}{subsection.3.2.2}%
+\contentsline {subsubsection}{The process of an agent exiting the map}{22}{Item.19}%
+\contentsline {subsection}{\numberline {3.2.2}Path Planning Function and Implementation}{23}{subsection.3.2.2}%
+\contentsline {subsubsection}{Inputs of the function}{23}{subsection.3.2.2}%
 \contentsline {section}{\numberline {3.3}Summary}{25}{section.3.3}%
 \contentsline {subsection}{\numberline {3.3.1}Assumptions:}{25}{subsection.3.3.1}%
 \contentsline {subsection}{\numberline {3.3.2}Implemented Functions:}{25}{subsection.3.3.2}%
@@ -39,7 +40,7 @@
 \contentsline {subsection}{\numberline {4.2.1}Quantitative Results}{28}{subsection.4.2.1}%
 \contentsline {subsubsection}{plan length limit and planning horizon}{28}{subsection.4.2.1}%
 \contentsline {subsubsection}{frame length and agent number}{32}{figure.caption.8}%
-\contentsline {subsection}{\numberline {4.2.2}Other Results}{36}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.2}Deadlock Situation}{36}{subsection.4.2.2}%
 \contentsline {chapter}{\numberline {5}Discussion and Conclusion}{37}{chapter.5}%
 \contentsline {chapter}{\numberline {A}Appendix}{38}{appendix.A}%
 \contentsline {chapter}{References}{45}{appendix*.10}%

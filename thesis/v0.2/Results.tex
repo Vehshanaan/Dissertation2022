@@ -144,7 +144,7 @@ Although this approach doesn't eliminate all randomness, the trends indicated in
 % 对于参数空间中的每个点仅
 
 
-\begin{figure}[htb]
+\begin{figure}[htbp]
     \centering
     \begin{subfigure}[t]{1.1\linewidth}
       \centering
@@ -230,10 +230,8 @@ Similar to the previous group of experiments, the same random factor exists in t
 Due to the considerable time required for the experiment (with each slot taking 1 second), the parameter space is traversed only twice, and the average values of performance metrics are taken as results. 
 Although this approach doesn't entirely eliminate randomness from the outcomes, the performance trends with parameter variations are still quite evident.
 
-\textbf{Performance Result}
 
-
-\begin{figure}[htb]
+\begin{figure}[htbp]
     \centering
     \begin{subfigure}[t]{0.45\linewidth}
       \centering
@@ -314,22 +312,110 @@ Using the line where agent number = frame length as a reference, the results can
 % 这就可以理解为什么对于每个agent number来说，性能最优的点大多是frame length = agent number或稍高于 agent number。因为此时信道中有足够的位置，不会出现只能待机的agent，同时帧长度又没有过长，加入网络中重试的过程不会耗时过长。
 This explains why, for each agent number, the points with the optimal performance are mostly when the frame length equals the agent number or slightly higher than the agent number. In these cases, there is enough room in the channel to avoid having agents solely in idle mode, while the frame length is also not excessively long, preventing a prolonged process of retrying to join the network.
 
-\textbf{Channel Utilization}
+\comment{
+\textbf{Proportion of Agents in Channel versus Time}
 
 % 基于stdma的agent对channel的利用率也影响了系统的性能，因为在本文的算法中，只有在channel中的agent才能在地图中移动（见 Section \ref{chap:join map}）。
-The channel's utilization by agents also affects the system's performance. In the algorithm proposed in this study, only the agents present in the channel are able to move within the map, as discussed in Section \ref{chap:join map}.
+The proportion of agents in the channel also affects the system's performance. In the algorithm proposed in this study, only the agents present in the channel are able to move within the map, as discussed in Section \ref{chap:join map}.
 % 这与上述"只有两个因素影响性能"的结论不矛盾，因为信道使用率可以看作agent join time的另一种表现方式。
-This is consistent with the conclusion mentioned above that only two factors impact performance, as channel utilization can be viewed as another manifestation of network join time.
+This is consistent with the conclusion mentioned above that only two factors impact performance, as this can be viewed as another manifestation of network join time.
 
-% 为了分析agent number和frame length对信道的利用情况的影响，从Experiment Group2的结果中挑选出以下两组数据，
-To analyze the impact of agent number and frame length on channel utilization, we have selected the following two sets of data from the results of Experiment Group 2:
+% 为了分析agent number和frame length对信道的利用情况的影响，从Exeriment Group2中进行的两次重复实验中选出一次，将每个agent number对应不同frame length时，信道中agent的数量与时间的关系绘制出来。为了使结果在图中清晰一些，frame length不为10的倍数的部分数据没有被画出。
+To analyze the proportion of agents in channel, select one of the two repetitions conducted in Experiment Group 2. 
+For each agent number at different frame lengths, create a graph that illustrates the relationship between the percent of agents in the channel and time. 
+To enhance clarity in the graph, data points where frame length is not a multiple of 10 are excluded from the representation.
 
+% 注意，agent在到达终点后会关机并放弃自己在信道中的槽。
+Notably, agents shut down and release their slots in the channel upon reaching their goals (see Section \ref{chap:exit map}).
+% 所有agent都退出信道时，就说明所有agent都已经到达终点。
+When all agents have exited the channel, it indicates that all agents have reached their goals.
+
+
+\begin{figure}[htb]
+    \centering
+    % Row 1
+    \begin{subfigure}[t]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/channel_usage_agent10.png}
+        \caption{10 agents}
+        \label{fig:agentpercent1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/channel_usage_agent20.png}
+        \caption{20 agents}
+        \label{fig:agentpercent2}
+    \end{subfigure}
+    
+    \vspace{1cm}
+    
+    % Row 2
+    \begin{subfigure}[t]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/channel_usage_agent30.png}
+        \caption{30 agents}
+        \label{fig:agentpercent3}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/channel_usage_agent40.png}
+        \caption{40 agents}
+        \label{fig:agentpercent4}
+    \end{subfigure}
+    
+    \vspace{1cm}
+    
+    % Row 3
+    \begin{subfigure}[t]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/channel_usage_agent50.png}
+        \caption{50 agents}
+        \label{fig:agentpercent5}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/channel_usage_agent60.png}
+        \caption{60 agents}
+        \label{fig:agentpercent6}
+    \end{subfigure}
+    
+    \caption{Graph illustrating the relationship between the percentage of agents in the channel and time for different agent numbers at various frame lengths.}
+    \label{fig:grid}
+\end{figure}
+
+
+
+
+% 对实验结果的一些观察：
 \begin{itemize}
-    \item Experiment Subgroup 2.1: select data from Experiment Group 2 where the agent number is 60 and the frame length varies in increments of 10 from 20 to 60 (frame length = 10 was originally skipped in Experiment Group 2 due to the excessive time it took).
-    \item Experiment Subgroup 2.2: select data from Experiment Group 2 where the frame length is 60 and the agent number varies in increments of 10 from 10 to 60.
+    % agent number << frame length时，帧长度越短，全部agent进入网络越快。证据: 图一的峰值顺序
+    \item 1
+    % agent number < frame length时，frame length越短，channel utilization越高。证据：
+    \item 2
+    \item 3
+    \item 4
+    \item 5
 \end{itemize}
 
+}
+
 % 在某些场景中的行为
-\subsection{Other Results}
-        % 避障行为及讨论
-        % 死锁情形
+\subsection{Deadlock Situation}
+
+% 满足下述情况时，agent之间发生死锁：
+When the following conditions are simultaneously met, a deadlock between agents occurs:
+\begin{enumerate}
+    \item 
+    % 1. 两个agent位于一条足够长的仅1agent宽的走廊中
+    Two agents are positioned within a sufficiently long corridor that's only one agent wide.
+    \item
+    % 2. agent发布的计划长度为偶数
+    The time slots of the two agents in the channel are adjacent. 
+    % 3. 两agent碰上时，一方剩余的计划恰好是偶数个。即伸出自己的豆是计划长度的半。
+\end{enumerate}
+
+% 处于这种情况下时，agent之间保持某种退避-前进的动态平衡，从而造成死锁。
+When agents are in this situation, they maintain a dynamic balance of retreating and advancing, leading to a deadlock.

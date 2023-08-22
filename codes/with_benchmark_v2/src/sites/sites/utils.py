@@ -59,7 +59,7 @@ def map_load(map_path, size):
     '''
     img = cv2.imread(map_path,0)
 
-    img = remove_black_border(img) # 调试长廊时暂时消掉，回来记得补回来！
+    #img = remove_black_border(img) # 调试长廊时暂时消掉，回来记得补回来！
 
     img = cv2.resize(img, size)#, interpolation=cv2.INTER_AREA)
 

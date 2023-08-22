@@ -211,7 +211,10 @@ The implementation of this state machine in this paper is as follows:
     
     % 在此状态下的agent的目的是如何，agent的状态是如何
     % 在此状态下的agent已经进入网络，且应当始终在网络中，直到其通过停止定期发送消息来放弃其槽位。
-    In this state, the agent is 'In' the network and should stay in the network until it relinquishes its slot by stopping its regular message transmission.
+    In this state, the agent is 'In' the network and should stay in the network until it releases its slot by stopping its regular message transmission.
+    
+    % agent在抵达终点后，将会关机并放弃自己在信道中的槽。
+    Upon reaching their destinations, agents will shut down and release the slot they occupied in the channel.
     
     % Transition Condition:
     \textbf{Transition Condition}:
@@ -391,6 +394,16 @@ Since agents' awareness of each other relies solely on planning and consensus on
     \item The agent operates continuously on the map.
 \end{itemize}
 
+% 由于后续实验中将起点设置为位于地图边缘，这一过程可以视为agent尝试进入某一区域的网络并进入某一区域的过程。
+Due to the subsequent experiments setting the starting points at the edge of the map, this process can be regarded as the agent's attempt to enter a specific area's network and subsequently its entry into that area.
+
+\subsubsection{The process of an agent exiting the map}
+\label{chap:exit map}
+
+% agent只要发现自己抵达终点，就退出地图：不再在地图中拥有位置，且放弃自己在信道中的槽（停止向stdma信道中发送信息即可）。
+Once an agent detects its arrival at the goal, it exits the map: it no longer holds a position within the map and relinquishes its slot in the channel (by ceasing to transmit information to the STDMA channel).
+
+Due to the subsequent experiments setting the goals at the edge of the map, this process can be regarded as the agent exiting a specific area's network and leaving that area.
 
 
 \subsection{Path Planning Function and Implementation}

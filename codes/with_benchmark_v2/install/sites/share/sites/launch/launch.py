@@ -9,22 +9,23 @@ from launch_ros.actions import Node
 # 注意，地图和场景都在这里设置，**记得设置成成对的！！！，没法设计代码级别的防呆匹配！自己记得用好，不要犯傻**
 
 
-
+'''
 map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/my_own_benchmarks/warehouse-10-20-10-2-1.png"
 scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/benchmarks/my_own_benchmarks/warehouse-10-20-10-2-1.pngJul241220.scen"
 
 frame_length = 55
 node_total = 30
 required_length = frame_length # 每次要求生成计划的长度
-
-
 '''
+
+
 map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/with_benchmark_v2/test_map.png"
 scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/with_benchmark_v2/test.scen"
 
-frame_length = 2  # 帧长度
+frame_length = 4  # 帧长度
 node_total = 2  # 节点数目
-'''
+required_length = frame_length
+
 
 
 def generate_launch_description():
@@ -35,7 +36,9 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     # 读取起点和终点
-    map_size, starts, goals = scene_reader(scene_path,50)
+    map_size, starts, goals = scene_reader(scene_path)
+
+
 
     # 启动地图
     map = Node(
@@ -135,7 +138,7 @@ def scene_reader(scene_path=scene_path, min_dist=-1):
             if optimal_dist < min_dist:
                 continue  # 如果最优距离小于阈值：跳过，不读入这组起终点
             starts.append(start)
-            goals.append(goal)
+            goals.append(goal)    
     return map_size, starts, goals
 
 
