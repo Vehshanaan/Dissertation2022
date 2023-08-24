@@ -26,21 +26,29 @@
 \contentsline {subsubsection}{Collision Definition}{20}{subsection.3.2.1}%
 \contentsline {subsubsection}{Plan Definition and Constraints}{20}{subsection.3.2.1}%
 \contentsline {subsubsection}{Plan Broadcasting Method and Time Window for Planning}{20}{Item.19}%
-\contentsline {subsubsection}{Model Predicting and Receding Horizon}{21}{Item.19}%
-\contentsline {subsubsection}{The process of an agent entering the map}{22}{Item.19}%
-\contentsline {subsubsection}{The process of an agent exiting the map}{22}{Item.19}%
+\contentsline {subsubsection}{Model Prediction}{21}{Item.19}%
+\contentsline {subsubsection}{The process of an agent entering the map}{22}{Item.21}%
+\contentsline {subsubsection}{The process of an agent exiting the map}{23}{Item.21}%
 \contentsline {subsection}{\numberline {3.2.2}Path Planning Function and Implementation}{23}{subsection.3.2.2}%
 \contentsline {subsubsection}{Inputs of the function}{23}{subsection.3.2.2}%
-\contentsline {section}{\numberline {3.3}Summary}{25}{section.3.3}%
-\contentsline {subsection}{\numberline {3.3.1}Assumptions:}{25}{subsection.3.3.1}%
-\contentsline {subsection}{\numberline {3.3.2}Implemented Functions:}{25}{subsection.3.3.2}%
-\contentsline {chapter}{\numberline {4}Results}{26}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Experiment Design}{26}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Experiment Results}{28}{section.4.2}%
-\contentsline {subsection}{\numberline {4.2.1}Quantitative Results}{28}{subsection.4.2.1}%
-\contentsline {subsubsection}{plan length limit and planning horizon}{28}{subsection.4.2.1}%
-\contentsline {subsubsection}{frame length and agent number}{32}{figure.caption.8}%
-\contentsline {subsection}{\numberline {4.2.2}Deadlock Situation}{36}{subsection.4.2.2}%
-\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{37}{chapter.5}%
-\contentsline {chapter}{\numberline {A}Appendix}{38}{appendix.A}%
-\contentsline {chapter}{References}{45}{appendix*.10}%
+\contentsline {section}{\numberline {3.3}Summary}{26}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Assumptions:}{26}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Implemented Functions:}{26}{subsection.3.3.2}%
+\contentsline {chapter}{\numberline {4}Results}{27}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Experiment Design}{27}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Experiment Results}{29}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Quantitative Results}{29}{subsection.4.2.1}%
+\contentsline {subsubsection}{plan length limit and planning horizon}{29}{subsection.4.2.1}%
+\contentsline {subsubsection}{frame length and agent number}{33}{figure.caption.8}%
+\contentsline {subsection}{\numberline {4.2.2}Deadlock Situation}{37}{subsection.4.2.2}%
+\contentsline {subsubsection}{Condition}{37}{subsection.4.2.2}%
+\contentsline {subsubsection}{Explanation}{38}{Item.39}%
+\contentsline {subsubsection}{Solution}{38}{figure.caption.10}%
+\contentsline {subsection}{\numberline {4.2.3}Failure Situation}{39}{subsection.4.2.3}%
+\contentsline {subsubsection}{Condition}{39}{subsection.4.2.3}%
+\contentsline {subsubsection}{Explanation}{40}{figure.caption.11}%
+\contentsline {subsubsection}{Solution}{41}{figure.caption.11}%
+\contentsline {subsection}{\numberline {4.2.4}Local Optimal Trap}{41}{subsection.4.2.4}%
+\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{43}{chapter.5}%
+\contentsline {chapter}{\numberline {A}Appendix}{44}{appendix.A}%
+\contentsline {chapter}{References}{51}{appendix*.13}%

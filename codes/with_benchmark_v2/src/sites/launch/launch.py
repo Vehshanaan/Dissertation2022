@@ -22,9 +22,9 @@ required_length = frame_length # 每次要求生成计划的长度
 map_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/with_benchmark_v2/test_map.png"
 scene_path = "/mnt/a/OneDrive/MScRobotics/Dissertation2022/codes/with_benchmark_v2/test.scen"
 
-frame_length = 4  # 帧长度
-node_total = 2  # 节点数目
-required_length = frame_length
+frame_length = 5  # 帧长度
+node_total = 3  # 节点数目
+required_length = 2*frame_length
 
 
 

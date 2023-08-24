@@ -257,6 +257,7 @@ The map is a grid world with obstacles, and:
     \item Agents can choose to either remain stationary or move to an adjacent non-diagonal grid cell at each time step (corresponding to a slot in the STDMA section).
     % 可以完美执行计划
     \item Agents can execute their own plans with complete accuracy.
+    \item When plan is exhausted or have no plan, agent executes a default behavior: remains stationary.
 \end{itemize}
 
 \begin{quotation}
@@ -302,7 +303,7 @@ A plan is a sequence of 3D coordinate points. Each coordinate point comprises a 
 % 计划的约束是：1. 不能与其他agent或地图中的障碍物发生碰撞。 2. 计划中相邻的点，空间上必须是非对角的相邻点，时间上后一点必须比前一点增加1。 3. 计划的第一个点必须在空间上与开始计划时刻的agent位置位于非对角的相邻点。
 \begin{enumerate}
     % 计划中的点必须符合agent的移动能力与约束
-    \item The points in the plan must align with the agents' capabilities and constraints.
+    \item The points in the plan must align with the agents' capabilities and constraints (collision-free, move no more than one grid at a time).
     % 计划中的第一个点必须是是agent开始计划时刻的位置的非对角相邻点，且满足agent的其他约束
     \item The first point in the plan must be a non-diagonal adjacent point to the agent's initial position at the start of planning, and it must also satisfy the agent's other constraints.
 \end{enumerate}
@@ -315,7 +316,8 @@ A plan is a sequence of 3D coordinate points. Each coordinate point comprises a 
 \textbf{Broadcasting}
 
 % agent通过stdma所分享的信道进行自身计划的分享，即，在每个属于自己的槽的中央在信道中广播自身的计划。
-Through the channel facilitated by STDMA, agents broadcast their individual plans. This entails agents broadcasting their plans in the middle of each slot allocated to them within the channel.
+Through the channel facilitated by STDMA, agents broadcast their individual plans. 
+This means agents broadcasting their plans in the middle of each slot allocated to them within the channel.
 
 % 注意，计划制订时仅生成二维坐标的序列，时间在计划过程中是隐含的。计划中的时间维度在计划被接收时由接收者自己添加。
 Note that during plan formulation, only a sequence of 2D coordinates is generated, and time is implicit in the planning process. The time dimension of the plan is added by the recipient upon receiving the plan.
@@ -330,7 +332,7 @@ As a result, only a set of 2D coordinate sequences needs to be transmitted each 
 % 如前文所述，每个agent在属于自己的槽的中间发布信息。
 As previously mentioned, each agent publishes their message (their plan and ID) in the middle of the slot allocated to it.
 % 基于这一特性，对于每个agent来说，存在这样一个定期出现的时间窗口：涉及计划制订的所有变量都是确定的，且自己的计划只要制订完成就可以立即发布。
-Based on this rule, for every agent, there exists a periodically repeating time window where all variables related to planning are constant, 
+Based on this rule, for every agent, there exists a periodically repeating time window where all variables (map, others' plans) related to planning are constant, 
 and the agent's own plan can be immediately published as soon as it is formulated.
 
 % 这个时间窗口就是自己的槽的前半部分。在这段时间内，不会有其他agent发布新的计划，且此时段结束后就可以立即发布自身的计划。
@@ -341,44 +343,43 @@ Given that this time window is a segment within a slot, it will occur once in ea
 \textbf{ADD PIC HERE}% 画图解释进行计划的时机
 
 % 模型预测和receding horizon
-\subsubsection{Model Predicting and Receding Horizon}
+\subsubsection{Model Prediction}
+\label{chap:model prediction}
 
-\textbf{Model Predicting}
 
 % 本文中通过假设agent可以绝对准确执行自身计划的方式对模型预测进行了大幅度简化。
 In this paper, the model predictions have been significantly simplified by assuming that agents can execute their own plans with absolute accuracy.
-% 只要自己的计划中的点满足agent的移动能力，就一定可以按时抵达目标位置。同样，其他agent的计划也是绝对准确的。
-As long as the points in an agent's plan adhere to its mobility capabilities, the agent will invariably reach the planned position on time. Similarly, plans of other agents are also assumed to be entirely accurate.
+
+% 对agent的模型预测遵循以下两条规则：
+Agents follow the rules below to predict their own and other agents' movements:
+\begin{enumerate}
+    % 发布的计划一定会得到执行。
+    \item A plan that has been published will definitely be executed.
+    \item If an agent exhausts its plan before its planning window arrives, the agent will execute a default behaviour: remaining stationary. This will continue until the agent publishes a new plan.
+\end{enumerate}
+
+% 默认行为将帧长度和计划长度解绑，因为即使agent无法生成足够一帧使用的计划，也可以通过执行默认行为来等待下一次计划窗口的到来。
+The default behaviour decouples frame length from plan length. This is because, even if the agent cannot generate a plan sufficient for a whole frame, it can still execute the default behaviour, waiting for the next planning window to arrive.
+
+% 上述的默认行为带来了一个问题，就是默认行为并不遵循无碰撞约束，agent在原地待机时可能会占用其他agent在未来使用的位置，从而产生碰撞。
+And this default behaviour presents an issue: it doesn't adhere to the non-collision constraint. An agent, while idling in place, might occupy a position that another agent intends to use in the future, leading to collisions.
+% 为了解决这一问题，将全体agent所能生成的计划的长度设定为一个统一值。
+To address this concern, the length of the plans that all agents can publish is set to a uniform value.
 
 
-\textbf{Receding Horizon}
+% 这样，由于agent依次计划且计划长度统一，每次计划的结尾都将是系统总体horizon的最前端，从而可以在这里执行默认行为（原地待机）而不与其他计划发生冲突，因为在这个时间范围内没有其他计划。agent进行计划时，将其他agent结束计划后的原地待机纳入考虑，即可避免与待机agent发生碰撞。
+In this way, since agents plan sequentially and with a uniform plan length, the end of each plan will always coincide with the leading edge of the system's overall horizon. This allows them to execute the default behaviour (idling in place) at this point without conflicting with other plans, since no other plans exist within this time frame. When an agent formulates its plan, it takes into consideration the idling of other agents after their plans have concluded, ensuring it avoids collisions with agents that are stationary.
 
-% 在模型预测控制中，随着时间的推进，预测窗口会不断向未来推进。
-Within the context of model predictive control, as time progresses, the prediction horizon continuously advances into the future (horizon receding).
-% 本算法中，预测窗口基于以下几条规则得以推进：
-In this algorithm, the horizon advances based on the following set of rules:
-
-% 如前所述，agent在自己的槽中进行计划，也就是说每帧中计划一次。
-As previously explained, agents conduct planning within their allocated slots, meaning that planning occurs once per frame.
-% 每次计划时都遍历时间长度为planning horizon的未来，并返回一个长度为planning horizon的计划
-During each planning window, due to computational constraints, agents are only able to solve an optimization problem with a limited horizon. Consequently, when planning, agents will only explore paths with a length less than or equal to the planning horizon. From these paths, they select the one that maximizes their approach towards the goal.
-% 如果帧长度（即两次计划间隔）大于计划长度，则在计划结束后，agent执行默认行为：原地不动。
-If the frame length (i.e., the interval between two planning windows) is greater than the planning horizon, then once the plan is exhausted, the agent will execute its default behavior: remaining stationary.
-
-% 计划结束后执行默认行为是为了将planning horizon和frame length解耦，因为计划的作用就是为agent寻找未来的可用点，若没有默认行为，则frame length必须不能大于planning horizon.
-Executing the default behaviour after the planned actions aims to decouple the planning horizon from the frame length. This is because the purpose of planning is to identify available points for the agent to use in the future. If there were no default behavior, the frame length would be constrained to not exceed the planning horizon.
-
-% 另外，由于默认行为不是像计划一样遵循约束生成的，为了使其满足无碰撞约束，默认行为必须在没有其他agent计划的时域中进行。
-Moreover, as the default behaviour does not adhere to constraints like the planned actions do, to ensure collision-free behaviour, the default behaviour must operate within time domains where no other plans could reach.
-% 为了达到这一条件，引入了如下约束: 每次计划时，agent必须生成同样长度的计划。
-To fulfil this condition, the following constraint is introduced: Each time planning occurs, agents must generate plans of the same length. 
-% 这样保证了每个计划的末尾都是全体agent horizon的最前端，在此时间点后没有其他计划，也就可以忽略无碰撞约束而执行默认行为（原地待机）。
-This ensures that at the end of each plan, the furthest point in the collective agent horizon is reached. Beyond this point, there are no other plans, so agents can disregard collision constraints and engage in the default behaviour of remaining stationary.
+\textbf{ADD PIC HERE} % 画图，展示为什么默认行为得位于尖尖上。
 
 % 也是因为这个原因，每次寻路算法都冷启动，因为每次计划必须生成同样长度的计划，就必须用最坏情况来对计划长度进行限制。最坏情况是agent必须舍弃所有的先前工作，从头开始进行计划。由于这一原因，热启动寻路算法不能提高算法性能及planning horizon.
 For this reason, the pathfinding algorithm always starts from scratch. Since each plan must be of the same length, the plan length is constrained by the worst-case scenario. In the worst case, an agent must abandon all previous work and start planning anew. Due to this, a warm start for the pathfinding algorithm does not improve algorithm performance or the planning horizon.
 
-\textbf{ADD PIC HERE} % 画图，展示为什么默认行为得位于尖尖上。
+% 注意，当发布的计划长度超过帧长度时，不继承上次计划结果和发布的计划一定会被执行是不矛盾的。以单个agent的前后两次计划为例，第一次计划并发布后，其他agent会在后续计划时基于这个已发布计划规划自己的路径，确保不使用第一次计划中的位置。第二次计划时，即使不直接继承第一次计划中未用完的部分，由于此时计划不可能比上次计划更优，求解的结果还是一样的。相当于隐式继承了已发布但未使用的部分计划。
+Note, when the length of a published plan exceeds the frame length, it isn't contradictory to the idea that a plan once published will definitely be executed and not inheriting the results from the previous plan (cold start planning). Take the sequential plans of a single agent as an example: after the first plan is made and published, other agents, in their subsequent planning, will draft their paths based on this released plan to ensure they don't occupy positions specified in the first plan. During the second planning, even if it doesn't directly inherit the unused portions of the first plan, since the planning at this point can't possibly be better than the previous one, the resulting solution remains the same. This is akin to implicitly inheriting the parts of the plan that were published but not utilised.
+
+% 在算法实现中，通过给计划长度加一个全局统一的上限(plan length limit)，并根据agent计算能力为单次计算中可预测的未来的长度加一个上限(planning horizon)来实现此功能。
+In the algorithm's implementation, this functionality is achieved by imposing a globally uniform cap on the plan length (referred to as the 'plan length limit') and setting an upper boundary for the foreseeable future that can be predicted during a single computation, known as the 'planning horizon', based on an agent's computational capacity.
 
 % agent进入地图的流程
 \subsubsection{The process of an agent entering the map}

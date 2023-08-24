@@ -111,10 +111,10 @@ Analyze the impact of parameter changes on system performance using quantitative
 \subsubsection{plan length limit and planning horizon}
 
 % 这两个参数主要影响生成的计划, plan length limit是返回计划长度的上限，planning horizon是可生成计划的上限
-These two parameters mainly impact the generated plans. The plan length limit sets the maximum length for the returning plans, while the planning horizon determines the upper length boundary for plans that can be generated.
+These two parameters mainly impact the generated plans. The plan length limit sets the global maximum length for the returning plans, while the planning horizon determines the upper length boundary for plans that can be generated.
 
 % 其中，planning horizon是越长越好的，因为只有在这一范围内，agent才能做出有效行动，超出这一范围则只能执行默认行为（原地待机）。
-A longer planning horizon is more favorable, as it allows agents to make effective actions within this range. Beyond this scope, agents can only execute default behaviour (remaining stationary).
+A longer planning horizon is more favorable, as it allows agents to make effective actions within this range. Beyond this scope, agents can only execute default behaviour (remaining stationary) until next planning window arrive (see Section \ref{chap:model prediction}).
 
 % plan length limit 在较长和较短时可能有不同的效果：
 On the other hand, the plan length limit might have diverse effects when set to longer or shorter values:
@@ -405,17 +405,132 @@ When all agents have exited the channel, it indicates that all agents have reach
 % 在某些场景中的行为
 \subsection{Deadlock Situation}
 
+A deadlock situation arises only under exceptionally strict conditions.
+
+\subsubsection{Condition}
 % 满足下述情况时，agent之间发生死锁：
 When the following conditions are simultaneously met, a deadlock between agents occurs:
+
 \begin{enumerate}
-    \item 
-    % 1. 两个agent位于一条足够长的仅1agent宽的走廊中
-    Two agents are positioned within a sufficiently long corridor that's only one agent wide.
-    \item
-    % 2. agent发布的计划长度为偶数
-    The time slots of the two agents in the channel are adjacent. 
-    % 3. 两agent碰上时，一方剩余的计划恰好是偶数个。即伸出自己的豆是计划长度的半。
+    \item Two agents are positioned within a sufficiently long corridor that's only one agent wide, each agent starts from different side of the corridor and needs to reach the opposite end of this corridor.
+    % agent发布计划的长度必须大于等于frame length
+    \item The length of plans published by agents = frame length, i.e., planning horizon $\geq$ frame length and plan length limit = frame length.
+    % 当一方开始计划时，另一方的计划应当执行了半frame length长度，而剩余半frame length的计划中包含正在计划的一方的当前位置或当前位置的相邻点，且另一方的计划为向自己的目的地前进。
+    \item When one agent begins its planning, the other agent's plan should already be halfway executed, 
+    with only half a frame length remaining. 
+    \begin{itemize}
+        \item This yet-to-be-executed half should contain the current or adjacent position of the planning agent, which means this unexecuted part interferes the new plan of the planning agent. 
+        \item The content of this half frame length plan should be solely directed towards its goal (advancing).
+    \end{itemize}
+\end{enumerate}
+% 解释：为什么此种情况会发生死锁
+\subsubsection{Explanation}
+
+% 由于stdma的特性，两个agent的计划是轮流制订的，因为它们的计划时间窗就是它们的slot。同时，agent每次发布的计划长度是全局一致的。
+Because the characteristic of STDMA, the two agents make plan in turns, as their planning time window is their slot in the repeating frame.
+Additionally, agents publish plans of the same length throughout the entire system (see Section \ref{chap:model prediction}).
+
+% 在这一情况下，agent的计划可以分为两部分：
+In this scenario, an agent's plan could be divided into two parts:
+\begin{itemize}
+    % 1. 后退：受到无碰撞约束的影响，当对方在计划中前进时必须后退
+    \item Retreating: Due to collision-free constraints, when the other agent is moving forward in its plan, the agent must retreat.
+    % 2. 前进：己方计划时，在planning horizon的后面，对方的计划已用尽，这时可以不受对方计划的影响而前进。
+    \item Advancing: When planning and in the later part of the planning horizon, the other agent's plan has exhausted (and at this point, the planning agent doesn't assume that another agent will idle after its plan ends, because a sufficient plan has already been published for it to use until its next planning window.). The planning agent could fill the rest part of its new plan with actions of proceeding toward its goal.
+\end{itemize}
+
+% 当前进和后退两部分长度相等时，就会陷入一种动态的死锁：双方各自花一半的计划用于前进，另一半用于后退。
+When the lengths of the advancing and retreating segments are equal, a dynamic deadlock scenario emerges: 
+both agent spend half of their plans for advancing and the other half for retreating.
+
+
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width = \linewidth]{figures/deaclock_1.png}
+    \caption{Example of a deadlock situation (frame length = 4, agent publishes plan with a length of 4).}% 死锁情况示例。(frame length = 4)
+    \label{fig:deadlock}
+\end{figure}
+
+\subsubsection{Solution}
+
+% 由于此死锁情景的苛刻要求，只要打破条件1，2，3中的任意一个即可。
+Due to the stringent requirements of this deadlock scenario, breaking any one of the three conditions will suffice.
+
+For example:
+\begin{itemize}
+    \item Use odd-numbered frame length: This breaks the tie between advancing and retreating, because these two parts cannot be of equal length.
+    \item Avoid using long narrow corridors: Add additional area to the corridor, don't force agents to push each other.
+    \item Allow agents to publish longer plans: If agents could publish plans that longer than frame length, this deadlock scenario could not happen.
+     % 因为一方提前预定了很长空间用于前进，另一方必须在计划中对应的部分后退，这使得前进-后退的循环非常不均衡，从而可以快速离开走廊区域。
+     If one agent reserves an extensive span of space in advance (simply by broadcasting its plan) for advancing, the other agent will be compelled to retreat in the corresponding part of its plan. This results in a highly imbalanced advance-retreat cycle, facilitating a swift exit from the corridor area.
+\end{itemize}
+
+% 此情景在生成量化结果时未出现，因为测试地图中的障碍物相对于测试中使用的planning horizon足够小，且此情景本身出现条件比较苛刻。
+This situation didn't show up in the quantitative result generating. This is mostly because the obstacles on our test map were relatively small compared to the planning horizon applied, so one agent could book all space in the corridor for advancing in one plan. Also, the conditions for this situation is quite strict.
+
+\subsection{Failure Situation}
+
+In the deadlock scenario, if there is a third agent, it could result in a failure: agent in the middle cannot find any possible plan.
+
+\subsubsection{Condition}
+
+\begin{enumerate}
+    \item Three agents are positioned within a sufficiently long corridor that's only one agent wide.
+    \item All agents are trying to get from one side of the corridor to the other, and one agent's starting and ending points are the complete opposite of the other two agents'.
 \end{enumerate}
 
-% 处于这种情况下时，agent之间保持某种退避-前进的动态平衡，从而造成死锁。
-When agents are in this situation, they maintain a dynamic balance of retreating and advancing, leading to a deadlock.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width = \linewidth]{figures/Failure.png}
+    \label{fig:failure}
+    \caption{Example of failure. Due to the squeeze of agent C, agent A cannot find any possible plan (frame length = 4, agent publishes plan with a length of 4).}
+\end{figure}
+
+\subsubsection{Explanation}
+
+% 此情况发生的主要原因是位于同一侧的两个agent之间的冲突。
+The primary reason this situation arises is due to the conflict between the two agents on the same side of the corridor.
+% 由于agent顺序计划，总会发生如下情景：
+Since agents plan sequentially, the following scenario will always occur among the two agents on the same side:
+\begin{itemize}
+    \item 
+    % 位于最外侧的agent在计划时，内侧的agent计划用尽，于是外侧agent认为可以继续前进，从而前进到与对侧agent相邻的位置
+    When the outermost agent (C in Fig \ref{fig:deadlock}) is planning, the inner agent's plan exhaust within the planning horizon, leading the outermost agent to believe it can keep moving forward, subsequently advancing to a position adjacent to the agent on the opposite side.
+    \item 
+    % 当内侧的agent（也就是三个agent中位于中间的agent）进行计划时，由于外侧agent的挤压，无足够空间供其使用。
+    When the inner agent (A in Fig \ref{fig:deadlock}, the one in the middle of the three agents) plans next, there isn't enough space for it due to the squeeze from the outer agent.
+\end{itemize}
+
+\subsubsection{Solution}
+
+\begin{itemize}
+    \item
+    When the plan length that an agent can publish is sufficiently long relative to the length of the corridor, allowing an agent to reserve most of the space in the corridor in advance for its progression can prevent this situation (as seen in previous experiments where this situation didn't arise).
+    \item 
+    Modify the consensus among agents. Currently, an agent only assumes other agents will remain stationary after their plans run out if the published plan length of the other agents is less than one frame (see Section \ref{chap:model prediction}). If, during planning, agents always assume that other agents will stay in place once their plans are exhausted, this situation can be avoided. However, it might lead to potential decreases in path efficiency.
+    \item 
+    Avoid using overly long narrow corridors.
+\end{itemize}
+
+
+\subsection{Local Optimal Trap}
+
+% 当障碍物足够大，agent在单个planning horizon 无法越过时，则会陷入一个局部最优陷阱中。
+When an obstacle is sufficiently large such that an agent cannot surpass it within the planning horizon, the agent can become ensnared in a local optimal trap.
+% agent会在障碍物内侧离终点最近的位置上保持静止，因为无法在单个planning horizon中到达比此点更接近终点的点。
+The agent will remain stationary at the position inside the obstacle that is closest to the goal, as it cannot reach a position closer to the goal within a single planning horizon.
+
+% 这是因为每次agent计划时都仅遍历一定horizon内的可能计划，然后选择这些计划中最后位置离终点最近的。
+This occurs because each time the agent plans, it only explores potential plans within a certain horizon and then selects the one where the final position is closest to the goal.
+% 如果horizon足够长，则可以克服此问题
+If the planning horizon is long enough, this problem could be overcome.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width = 0.34\linewidth]{figures/Local Optimal Trap.png}
+    \label{fig:LocalOptimalTrap}
+    \caption{An agent trapped in a local optimum due to a short planning horizon, preventing its arrival.}% agent由于planning horizon较短，陷入局部极值陷阱并无法离开
+\end{figure}
+
+This situation didn't show up in the quantitative result generating. This is mostly because the obstacles on our test map were relatively small compared to the planning horizon applied.
