@@ -315,11 +315,11 @@ def main():
     '''
     
     
-    
+    '''
     # 信道使用率
     # 选60agents的一组吧。
     indexs = []
-    agent_number = 50
+    agent_number = 20
     for i in range(len(agent_total2)):
         if agent_total2[i] == agent_number:
             indexs.append(i)
@@ -353,7 +353,44 @@ def main():
     plt.xlim(-5,1000)
     plt.tight_layout()
     plt.show()
+    '''
+    # 信道使用率
+    # 选60agents的一组吧。
+    indexs = []
+    fl = 60
+    for i in range(len(agent_total2)):
+        if frame_length2[i] == fl:
+            indexs.append(i)
     
+    frame_length = []
+    agent_total = []
+    channel_usage = []
+    for i in indexs:
+        channel_usage.append(agent_in_channel2[i])
+        frame_length.append(frame_length2[i])
+        agent_total.append(agent_total2[i])
+    
+    # 画图
+    plt.figure()
+
+    color_cycle = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+
+    for i, result_dict in enumerate(channel_usage):
+        times = list(result_dict.keys())
+        values = np.array(list(result_dict.values()))
+        values = values/frame_length[i]*100
+        color = color_cycle[i%len(color_cycle)]
+        #plt.plot(times,values,color=color,label = "agent number = "+str(agent_total[i]))
+        plt.plot(times,values,color=color,label = "agent number = " +str(agent_total[i]))
+    plt.title("frame length = "+str(fl))
+    plt.xlabel("time")
+    plt.ylabel("channel usage (%)")
+    plt.legend()
+    plt.grid()
+    plt.ylim(-1,105)
+    plt.xlim(-5,1000)
+    plt.tight_layout()
+    plt.show()
 
     
     '''

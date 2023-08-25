@@ -49,6 +49,8 @@
 \contentsline {subsubsection}{Explanation}{40}{figure.caption.11}%
 \contentsline {subsubsection}{Solution}{41}{figure.caption.11}%
 \contentsline {subsection}{\numberline {4.2.4}Local Optimal Trap}{41}{subsection.4.2.4}%
-\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{43}{chapter.5}%
-\contentsline {chapter}{\numberline {A}Appendix}{44}{appendix.A}%
-\contentsline {chapter}{References}{51}{appendix*.13}%
+\contentsline {subsection}{\numberline {4.2.5}Channel Utilization}{42}{subsection.4.2.5}%
+\contentsline {subsection}{\numberline {4.2.6}Portion of Agents in Channel}{44}{subsection.4.2.6}%
+\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{46}{chapter.5}%
+\contentsline {chapter}{\numberline {A}Appendix}{47}{appendix.A}%
+\contentsline {chapter}{References}{54}{appendix*.15}%

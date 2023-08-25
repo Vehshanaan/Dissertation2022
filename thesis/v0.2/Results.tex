@@ -534,3 +534,163 @@ If the planning horizon is long enough, this problem could be overcome.
 \end{figure}
 
 This situation didn't show up in the quantitative result generating. This is mostly because the obstacles on our test map were relatively small compared to the planning horizon applied.
+
+\subsection{Channel Utilization}
+
+% 对于使用stdma分享信道的agent来说，信道并不总是满的。实际上，信道的一部分总是被许多未能获得槽的agent争抢，它们在其中相互碰撞。
+For agents using STDMA to share channels, the channels aren't always full. In fact, a portion of the channel is always contended for by numerous agents that haven't secured a slot, leading to mutual collisions among them.
+% 我们通过观察不同agent数量下信道的使用率来分析此问题。
+We analyze this issue by observing the channel usage rate with varying numbers of agents.
+
+\begin{figure}[htbp]
+    \centering
+    % Row 1
+    \begin{subfigure}[t]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/channel_usage_frame10.png}
+        \caption{frame length = 10}
+        \label{fig:framepercent1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/channel_usage_frame20.png}
+        \caption{frame length = 20}
+        \label{fig:framepercent2}
+    \end{subfigure}
+    
+    \vspace{1cm}
+    
+    % Row 2
+    \begin{subfigure}[t]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/channel_usage_frame30.png}
+        \caption{frame length = 30}
+        \label{fig:framepercent3}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/channel_usage_frame40.png}
+        \caption{frame length = 40}
+        \label{fig:framepercent4}
+    \end{subfigure}
+    
+    \vspace{1cm}
+    
+    % Row 3
+    \begin{subfigure}[t]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/channel_usage_frame50.png}
+        \caption{frame length = 50}
+        \label{fig:framepercent5}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/channel_usage_frame60.png}
+        \caption{frame length = 60}
+        \label{fig:framepercent6}
+    \end{subfigure}
+    
+    \caption{Graph illustrating the relationship between the percentage of channel usage and time for different agent numbers.}
+    \label{fig:channelpercent}
+\end{figure}
+
+
+% 2. 信道使用率最高在80%左右（除去Figure \ref{fig:framepercent1}中10 agent, frame length = 10这种小规模的情况）。
+% 3. agent数量越是与frame length接近，对信道的使用率越高。可以从两方面看出这一点：
+%    - 最先达到峰值的是与frame length较接近的agent number的曲线
+%    - 若agent number大大超过frame length，则此组对于信道的使用率会逐渐上升，因为完成任务的agent逐渐下降，系统中的活动agent数量减少，使其逐渐接近agent number = frame length。
+% 从Figure \ref{fig:channelpercent}中，可以看出以下几条：
+From Figure \ref{fig:channelpercent}, we can deduce the following points:
+\begin{enumerate}
+    \item 
+    The highest channel usage rate is around 80\%, excluding small-scale scenarios like 10 agents with a frame length of 10 as seen in Figure \ref{fig:framepercent1}.
+    \item 
+    The channel usage rate is higher when the number of agents is closer to the frame length. This can be observed in two ways:
+    \begin{itemize}
+        \item 
+        The first curves in each figure to reach their peak are those where the number of agents is closer to the frame length.
+        \item
+        If the number of agents far exceeds the frame length (e.g., Fig \ref{fig:framepercent2}, \ref{fig:framepercent3}), the channel usage rate for this group gradually increases. This is because the number of agents completed tasks rises, reducing the number of active agents in the system, making it gradually approach the scenario where the number of agents equals the frame length.
+    \end{itemize}
+\end{enumerate}
+
+
+\subsection{Portion of Agents in Channel}
+
+% 在本算法的条件下，只有在信道中的agent才可以发布计划并在地图中运动，因此在信道中的agent的比例值得关注。
+% 我们通过观察不同frame length下agent在信道中的比例来观察此问题。
+In the implemented algorithm, only agents present in the channel can publish plans and move within the map. Hence, the proportion of agents in the channel is worthwhile to take a look.
+We delve into this matter by analyzing the proportion of agents in the channel across different frame lengths.
+
+\begin{figure}[htbp]
+    \centering
+    % Row 1
+    \begin{subfigure}[t]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/channel_usage_agent10.png}
+        \caption{10 agents}
+        \label{fig:agentpercent1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/channel_usage_agent20.png}
+        \caption{20 agents}
+        \label{fig:agentpercent2}
+    \end{subfigure}
+    
+    \vspace{1cm}
+    
+    % Row 2
+    \begin{subfigure}[t]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/channel_usage_agent30.png}
+        \caption{30 agents}
+        \label{fig:agentpercent3}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/channel_usage_agent40.png}
+        \caption{40 agents}
+        \label{fig:agentpercent4}
+    \end{subfigure}
+    
+    \vspace{1cm}
+    
+    % Row 3
+    \begin{subfigure}[t]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/channel_usage_agent50.png}
+        \caption{50 agents}
+        \label{fig:agentpercent5}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/channel_usage_agent60.png}
+        \caption{60 agents}
+        \label{fig:agentpercent6}
+    \end{subfigure}
+    
+    \caption{Graph illustrating the relationship between the percentage of agents in the channel and time for different agent numbers at various frame lengths.}
+    \label{fig:agentpercent}
+\end{figure}
+
+% 从Figure \ref{fig:agentpercent}中，可以得到以下信息：
+From Figure \ref{fig:agentpercent}, we can deduce the following points:
+\begin{enumerate}
+    \item 
+    % 1. 当frame length高于agent number时，可以允许更多的agent同时存在于信道中，但帧越长，agent加入信道的耗时就越长，在图中表现为达到峰值较慢,如 Fig \ref{fig:ageentpercent1}中，虽然所有frame length都可以使全部agent进入channel, 但是frame length越长，达到峰值越慢。
+    When the frame length significantly exceeds the agent number, more agents can enter the channel. However, the longer the frame, the more time it takes to reach the peak percentage, manifesting as a slower rise to peak values in the graph (e.g., Fig \ref{fig:agentpercent1}).
+    \item 
+    % 2. 当agent number 超过frame length时，在信道中的agent数量显著减少，不只是因为帧中没有足够的空间，也因为有太多的agent争抢空闲槽位。随着agent逐渐减少（陆续完成任务），信道中的agent数量反而提升（e.g., Fig \ref{fig:agentpercent3} 中frame length = 20的曲线）
+    When the agent number surpasses the frame length, the portion of agents in the channel drops notably. This decrease isn't solely due to the lack of enough space in the frame but also because too many agents are contending for the available slots. As agents progressively decrease (as they complete their tasks over time), the number of agents in the channel increases (e.g., the curve for frame length = 20 in Fig \ref{fig:agentpercent3}, \ref{fig:agentpercent4}, \ref{fig:agentpercent5}, \ref{fig:agentpercent6}).
+    \item 
+    % 3. 当frame length在agent number左右的时候，在信道中的agent的百分比的峰值大约保持在60%左右，这一值随着frame length增加而上升，随frame length减少而减少。
+    When the frame length is around the same as the agent number, the peak percentage of agents in the channel stabilizes at around 60\%. This value increases with a rise in frame length and decreases as the frame length diminishes.
+\end{enumerate}    
+
