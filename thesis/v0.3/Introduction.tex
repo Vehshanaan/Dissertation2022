@@ -3,12 +3,11 @@
 \label{chap:Introduction}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 \section{Brief Introduction}
 \label{chap:Brief Introduction}
 
 % 本项目的主旨就是尝试利用STDMA的principle来组织agent，并用DMPC的控制思想来协调agent的运动，来达到2D平面上的多个去中心化agent之间的无碰撞运动。
-The main idea of this project is to employ the principles of a decentralized channel sharing communication protocol (\textit{Self-organised Time Division Multiple Access}, STDMA\cite{STDMA}) to organize agents, and utilize the control strategies of \textit{Decentralized Model Predictive Control}(DMPC) to coordinate their movements, aiming to achieve collision-free motion among multiple decentralized agents on a 2D plane.
+The main idea of this project is to employ the principles of a decentralized channel sharing communication protocol (\textit{Self-organised Time Division Multiple Access}, STDMA\cite{STDMA}) to organize agents, and utilize the control strategies of \textit{Distributed Model Predictive Control} (DMPC) to coordinate their movements, aiming to achieve collision-free motion among multiple decentralized agents on a 2D plane.
 
 \subsection{Principles of STDMA}
 
@@ -24,6 +23,16 @@ This idea also works for collision-free moving on 2D plane —— to determine f
 
 For detailed explanation about STDMA, please see \textbf{PLACEHOLDER}.
 
+\subsection{Control Strategy of DMPC}
+
+Distributed MPC is a control strategy based on \textit{Model Predictive Control} (MPC).
+
+In MPC, the model of the controlled object is utilized to forecast its outputs. Periodically, a constrained finite horizon optimization problem is solved to derive the control sequence.
+MPC \textbf{implicitly formulates control laws} by imposing constraints (e.g., collision-free) on the optimization problem, and could \textbf{dynamically respond to the external environment changes} (e.g., movement of other agents), rendering it apt for managing the movements of agent.
+
+% DMPC则在MPC的基础上去除了中心化的控制器，转而通过分散在多个去中心化agent上的mpc控制器的协作来完成系统总体的控制任务。这样的去中心化特性满足本文中对去中心化agent协作的控制要求。
+Distributed MPC evolves from the foundation of MPC by eliminating the centralized controller. Instead, it \textbf{relies on the collaboration of multiple decentralized MPC controllers situated on multiple individual agents to achieve the overall system control tasks}. Such a decentralized characteristic aligns with the requirements set forth in this project for collaborative control among decentralized agents.
+
 \subsection{The 2D Plane}
 
 The 2D plane used in this project is represented with discrete pixels / grids, just like the STDMA protocol represents continuous time with discrete slots.
@@ -34,7 +43,7 @@ For detailed assumptions, please see \textbf{PLACEHOLDER}.
 
 \subsection{Agents}
 
-To meet the requirement of decentralisation, the agents are assumed to be identical.
+To meet the requirement of decentralization, the agents are assumed to be \textbf{identical}.
 
 The agents can:
 \begin{itemize}
@@ -47,13 +56,14 @@ For detailed assumptions, please see \textbf{PLACEHOLDER}.
 
 \section{Aims}
 \begin{itemize}
-    \item Based on the idea of STDMA, design an algorithm for decentralised agents to achieve colission-free movement and space sharing on 2D plane.
-    \item Evaluate the advantages and drawbacks of the designed algorithm, and therefore get a better understanding on the problem that the alrogithm aims to solve.
+    \item Based on the idea of STDMA and the control strategy of DMPC, design an algorithm for decentralised agents to achieve colission-free movement on 2D plane.
+    \item Assess the advantages and disadvantages of the proposed algorithm, investigate the underlying reasons for these attributes, and thereby gain deeper insights into the problem the algorithm aims to address. 
+    \item Offer a reference point for similar design challenges in the future.
 \end{itemize}
 \section{Objectives}
 \begin{enumerate}
     \item Implement original STDMA communication protocol with ROS2, use nodes in ROS2 as agents in the channel, achieve self-organised channel sharing and communicating among agents.
-    \item Design the specific algorithmic content for agents to achieve collision-free movement.
+    \item Design the specific algorithmic content based on DMPC for agents to achieve collision-free movement.
     \item Implement the designed algorithm with ROS2, use ROS2 nodes as agents moving on the 2D plane.
     \item Build proper test scene and performance evaluator that could extract metrics (makespan, average finish time, etc.) from simulations.
     \item Examine the advantages, disadvantages and limitations of the designed algorithm, summarize the results from observations.
@@ -64,7 +74,7 @@ For detailed assumptions, please see \textbf{PLACEHOLDER}.
 The motivation of this project is to answer a question which is inspired by \cite{Paper_From_Supervisor}, which is:
 
 \begin{quote}
-    \textbf{What would happen if use STDMA for dencentralised 2D resource sharing and path planning?}
+    \textbf{What would happen if use STDMA for decentralized multi-dimensional resource sharing?}
 \end{quote}
 
 And this quesiton could be seperated to the following two parts:
@@ -75,20 +85,20 @@ The reason for using STDMA is its \textbf{characteristics}\cite{STDMA_characteri
 
 \begin{enumerate}
     \item \textbf{Deterministic}: Agents arrange their data transmission based on a determined timetable.
-    \item \textbf{Decentralised}: Agents listen to the channel first, then independently seek and allocate free slots for themselves to use.
+    \item \textbf{Decentralized}: Agents listen to the channel first, then independently seek and allocate free slots for themselves to use.
 \end{enumerate}
 
 These characteristics are useful for multiple agents to achieve collision-free (use free slots only), slf-organised (find slots on its own) moving and resource sharing.
 
 There are also \textbf{reasons that making this challenging}:
 \begin{enumerate}
-    \item \textbf{Dimensional Difference}: STDMA is designed for sharing discrete time slots (1D), and cannot be directly applied for resource sharing on a 2D plane. Modification is needed for 2D application.
+    \item \textbf{Dimensional Difference}: STDMA is designed for sharing discrete time slots (1D), and cannot be directly applied for resource sharing on a 2D plane (which is actually a 3D sharing problem because the time axis). Modification is needed for 3D application.
     \item \textbf{Moving by Grids}: In the communication scenario, agents don't have destiniations in the timetable, i.e., don't need to move to specific slot in the timetable. But that's different for 2D space moving, where agents have their destinations and need to move grid by grid to reach their goals. Agents could easily be trapped in situations of inefficiency or even deadlock situations \cite{MAPF_Deadlock_Explain1,MAPF_Deadlock_Explain2}.   
 \end{enumerate}
 
 These characteristics and challenges are making this topic interesting and worthy for investigation.
 
-\subsection{Why decentralised 2D resource sharing and path planning?}
+\subsection{Why decentralized resource sharing and path planning?}
 
 There are many algorithms aim to solve this problem, and their shared aspect is a \textbf{focus on the movement of multiple decentralised agents within a grid world}. 
 

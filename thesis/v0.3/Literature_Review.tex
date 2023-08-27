@@ -1,0 +1,175 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Literature Review} 
+\label{chap:Literature_Review}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+This section provides details on the STDMA\cite{STDMA} protocol, a review of the \textit{Distributed Model Predictive Control} (DMPC) algorithms for controlling multi-agent movements, 
+and a review of other algorithms, specifically the \textit{Multi-Agent Path Finding} (MAPF) algorithms, which address the target problem of this project.
+\section{STDMA Explained}
+
+\label{chap:STDMA Explained}
+
+As previously mentioned in Section \ref{chap:Brief Introduction}, STDMA stands for \textbf{\textit{Self-organised Time-Divided Multiple Access}}, and it allows multiple agents to share the same channel for communication without centralised control.
+The main assumtion of this protocol is that all agents have synchronised clocks. In practice, this is achieved through GPS\cite{STDMA_GPS}.
+
+\textbf{The core idea of STDMA could be summarised as follows}: Represent continuous time with repeating frames that are consisted of discrete time slots.
+While agents are always listening to messages from the channel, they look for free slots to occupy, and therefore use the occupied slots to broadcast their own data.
+
+Agents using STDMA have \textbf{four phases}, which are arranged in chronological order as follows:
+
+\begin{enumerate}
+  \item \textbf{Initialisation}: Agents in this phase have not yet joined the network. The device listens to an entire frame and determines current allocation of each slot.
+  \item \textbf{Network Entry}: Randomly choose an unallocated slot to broadcast their existance and reserve one slot for the next phase.  If the message sent didn't collide with others (i.e., only one agent which is myself choose to use this slot for entering), then the entering is successful. If the entering failed, reverse to the previous phase.
+  \item \textbf{First Frame}: Use the slot reserved in the previous phase to reserve more slots for themselves. The number of reserved slots depends on the size of the data packet that the agent needs to send in each frame.
+  \item \textbf{Continuous Operation}: Use the previously reserved slots to work normally. If some slots are released or more slots are needed, reapply for slots.
+\end{enumerate}
+
+Although the description above omitted some details (such as slot choosing strategy, calculation of required number of slots, etc.), it is clear that \textbf{the core idea of STDMA is the strategy of finding and reserving unallocated slots}.
+
+This protocol also has several limitations, such as: \textbf{(1)} Collision in entering: In the Network Entry phase, multiple agents may accidentally choose the same unallocated slot for entering and broadcast their existance. \textbf{(2)} Capacity: When slots are not enough, conflicts would inevitably occur. 
+There are some studies \cite{STDMA_improv1,STDMA_improv2} that proposed improvements for its limitations, but improving STDMA is not the focus of this project.
+
+For detailed implementation, please see \textbf{PLACEHOLDER}.
+
+\section{Distributed Model Predictive Control}
+\comment{
+This section would cover:
+\begin{itemize}
+  \item An brief introduction to DMPC.
+  \item Why is DMPC related to this project.
+  \item A summary of related latest research developments.
+\end{itemize}
+
+\subsection{Brief Introduction}
+\subsubsection{What is Model Predictive Control\cite{MPC_Review1}?}
+
+\textit{Model Predictive Control} or MPC is a form of control that based on the model and the online prediction of the controlled system.
+
+MPC achieves its control objective by optimising the predicted outcome of the model of the controlled system\cite{MPC_Review1}.
+\textbf{On every sampling instant}, a typical MPC controller would \textbf{use the current state of the plant as initial state}, and \textbf{solve a finite-horizon open-loop optimal control problem in real-time speed}, then \textbf{apply the first step of the generated control sequence} as the next control action.
+
+The major challenge confronting the MPC algorithm is the stability issue, with several factors contributing to this problem, such as inadequate terminal conditions and limited prediction horizons.
+
+MPC has been extensively studied and is a widely used control algorithm\cite{DMPC_Review1}. 
+It's primarily employed in fields such as process industry, power electronics, building climate and energy management, and manufacturing\cite{MPC_Applications1, MPC_Applications2}.
+
+\subsubsection{What is Distributed Model Predictive Control? \cite{DMPC_made_easy}}
+
+% 当系统的规模达到一定大小的时候，单一的中心化MPC控制器就不能完成控制任务了(计算要求过高/只能向有限的邻居发送数据等)。所以需要DMPC：
+
+
+In many scenarios, centralised controllers fail to perform control tasks due to reasons such as the computational load increasing with the expansion of system scale, 
+resulting in the controller's inability to complete real-time computations, 
+or the inability to dispatch control information to all components of the system within a specified time. 
+In summary, \textbf{the limitations of centralised controllers made them incapable of meeting the needs of many control scenarios}, and that is why we need distributed control.
+
+For \textit{Distributed Model Predictive Control} or DMPC, a large system is decomposed to numerous subsystems, and each of them:
+\begin{itemize}
+  \item Has its own dynamic.
+  \item Has an MPC controller to control its actions (predict finite future states and choose the optimal current move).
+  \item Could interact with and be influenced by other subsystems (usually described as \textit{variables} and \textit{constraints}).
+\end{itemize}
+
+
+DMPC algorithms have the following \textbf{key characteristics}, which can help readers to understand the algorithms and distinguish one algorithm from another:
+
+\begin{itemize}
+  \item \textbf{Architecture}: Different relationships between local MPC controllers. \textbf{Hierarchical}: The entire system is divided into layers, each containing several subsystems with MPC controllers, and there exists a hierarchical relationship between these layers. \textbf{Decentralised}: Each local MPC controller controls the local subsystem and don't communicate with each other. \textbf{Distributed}: Local MPC controllers cooperate to find better solution for the overall system.   
+  \item \textbf{Local - Global}: How much do the local controllers know about the overall system information.
+  \item \textbf{Selfish - Cooperative}: Whether the local controller only optimizes its own cost.
+  \item \textbf{Iterative - Non-Iterative}: Whether the control strategy is generated through exchange and iteration among multiple local controllers.
+  \item \textbf{Serial - Parallel}: Whether the local controllers transmit their messages in a specific order or multiple controllers could communicate with each other at the same time.
+  \item \textbf{Synchronised - Asynchronised}: Whether the local controllers follow a shared schedule for computation and communication. 
+\end{itemize}
+
+The advantages and disadvantages of DMPC both stem from its decentralised nature. 
+Like many other decentralised algorithms, \textbf{DMPC has better scalability and robustness}, can bypass communication bottlenecks, and to some extent, allows for parallel processing.
+But \textbf{coordination among multiple controllers can be quite complex},
+e.g., all local controllers tend to achieve Nash equilibrium for themselves, but such a tendency may not contribute to reaching Pareto optimality and might even be counterproductive for the entire system\cite{Nash_Equi}.
+
+\subsubsection{Why is this project related to DMPC?}
+
+The designed algorithm (detailed explanation please see Section \textbf{PLACEHOLDER}) in this project allows each agent to:
+\begin{itemize}
+  \item Create and join a self-organised serial communication channel.
+  \item Determine the time window for planning and plan broadcasting.
+  \item Use the shared channel to broadcast its own moving plan.
+  \item Receive plans of other agents and use the received information to its own movement.
+\end{itemize}
+
+Which means, the presented algorithm could be classified as a DMPC algorithm, and the problem it solves could be treated as a DMPC problem.
+
+\subsection{Latest Researches of DMPC}
+}
+
+% DMPC是一种基于MPC的控制策略，在MPC中，将条件和limits视为约束，将待解决的控制问题视为一个优化问题，根据给抵挡的被控对象模型定期求解有限horizon的有汉化问题，从而获得系统的控制序列。
+% DMPC则在MPC的基础上加入了Decentralised的要求和特征，这使其适于解决multi-agent swarm motion control问题，如：
+\textit{Distributed Model Predictive Control} or DMPC is a control strategy based on \textit{Model Predictive Control} (MPC). In MPC, \textbf{conditions and limits are treated as constraints}, and the \textbf{control problem is regarded as an optimization problem}. Based on the model of the controlled object, 
+\textbf{a constrained finite horizon optimization problem is periodically solved}, resulting in a sequence for system control input. 
+DMPC builds on the foundation of MPC by incorporating decentralized requirements and features. This makes it apt for tackling multi-agent swarm motion control problems, 
+such as: formation control\cite{Formation_Control}, path tracking\cite{Path_Tracking}, path planning\cite{Path_Planning}, and obstacle avoidance\cite{Obstacle_Avoid}.
+% 此种问题的共性就是在动态的环境中（如：包含多个agent的地图）受静态约束（如：无碰撞，跟随指定agent，跟随指定路径）
+The commonality of such problems is that \textbf{agents subject to static constraints} (e.g., collision-free, following a designated agent, or adhering to a specified path) \textbf{in a dynamic environment} (e.g., map contains multiple agents).
+
+The DMPC algorithm applied in this domain can be summarized as: 
+Agents communicate with other agents and solve a finite horizon optimization problem in their local MPC controller, using the solution for action control. 
+The optimization criteria are typically specified based on the agent's task. 
+
+% 罗列论文
+In \cite{xin2023model}, the optimization problem is represented as 0–1 integer linear programming, and then a method based on the alternating direction method of multipliers (ADMM) is developed to coordinate AGVs and alleviate computational burden.
+\cite{matouvs2022distributed} parameterises the trajectory of vehicles using polynomial splines, reducing the number of optimisation variables and achieving path tracking for vehicle platooning.
+\cite{zhao2022distributed} utilises a hierarchical DMPC (HDMPC) path prediction method with a trigger mechanism to control the behaviour of drones post-obstacle avoidance, achieving a more efficient multi-agent multi-different-target search in unknown areas compared to conventional methods.
+\cite{mousavi2020distributed}addresses the issues of vehicle platooning control and obstacle avoidance by modelling the motion of an agent swarm based on animal behaviours. It then transforms the local MPC problem of the agent into a closed-form convex optimization.
+\cite{yang2022cooperative} utilises the grey wolf optimizer (GWO) to enhance the solution process of the DMPC controller, improving convergence speed and achieving 3D spatial path planning for multiple drones.
+\cite{niu2022communication} introduces a drone path planning algorithm based on predicting the motion of surrounding drones without the need for communication. However, this comes at the cost of increased computational load.
+
+% 总体来说，本领域的算法的研究内容可以总结为三个方面：
+% 1. 对控制问题和被控对象的建模和数学表达
+% 2. agent的通信拓扑和合作方式
+% 3. 求解优化问题的方式
+Overall, algorithm \textbf{research in this field focuses on three aspects}:
+\begin{itemize}
+  \item 
+  Modelling and mathematical representation of the control task and the controlled subject.
+  \item 
+  The communication topology of agents and their collaboration methods.
+  \item 
+  Approaches to solving optimization problems, and the computational capabilities of agents is a significant limitation.
+\end{itemize}
+
+% 此外，虽然本项目中使用DMPC的思想来控制和协调agent的行动，但和本领域中的研究有以下区别：
+Furthermore, although this project utilizes the concept of DMPC to control and coordinate agent actions, \textbf{there are distinctions compared to relevant research in this domain}:
+\begin{enumerate}
+  \item 
+  % 1. agent间通信： 本文中的算法是基于成熟可靠的去中心化通信方式（STDMA），在算法中的实现本质上是对此通信协议的一种模拟。但DMPC的大部分研究中都省略了agent间通信的实现方式，仅对agent间的通信能力进行假设。常见假设如：
+  \textbf{Inter-agent Communication}: The algorithm in this project is based on a mature and reliable decentralized communication protocol (STDMA). Its implementation within the algorithm is essentially a simulation of this protocol. 
+  In contrast, most DMPC research typically omits the actual implementation of inter-agent communication, merely making assumptions about the communication capabilities between agents. 
+  Common assumptions include: Serial\cite{xin2023model}, agents communicating with others freely within a certain range\cite{mousavi2020distributed,yang2022cooperative,zheng2023distributed,zhao2022distributed}, directed graphs\cite{tang2022distributed,zang2022optimal}. On top of this, bandwidth limitations are occasionally overlooked\cite{zheng2023distributed}.
+  \item 
+  % 2. 目标场景：本文中研究agent在grid world中的移动和多目标路径生成，但前面提到的DMPC相关研究均为agent在连续空间中的编队控制或路径跟随。  
+  \textbf{Target Scenario}: This paper investigates agent movements within a grid world\cite{GridWorld} and multi-target path generation. However, the aforementioned DMPC studies predominantly focus on agent formation control or path-following within continuous space.
+\end{enumerate}
+
+% 对于本项目中的目标场景，有一类算法专门研究此类问题：MAPF。
+For the target scenario described in this project, there exists a category of algorithms specifically dedicated to addressing such issues: \textit{Multi-Agent Path Finding} (MAPF).
+
+
+\section{Multi Agent Path Finding}
+% 本项目中的目标场景是。。。
+The classical definition of the \textit{Multi Agent Path Finding} (MAPF) problem is: \textbf{Multiple agents moving step by step in an undirected graph in discrete time}\cite{MAPF_Review1}, which is precisely the target scenario of this project.
+
+% 解决此类问题的算法可以分为几大类：
+The MAPF algorithm can be divided into \textbf{several categories: classical, heuristic, rule-based, and machine learning combined}. 
+Among these methods, those that are rule-based are the closest to the approach of this project.
+
+\begin{itemize}
+  \item Classical: The most popular classic MAPF algorithm is the \textit{Artificial Potential Field} (APF) algorithm, which put force fields around obstacles and goals to generate a force to guide the agents. APF methods does not guarantee collision-free and is prone to fall into local minima. There are still some research today dedicated to improving the performance of the APF algorithm, with a primary focus on optimizing the potential field function\cite{APF_improv2,APF_improv3,APF_improv4}.
+  \item Heuristic algorithms mainly include A* and its variants (like  D* \cite{D*}). Heuristic algorithms mainly operate on the principle of searching for the optimal solution. Many researchers combine A* with other algorithms to achieve better performance and goes beyond the original A* \cite{A*_1,A*_2}.
+  \item ML Combined: The machine learning algorithm mainly used in this field is reinforced learning, and usually combined with other non-RL techniques \cite{RL_1,RL_2,RL_3,RL_4}.
+  \item Rule-based:  The rule-based methods are based on the idea that each agent follows a set of identical local decision-making principles (which means it is decentralized) and usually improve algorithm performance by modifying the rules. Most of these algorithms are bio-inspired, including \textit{Particle Swarm Optimisation} (PSO)\cite{PSO_1,PSO_2}, \textit{Genetic Algorithm} (GA)\cite{GA_1,GA_2}, \textit{Ant Colony Optimisation} (ACO)\cite{AGO_1,AGO_2}, \textit{Pegion Inspired Optimisation} (PIO)\cite{PIO_1, PIO_2} and \textit{Grey Wolf Optimisation} (GWO)\cite{GWO,GWO_1,GWO_2}. 
+  Apart from these bio-inspired algorithms, there is also a category of algorithms called push-and-swap\cite{PaS_1, PaS_2}. They address problems through two kinds of actions: push (move towards the goal) and swap (exchanging positions between agents).
+\end{itemize}
+
+% 此类算法的主要权衡是
+Generally speaking, researches in this area are trade-offs between completeness, computational complexity, and optimality. There is currently no perfect algorithm for this question.
+Besides, direct communication between agents isn't always a key component in these methods (e.g. \cite{D*,RL_3}).
