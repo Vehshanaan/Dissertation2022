@@ -41,21 +41,24 @@
 \contentsline {subsection}{\numberline {3.3.2}Implemented Functions:}{30}{subsection.3.3.2}%
 \contentsline {chapter}{\numberline {4}Results}{31}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Experiment Design}{31}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Experiment Results}{33}{section.4.2}%
-\contentsline {subsection}{\numberline {4.2.1}Quantitative Results}{33}{subsection.4.2.1}%
-\contentsline {subsubsection}{plan length limit and planning horizon}{33}{subsection.4.2.1}%
+\contentsline {subsubsection}{Starts and Goals Initialization}{32}{figure.caption.12}%
+\contentsline {subsubsection}{Agent Behaviour}{32}{equation.4.2}%
+\contentsline {section}{\numberline {4.2}Experiment Results}{34}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Quantitative Results}{34}{subsection.4.2.1}%
+\contentsline {subsubsection}{plan length limit and planning horizon}{34}{subsection.4.2.1}%
 \contentsline {subsubsection}{frame length and agent number}{37}{figure.caption.13}%
-\contentsline {subsection}{\numberline {4.2.2}Deadlock Situation}{41}{subsection.4.2.2}%
-\contentsline {subsubsection}{Condition}{41}{subsection.4.2.2}%
-\contentsline {subsubsection}{Explanation}{42}{Item.44}%
-\contentsline {subsubsection}{Solution}{43}{figure.caption.15}%
-\contentsline {subsection}{\numberline {4.2.3}Failure Situation}{44}{subsection.4.2.3}%
-\contentsline {subsubsection}{Condition}{44}{subsection.4.2.3}%
-\contentsline {subsubsection}{Explanation}{44}{figure.caption.16}%
-\contentsline {subsubsection}{Solution}{44}{figure.caption.16}%
-\contentsline {subsection}{\numberline {4.2.4}Local Optimal Trap}{46}{subsection.4.2.4}%
-\contentsline {subsection}{\numberline {4.2.5}Channel Utilization}{47}{subsection.4.2.5}%
-\contentsline {subsection}{\numberline {4.2.6}Portion of Agents in Channel}{49}{subsection.4.2.6}%
-\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{51}{chapter.5}%
-\contentsline {chapter}{\numberline {A}Appendix}{52}{appendix.A}%
-\contentsline {chapter}{References}{59}{appendix*.20}%
+\contentsline {subsubsection}{Channel Utilization}{41}{figure.caption.14}%
+\contentsline {subsubsection}{Portion of Agents in Channel}{43}{Item.43}%
+\contentsline {subsection}{\numberline {4.2.2}Back-off Behaviours Arising from Optimal 3D Path Planning}{45}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Deadlock Situation}{45}{subsection.4.2.3}%
+\contentsline {subsubsection}{Condition}{46}{subsection.4.2.3}%
+\contentsline {subsubsection}{Explanation}{46}{Item.49}%
+\contentsline {subsubsection}{Solution}{47}{figure.caption.18}%
+\contentsline {subsection}{\numberline {4.2.4}Failure Situation}{48}{subsection.4.2.4}%
+\contentsline {subsubsection}{Condition}{48}{subsection.4.2.4}%
+\contentsline {subsubsection}{Explanation}{48}{figure.caption.19}%
+\contentsline {subsubsection}{Solution}{50}{figure.caption.19}%
+\contentsline {subsection}{\numberline {4.2.5}Local Optimal Trap}{50}{subsection.4.2.5}%
+\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{52}{chapter.5}%
+\contentsline {chapter}{\numberline {A}Appendix}{53}{appendix.A}%
+\contentsline {chapter}{References}{60}{appendix*.21}%

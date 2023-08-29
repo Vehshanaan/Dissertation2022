@@ -1,12 +1,12 @@
 # Fdb version 4
-["biber Main"] 0 "Main.bcf" "Main.bbl" "Main" 1693311110 -1
+["biber Main"] 0 "Main.bcf" "Main.bbl" "Main" 1693346665 -1
   "./References.bib" 1692435380 22713 e12aac1e8414886259ef61536056c771 ""
-  "Main.bcf" 1693311109 112226 b6de386a6f520bbffe0d421a0bd4e562 "pdflatex"
+  "Main.bcf" 1693346665 112226 b6de386a6f520bbffe0d421a0bd4e562 "pdflatex"
   (generated)
   "Main.bbl"
   "Main.blg"
   (rewritten before read)
-["pdflatex"] 1693311106 "a:/OneDrive/MScRobotics/Dissertation2022/thesis/v0.3/Main.tex" "Main.pdf" "Main" 1693311110 0
+["pdflatex"] 1693346660 "a:/OneDrive/MScRobotics/Dissertation2022/thesis/v0.3/Main.tex" "Main.pdf" "Main" 1693346665 0
   "Abstract.tex" 1689925682 235 cf4cad19bb7ebe3e946b51f9ad681dbf ""
   "Acknowledgements.tex" 1689925682 167 9a7e08bfac9b359a98129a787d1bd9b2 ""
   "Appendix.tex" 1689925682 230 94c57f77fc898a22420ea104721c8e51 ""
@@ -15,16 +15,16 @@
   "Formatting.tex" 1689925682 2004 e03ab9fd78520367f066252d51c216bf ""
   "Introduction.tex" 1693165355 8959 4a826786eaf8c9fb9b7ac37a41ee099a ""
   "Literature_Review.tex" 1693168990 17348 938718a126a380cc431b6bf2c9d5a13b ""
-  "Main.atfi" 1693311109 23 33e109ecf84d2ac55814cb2442ea01dc "pdflatex"
-  "Main.aux" 1693311109 28430 d69f5c36e7315e6c0e770c4554ed05fc "pdflatex"
+  "Main.atfi" 1693346665 23 33e109ecf84d2ac55814cb2442ea01dc "pdflatex"
+  "Main.aux" 1693346665 30574 8b2f35d760234a6ad2c7fc24cef04263 "pdflatex"
   "Main.bbl" 1693216852 103598 8e495b8c419ad614bba38cec373cb5cf "biber Main"
-  "Main.lot" 1693311109 120 4b5392bf4295ae9f4473a7a4fff7fdc5 "pdflatex"
-  "Main.out" 1693311109 2497 536c4ad6ff335a39bc632502987b9f53 "pdflatex"
-  "Main.run.xml" 1693311109 2402 71ed24526e65b1bbe4ab15929aa4313a "pdflatex"
+  "Main.lot" 1693346665 120 4b5392bf4295ae9f4473a7a4fff7fdc5 "pdflatex"
+  "Main.out" 1693346665 2497 f92dac93add40851e57072f513132c8b "pdflatex"
+  "Main.run.xml" 1693346665 2402 71ed24526e65b1bbe4ab15929aa4313a "pdflatex"
   "Main.tex" 1693215417 3378 4a1b2cd496310923627c3eda2e1e701a ""
-  "Main.toc" 1693311109 4978 efb1c2e45a0cfe21434eb76788fccaff "pdflatex"
-  "Research_Methodology.tex" 1693301992 45570 c14181536d41b009351a971000994dbb ""
-  "Results.tex" 1693311101 48458 078d5847df52b273969600e23fe6d5b8 ""
+  "Main.toc" 1693346665 5219 c2e48cf1353a7ecaa6bf3e721fd626d8 "pdflatex"
+  "Research_Methodology.tex" 1693330692 45617 533328b1ccf5f8e3891abf56eefb5b94 ""
+  "Results.tex" 1693346661 48612 f4917b04674f58a3ab45b36508b6304b ""
   "Title_page.tex" 1691140433 1234 6d10a8604f8ac979463b8e22058b169d ""
   "a:/OneDrive/MScRobotics/Dissertation2022/thesis/v0.3/Main.tex" 1693215417 3378 4a1b2cd496310923627c3eda2e1e701a ""
   "a:/texlive/2023/texmf-dist/fonts/enc/dvips/base/8r.enc" 1684322365 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
@@ -198,6 +198,8 @@
   "figures/Local Optimal Trap.png" 1692820126 25878 800fa99968d79f3d58209a82d7537c82 ""
   "figures/PlanningTimeWindow.png" 1693254629 27648 34cacf8750c5602f17dc5e95268d5dae ""
   "figures/RecedingHorizon.png" 1693261983 38604 bf4dfa13079d7b2b54c3f6cbff2af229 ""
+  "figures/Retreat1.png" 1693345545 10437 16f15e99005fdb1a7a4f9f7f1821f5f8 ""
+  "figures/Retreat2.png" 1693345286 12604 6d6f294c3bcf5e8c69aba557cbd7a957 ""
   "figures/avg_arrival_time.png" 1692654439 97254 87a5c4dbb21b96af6087a548f2a2b125 ""
   "figures/avg_network_join_time.png" 1692654503 96880 6a51605ae991b0fe449abd4d9fdbf7a2 ""
   "figures/channel_usage_agent10.png" 1692700315 53720 e7bfda0d10a9cf0011a796b733dabbc5 ""

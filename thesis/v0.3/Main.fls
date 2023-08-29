@@ -712,21 +712,6 @@ INPUT ./figures/total_path_effi_ratio.png
 INPUT figures/total_path_effi_ratio.png
 INPUT ./figures/total_path_effi_ratio.png
 INPUT ./figures/total_path_effi_ratio.png
-INPUT ./figures/deaclock_1.png
-INPUT ./figures/deaclock_1.png
-INPUT figures/deaclock_1.png
-INPUT ./figures/deaclock_1.png
-INPUT ./figures/deaclock_1.png
-INPUT ./figures/Failure.png
-INPUT ./figures/Failure.png
-INPUT figures/Failure.png
-INPUT ./figures/Failure.png
-INPUT ./figures/Failure.png
-INPUT ./figures/Local Optimal Trap.png
-INPUT ./figures/Local Optimal Trap.png
-INPUT figures/Local Optimal Trap.png
-INPUT ./figures/Local Optimal Trap.png
-INPUT ./figures/Local Optimal Trap.png
 INPUT ./figures/channel_usage_frame10.png
 INPUT ./figures/channel_usage_frame10.png
 INPUT figures/channel_usage_frame10.png
@@ -787,6 +772,31 @@ INPUT ./figures/channel_usage_agent60.png
 INPUT figures/channel_usage_agent60.png
 INPUT ./figures/channel_usage_agent60.png
 INPUT ./figures/channel_usage_agent60.png
+INPUT ./figures/Retreat1.png
+INPUT ./figures/Retreat1.png
+INPUT figures/Retreat1.png
+INPUT ./figures/Retreat1.png
+INPUT ./figures/Retreat1.png
+INPUT ./figures/Retreat2.png
+INPUT ./figures/Retreat2.png
+INPUT figures/Retreat2.png
+INPUT ./figures/Retreat2.png
+INPUT ./figures/Retreat2.png
+INPUT ./figures/deaclock_1.png
+INPUT ./figures/deaclock_1.png
+INPUT figures/deaclock_1.png
+INPUT ./figures/deaclock_1.png
+INPUT ./figures/deaclock_1.png
+INPUT ./figures/Failure.png
+INPUT ./figures/Failure.png
+INPUT figures/Failure.png
+INPUT ./figures/Failure.png
+INPUT ./figures/Failure.png
+INPUT ./figures/Local Optimal Trap.png
+INPUT ./figures/Local Optimal Trap.png
+INPUT figures/Local Optimal Trap.png
+INPUT ./figures/Local Optimal Trap.png
+INPUT ./figures/Local Optimal Trap.png
 INPUT ./Conclusion.tex
 INPUT Conclusion.tex
 INPUT ./Conclusion.tex
