@@ -412,14 +412,14 @@ A deadlock situation arises only under exceptionally strict conditions.
 When the following conditions are simultaneously met, a deadlock between agents occurs:
 
 \begin{enumerate}
-    \item Two agents are positioned within a sufficiently long corridor that's only one agent wide, each agent starts from different side of the corridor and needs to reach the opposite end of this corridor.
+    \item Two agents are positioned within a sufficiently long corridor that's only one agent wide, each agent starts from different sides of the corridor and needs to reach the opposite end of this corridor.
     % agent发布计划的长度必须大于等于frame length
     \item The length of plans published by agents = frame length, i.e., planning horizon $\geq$ frame length and plan length limit = frame length.
     % 当一方开始计划时，另一方的计划应当执行了半frame length长度，而剩余半frame length的计划中包含正在计划的一方的当前位置或当前位置的相邻点，且另一方的计划为向自己的目的地前进。
     \item When one agent begins its planning, the other agent's plan should already be halfway executed, 
     with only half a frame length remaining. 
     \begin{itemize}
-        \item This yet-to-be-executed half should contain the current or adjacent position of the planning agent, which means this unexecuted part interferes the new plan of the planning agent. 
+        \item This yet-to-be-executed half of the plan should contain the current or adjacent position of the planning agent, which means this yet-to-be-executed part interferes the new plan of the planning agent. 
         \item The content of this half frame length plan should be solely directed towards its goal (advancing).
     \end{itemize}
 \end{enumerate}
@@ -434,7 +434,7 @@ Additionally, agents publish plans of the same length throughout the entire syst
 In this scenario, an agent's plan could be divided into two parts:
 \begin{itemize}
     % 1. 后退：受到无碰撞约束的影响，当对方在计划中前进时必须后退
-    \item Retreating: Due to collision-free constraints, when the other agent is moving forward in its plan, the agent must retreat.
+    \item Retreating: Due to collision-free constraints, when the other agent is moving forward in its plan, the agent must retreat to avoid collision.
     % 2. 前进：己方计划时，在planning horizon的后面，对方的计划已用尽，这时可以不受对方计划的影响而前进。
     \item Advancing: When planning and in the later part of the planning horizon, the other agent's plan has exhausted (and at this point, the planning agent doesn't assume that another agent will idle after its plan ends, because a sufficient plan has already been published for it to use until its next planning window.). The planning agent could fill the rest part of its new plan with actions of proceeding toward its goal.
 \end{itemize}
@@ -451,6 +451,7 @@ both agent spend half of their plans for advancing and the other half for retrea
     \caption{Example of a deadlock situation (frame length = 4, agent publishes plan with a length of 4).}% 死锁情况示例。(frame length = 4)
     \label{fig:deadlock}
 \end{figure}
+\FloatBarrier
 
 \subsubsection{Solution}
 
@@ -461,9 +462,9 @@ For example:
 \begin{itemize}
     \item Use odd-numbered frame length: This breaks the tie between advancing and retreating, because these two parts cannot be of equal length.
     \item Avoid using long narrow corridors: Add additional area to the corridor, don't force agents to push each other.
-    \item Allow agents to publish longer plans: If agents could publish plans that longer than frame length, this deadlock scenario could not happen.
+    \item Allow agents to publish longer plans:
      % 因为一方提前预定了很长空间用于前进，另一方必须在计划中对应的部分后退，这使得前进-后退的循环非常不均衡，从而可以快速离开走廊区域。
-     If one agent reserves an extensive span of space in advance (simply by broadcasting its plan) for advancing, the other agent will be compelled to retreat in the corresponding part of its plan. This results in a highly imbalanced advance-retreat cycle, facilitating a swift exit from the corridor area.
+     If one agent requests an extensive span of space in their plan for advancing, the other agent will be compelled to retreat in the corresponding part of its plan. This results in a highly imbalanced advance-retreat cycle, facilitating a swift exit from the corridor area.
 \end{itemize}
 
 % 此情景在生成量化结果时未出现，因为测试地图中的障碍物相对于测试中使用的planning horizon足够小，且此情景本身出现条件比较苛刻。
@@ -477,7 +478,7 @@ In the deadlock scenario, if there is a third agent, it could result in a failur
 
 \begin{enumerate}
     \item Three agents are positioned within a sufficiently long corridor that's only one agent wide.
-    \item All agents are trying to get from one side of the corridor to the other, and one agent's starting and ending points are the complete opposite of the other two agents'.
+    \item All agents are trying to get from one side of the corridor to the other, and one agent's starting and ending points are the complete opposite of the other two agents' starting and ending points.
 \end{enumerate}
 
 \begin{figure}[htbp]
@@ -532,6 +533,7 @@ If the planning horizon is long enough, this problem could be overcome.
     \label{fig:LocalOptimalTrap}
     \caption{An agent trapped in a local optimum due to a short planning horizon, preventing its arrival.}% agent由于planning horizon较短，陷入局部极值陷阱并无法离开
 \end{figure}
+\FloatBarrier
 
 This situation didn't show up in the quantitative result generating. This is mostly because the obstacles on our test map were relatively small compared to the planning horizon applied.
 

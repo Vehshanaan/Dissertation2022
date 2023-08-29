@@ -16,42 +16,46 @@
 \contentsline {section}{\numberline {2.3}Multi Agent Path Finding}{14}{section.2.3}%
 \contentsline {chapter}{\numberline {3}Algorithm}{16}{chapter.3}%
 \contentsline {section}{\numberline {3.1}Communication with STDMA}{16}{section.3.1}%
-\contentsline {subsection}{\numberline {3.1.1}Synchronised Clock}{16}{subsection.3.1.1}%
-\contentsline {subsection}{\numberline {3.1.2}Discretisation of Channel Time}{17}{subsection.3.1.2}%
-\contentsline {subsection}{\numberline {3.1.3}State Machine for Channel Allocation}{17}{subsection.3.1.3}%
-\contentsline {subsection}{\numberline {3.1.4}Summary}{20}{subsection.3.1.4}%
-\contentsline {section}{\numberline {3.2}Path Planning and Sharing}{20}{section.3.2}%
-\contentsline {subsection}{\numberline {3.2.1}Planning Framework and Definition}{20}{subsection.3.2.1}%
-\contentsline {subsubsection}{Map}{20}{subsection.3.2.1}%
-\contentsline {subsubsection}{Agent Capabilities and Constraints}{20}{subsection.3.2.1}%
-\contentsline {subsubsection}{Collision Definition}{21}{subsection.3.2.1}%
-\contentsline {subsubsection}{Plan Definition and Constraints}{21}{subsection.3.2.1}%
-\contentsline {subsubsection}{Plan Broadcasting Method and Time Window for Planning}{21}{Item.21}%
-\contentsline {subsubsection}{Model Prediction}{22}{Item.21}%
-\contentsline {subsubsection}{The process of an agent entering the map}{23}{Item.23}%
-\contentsline {subsubsection}{The process of an agent exiting the map}{24}{Item.23}%
-\contentsline {subsection}{\numberline {3.2.2}Path Planning Function and Implementation}{24}{subsection.3.2.2}%
-\contentsline {subsubsection}{Inputs of the function}{24}{subsection.3.2.2}%
-\contentsline {section}{\numberline {3.3}Summary}{27}{section.3.3}%
-\contentsline {subsection}{\numberline {3.3.1}Assumptions:}{27}{subsection.3.3.1}%
-\contentsline {subsection}{\numberline {3.3.2}Implemented Functions:}{27}{subsection.3.3.2}%
-\contentsline {chapter}{\numberline {4}Results}{28}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Experiment Design}{28}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Experiment Results}{30}{section.4.2}%
-\contentsline {subsection}{\numberline {4.2.1}Quantitative Results}{30}{subsection.4.2.1}%
-\contentsline {subsubsection}{plan length limit and planning horizon}{30}{subsection.4.2.1}%
-\contentsline {subsubsection}{frame length and agent number}{34}{figure.caption.8}%
-\contentsline {subsection}{\numberline {4.2.2}Deadlock Situation}{38}{subsection.4.2.2}%
-\contentsline {subsubsection}{Condition}{38}{subsection.4.2.2}%
-\contentsline {subsubsection}{Explanation}{39}{Item.41}%
-\contentsline {subsubsection}{Solution}{39}{figure.caption.10}%
-\contentsline {subsection}{\numberline {4.2.3}Failure Situation}{40}{subsection.4.2.3}%
-\contentsline {subsubsection}{Condition}{40}{subsection.4.2.3}%
-\contentsline {subsubsection}{Explanation}{41}{figure.caption.11}%
-\contentsline {subsubsection}{Solution}{42}{figure.caption.11}%
-\contentsline {subsection}{\numberline {4.2.4}Local Optimal Trap}{42}{subsection.4.2.4}%
-\contentsline {subsection}{\numberline {4.2.5}Channel Utilization}{43}{subsection.4.2.5}%
-\contentsline {subsection}{\numberline {4.2.6}Portion of Agents in Channel}{45}{subsection.4.2.6}%
-\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{47}{chapter.5}%
-\contentsline {chapter}{\numberline {A}Appendix}{48}{appendix.A}%
-\contentsline {chapter}{References}{55}{appendix*.15}%
+\contentsline {subsection}{\numberline {3.1.1}Synchronized Clock}{17}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Discretization of Channel Time}{17}{subsection.3.1.2}%
+\contentsline {subsection}{\numberline {3.1.3}State Machine for Channel Allocation}{18}{subsection.3.1.3}%
+\contentsline {section}{\numberline {3.2}Path Planning and Sharing}{21}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Basic Framework and Definitions}{21}{subsection.3.2.1}%
+\contentsline {subsubsection}{Map}{21}{subsection.3.2.1}%
+\contentsline {subsubsection}{Agent Capabilities and Constraints}{21}{subsection.3.2.1}%
+\contentsline {subsubsection}{Collision Definition}{22}{subsection.3.2.1}%
+\contentsline {subsubsection}{Plan Definition and Constraints}{23}{figure.caption.9}%
+\contentsline {subsection}{\numberline {3.2.2}Plan Broadcasting Method and Time Window for Planning}{23}{subsection.3.2.2}%
+\contentsline {subsubsection}{Broadcasting}{23}{subsection.3.2.2}%
+\contentsline {subsubsection}{Time Window for Planning}{23}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Plan Generation}{24}{subsection.3.2.3}%
+\contentsline {subsection}{\numberline {3.2.4}Model Prediction}{25}{subsection.3.2.4}%
+\contentsline {subsubsection}{Principles}{25}{subsection.3.2.4}%
+\contentsline {subsubsection}{The Purpose of Principle 2 and the issues it generates:}{25}{subsection.3.2.4}%
+\contentsline {subsubsection}{Cold Start of Planning}{26}{figure.caption.11}%
+\contentsline {subsubsection}{The process of an agent entering and exiting the map}{27}{figure.caption.11}%
+\contentsline {subsection}{\numberline {3.2.5}Path Planning Function and Implementation}{27}{subsection.3.2.5}%
+\contentsline {subsubsection}{Inputs of the function}{28}{subsection.3.2.5}%
+\contentsline {section}{\numberline {3.3}Summary}{30}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Assumptions:}{30}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Implemented Functions:}{30}{subsection.3.3.2}%
+\contentsline {chapter}{\numberline {4}Results}{31}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Experiment Design}{31}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Experiment Results}{33}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Quantitative Results}{33}{subsection.4.2.1}%
+\contentsline {subsubsection}{plan length limit and planning horizon}{33}{subsection.4.2.1}%
+\contentsline {subsubsection}{frame length and agent number}{37}{figure.caption.13}%
+\contentsline {subsection}{\numberline {4.2.2}Deadlock Situation}{41}{subsection.4.2.2}%
+\contentsline {subsubsection}{Condition}{41}{subsection.4.2.2}%
+\contentsline {subsubsection}{Explanation}{42}{Item.44}%
+\contentsline {subsubsection}{Solution}{43}{figure.caption.15}%
+\contentsline {subsection}{\numberline {4.2.3}Failure Situation}{44}{subsection.4.2.3}%
+\contentsline {subsubsection}{Condition}{44}{subsection.4.2.3}%
+\contentsline {subsubsection}{Explanation}{44}{figure.caption.16}%
+\contentsline {subsubsection}{Solution}{44}{figure.caption.16}%
+\contentsline {subsection}{\numberline {4.2.4}Local Optimal Trap}{46}{subsection.4.2.4}%
+\contentsline {subsection}{\numberline {4.2.5}Channel Utilization}{47}{subsection.4.2.5}%
+\contentsline {subsection}{\numberline {4.2.6}Portion of Agents in Channel}{49}{subsection.4.2.6}%
+\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{51}{chapter.5}%
+\contentsline {chapter}{\numberline {A}Appendix}{52}{appendix.A}%
+\contentsline {chapter}{References}{59}{appendix*.20}%

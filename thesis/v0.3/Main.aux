@@ -184,118 +184,140 @@
 \@writefile{loa}{\addvspace {10\p@ }}
 \newlabel{chap:Algorithm}{{3}{16}{Algorithm}{chapter.3}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {3.1}Communication with STDMA}{16}{section.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}Synchronised Clock}{16}{subsection.3.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}Synchronized Clock}{17}{subsection.3.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Discretization of Channel Time}{17}{subsection.3.1.2}\protected@file@percent }
+\newlabel{chap:sending time window}{{3.1.2}{17}{Discretization of Channel Time}{subsection.3.1.2}{}}
 \abx@aux@cite{0}{STDMA}
 \abx@aux@segm{0}{0}{STDMA}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Discretisation of Channel Time}{17}{subsection.3.1.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.3}State Machine for Channel Allocation}{17}{subsection.3.1.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.4}Summary}{20}{subsection.3.1.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3.2}Path Planning and Sharing}{20}{section.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}Planning Framework and Definition}{20}{subsection.3.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Map}{20}{subsection.3.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Agent Capabilities and Constraints}{20}{subsection.3.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Collision Definition}{21}{subsection.3.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Plan Definition and Constraints}{21}{subsection.3.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Plan Broadcasting Method and Time Window for Planning}{21}{Item.21}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Model Prediction}{22}{Item.21}\protected@file@percent }
-\newlabel{chap:model prediction}{{3.2.1}{22}{Model Prediction}{Item.21}{}}
-\@writefile{toc}{\contentsline {subsubsection}{The process of an agent entering the map}{23}{Item.23}\protected@file@percent }
-\newlabel{chap:join map}{{3.2.1}{23}{The process of an agent entering the map}{Item.23}{}}
-\@writefile{toc}{\contentsline {subsubsection}{The process of an agent exiting the map}{24}{Item.23}\protected@file@percent }
-\newlabel{chap:exit map}{{3.2.1}{24}{The process of an agent exiting the map}{Item.23}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.2}Path Planning Function and Implementation}{24}{subsection.3.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Inputs of the function}{24}{subsection.3.2.2}\protected@file@percent }
-\@writefile{loa}{\contentsline {algocf}{\numberline {1}{\ignorespaces Path Planning Function\relax }}{26}{algocf.1}\protected@file@percent }
-\newlabel{alg:path_plan}{{1}{26}{Inputs of the function}{algocf.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3.3}Summary}{27}{section.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.1}Assumptions:}{27}{subsection.3.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}Implemented Functions:}{27}{subsection.3.3.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces Illustration of the clock signal, slot structure, and the timing for message broadcasting within a slot.\relax }}{18}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:slot_discretization}{{3.1}{18}{Illustration of the clock signal, slot structure, and the timing for message broadcasting within a slot.\relax }{figure.caption.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.3}State Machine for Channel Allocation}{18}{subsection.3.1.3}\protected@file@percent }
+\newlabel{chap:stdma statemachine}{{3.1.3}{18}{State Machine for Channel Allocation}{subsection.3.1.3}{}}
+\newlabel{fig:state machine}{{\caption@xref {fig:state machine}{ on input line 99}}{18}{State Machine for Channel Allocation}{figure.caption.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.2}{\ignorespaces Schematic diagram illustrating the agent's state machine for managing STDMA.\relax }}{18}{figure.caption.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.2}Path Planning and Sharing}{21}{section.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}Basic Framework and Definitions}{21}{subsection.3.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Map}{21}{subsection.3.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Agent Capabilities and Constraints}{21}{subsection.3.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Collision Definition}{22}{subsection.3.2.1}\protected@file@percent }
+\newlabel{fig:Collision1}{{3.3a}{22}{Collision Scenario 1: Two agents attempting to occupy the same position simultaneously.\relax }{figure.caption.9}{}}
+\newlabel{sub@fig:Collision1}{{a}{22}{Collision Scenario 1: Two agents attempting to occupy the same position simultaneously.\relax }{figure.caption.9}{}}
+\newlabel{fig:Collision2}{{3.3b}{22}{Collision Scenario 2: Two agents swap their positions.\relax }{figure.caption.9}{}}
+\newlabel{sub@fig:Collision2}{{b}{22}{Collision Scenario 2: Two agents swap their positions.\relax }{figure.caption.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.3}{\ignorespaces Illustration of collision scenarios.\relax }}{22}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:Collisions}{{3.3}{22}{Illustration of collision scenarios.\relax }{figure.caption.9}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Plan Definition and Constraints}{23}{figure.caption.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.2}Plan Broadcasting Method and Time Window for Planning}{23}{subsection.3.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Broadcasting}{23}{subsection.3.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Time Window for Planning}{23}{subsection.3.2.2}\protected@file@percent }
+\newlabel{chap:time window for planning}{{3.2.2}{23}{Time Window for Planning}{subsection.3.2.2}{}}
+\newlabel{fig:PlanningTimeWindow}{{\caption@xref {fig:PlanningTimeWindow}{ on input line 365}}{24}{Time Window for Planning}{figure.caption.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.4}{\ignorespaces Illustration of planning time window.\relax }}{24}{figure.caption.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.3}Plan Generation}{24}{subsection.3.2.3}\protected@file@percent }
+\newlabel{chap:plan generation}{{3.2.3}{24}{Plan Generation}{subsection.3.2.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.4}Model Prediction}{25}{subsection.3.2.4}\protected@file@percent }
+\newlabel{chap:model prediction}{{3.2.4}{25}{Model Prediction}{subsection.3.2.4}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Principles}{25}{subsection.3.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{The Purpose of Principle 2 and the issues it generates:}{25}{subsection.3.2.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.5}{\ignorespaces Illustration of 3 agents within a channel having a frame length of 3, where agents publish plans of equal length. This demonstrates why new plans are always on the frontier of the overall predicting horizon.\relax }}{26}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:RecedingHorizon}{{3.5}{26}{Illustration of 3 agents within a channel having a frame length of 3, where agents publish plans of equal length. This demonstrates why new plans are always on the frontier of the overall predicting horizon.\relax }{figure.caption.11}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Cold Start of Planning}{26}{figure.caption.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{The process of an agent entering and exiting the map}{27}{figure.caption.11}\protected@file@percent }
+\newlabel{chap:join map}{{3.2.4}{27}{The process of an agent entering and exiting the map}{figure.caption.11}{}}
+\newlabel{chap:exit map}{{3.2.4}{27}{The process of an agent entering and exiting the map}{figure.caption.11}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.5}Path Planning Function and Implementation}{27}{subsection.3.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Inputs of the function}{28}{subsection.3.2.5}\protected@file@percent }
+\@writefile{loa}{\contentsline {algocf}{\numberline {1}{\ignorespaces Path Planning Function\relax }}{29}{algocf.1}\protected@file@percent }
+\newlabel{alg:path_plan}{{1}{29}{Inputs of the function}{algocf.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.3}Summary}{30}{section.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.1}Assumptions:}{30}{subsection.3.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}Implemented Functions:}{30}{subsection.3.3.2}\protected@file@percent }
 \abx@aux@cite{0}{stern2019mapf}
 \abx@aux@segm{0}{0}{stern2019mapf}
-\@writefile{toc}{\contentsline {chapter}{\numberline {4}Results}{28}{chapter.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {4}Results}{31}{chapter.4}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{loa}{\addvspace {10\p@ }}
-\newlabel{chap:Results}{{4}{28}{Results}{chapter.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.1}Experiment Design}{28}{section.4.1}\protected@file@percent }
-\newlabel{chap:map}{{4.1}{28}{}{section.4.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces The map used in the experiments. The outer border is not included in the map.\relax }}{28}{figure.caption.7}\protected@file@percent }
-\newlabel{fig:Map}{{4.1}{28}{The map used in the experiments. The outer border is not included in the map.\relax }{figure.caption.7}{}}
-\newlabel{chap:agent initialisation}{{4.1}{29}{}{figure.caption.7}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.2}Experiment Results}{30}{section.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.1}Quantitative Results}{30}{subsection.4.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{plan length limit and planning horizon}{30}{subsection.4.2.1}\protected@file@percent }
-\newlabel{fig:horizon=30,performance/planlengthlimit}{{4.2a}{32}{Experiment Group 1.1: path efficiency versus plan length limit (planning horizon = 30)\relax }{figure.caption.8}{}}
-\newlabel{sub@fig:horizon=30,performance/planlengthlimit}{{a}{32}{Experiment Group 1.1: path efficiency versus plan length limit (planning horizon = 30)\relax }{figure.caption.8}{}}
-\newlabel{fig:horizon=60,performance/planlengthlimit}{{4.2b}{32}{Experiment Group 1.2: path efficiency versus plan length limit (planning horizon = 60)\relax }{figure.caption.8}{}}
-\newlabel{sub@fig:horizon=60,performance/planlengthlimit}{{b}{32}{Experiment Group 1.2: path efficiency versus plan length limit (planning horizon = 60)\relax }{figure.caption.8}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.2}{\ignorespaces Performance versus Planning Horizon and Plan Length Limit.\relax }}{32}{figure.caption.8}\protected@file@percent }
-\newlabel{fig:plan_length_limit}{{4.2}{32}{Performance versus Planning Horizon and Plan Length Limit.\relax }{figure.caption.8}{}}
-\@writefile{toc}{\contentsline {subsubsection}{frame length and agent number}{34}{figure.caption.8}\protected@file@percent }
-\newlabel{fig:Performance1}{{4.3a}{36}{Average agent arrival time results\relax }{figure.caption.9}{}}
-\newlabel{sub@fig:Performance1}{{a}{36}{Average agent arrival time results\relax }{figure.caption.9}{}}
-\newlabel{fig:Performance2}{{4.3b}{36}{Final agent arrival time results\relax }{figure.caption.9}{}}
-\newlabel{sub@fig:Performance2}{{b}{36}{Final agent arrival time results\relax }{figure.caption.9}{}}
-\newlabel{fig:Performance3}{{4.3c}{36}{Average network join time results\relax }{figure.caption.9}{}}
-\newlabel{sub@fig:Performance3}{{c}{36}{Average network join time results\relax }{figure.caption.9}{}}
-\newlabel{fig:Performance4}{{4.3d}{36}{Total path efficiency ratio result\relax }{figure.caption.9}{}}
-\newlabel{sub@fig:Performance4}{{d}{36}{Total path efficiency ratio result\relax }{figure.caption.9}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.3}{\ignorespaces Experiment Group 2: Performance versus agent number and frame length.\relax }}{36}{figure.caption.9}\protected@file@percent }
-\newlabel{fig:Performance}{{4.3}{36}{Experiment Group 2: Performance versus agent number and frame length.\relax }{figure.caption.9}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.2}Deadlock Situation}{38}{subsection.4.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Condition}{38}{subsection.4.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Explanation}{39}{Item.41}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Solution}{39}{figure.caption.10}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4.4}{\ignorespaces Example of a deadlock situation (frame length = 4, agent publishes plan with a length of 4).\relax }}{40}{figure.caption.10}\protected@file@percent }
-\newlabel{fig:deadlock}{{4.4}{40}{Example of a deadlock situation (frame length = 4, agent publishes plan with a length of 4).\relax }{figure.caption.10}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.3}Failure Situation}{40}{subsection.4.2.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Condition}{40}{subsection.4.2.3}\protected@file@percent }
-\newlabel{fig:failure}{{\caption@xref {fig:failure}{ on input line 486}}{41}{Condition}{figure.caption.11}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.5}{\ignorespaces Example of failure. Due to the squeeze of agent C, agent A cannot find any possible plan (frame length = 4, agent publishes plan with a length of 4).\relax }}{41}{figure.caption.11}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Explanation}{41}{figure.caption.11}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{Solution}{42}{figure.caption.11}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.4}Local Optimal Trap}{42}{subsection.4.2.4}\protected@file@percent }
-\newlabel{fig:LocalOptimalTrap}{{\caption@xref {fig:LocalOptimalTrap}{ on input line 532}}{43}{Local Optimal Trap}{figure.caption.12}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.6}{\ignorespaces An agent trapped in a local optimum due to a short planning horizon, preventing its arrival.\relax }}{43}{figure.caption.12}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.5}Channel Utilization}{43}{subsection.4.2.5}\protected@file@percent }
-\newlabel{fig:framepercent1}{{4.7a}{44}{frame length = 10\relax }{figure.caption.13}{}}
-\newlabel{sub@fig:framepercent1}{{a}{44}{frame length = 10\relax }{figure.caption.13}{}}
-\newlabel{fig:framepercent2}{{4.7b}{44}{frame length = 20\relax }{figure.caption.13}{}}
-\newlabel{sub@fig:framepercent2}{{b}{44}{frame length = 20\relax }{figure.caption.13}{}}
-\newlabel{fig:framepercent3}{{4.7c}{44}{frame length = 30\relax }{figure.caption.13}{}}
-\newlabel{sub@fig:framepercent3}{{c}{44}{frame length = 30\relax }{figure.caption.13}{}}
-\newlabel{fig:framepercent4}{{4.7d}{44}{frame length = 40\relax }{figure.caption.13}{}}
-\newlabel{sub@fig:framepercent4}{{d}{44}{frame length = 40\relax }{figure.caption.13}{}}
-\newlabel{fig:framepercent5}{{4.7e}{44}{frame length = 50\relax }{figure.caption.13}{}}
-\newlabel{sub@fig:framepercent5}{{e}{44}{frame length = 50\relax }{figure.caption.13}{}}
-\newlabel{fig:framepercent6}{{4.7f}{44}{frame length = 60\relax }{figure.caption.13}{}}
-\newlabel{sub@fig:framepercent6}{{f}{44}{frame length = 60\relax }{figure.caption.13}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.7}{\ignorespaces Graph illustrating the relationship between the percentage of channel usage and time for different agent numbers.\relax }}{44}{figure.caption.13}\protected@file@percent }
-\newlabel{fig:channelpercent}{{4.7}{44}{Graph illustrating the relationship between the percentage of channel usage and time for different agent numbers.\relax }{figure.caption.13}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.6}Portion of Agents in Channel}{45}{subsection.4.2.6}\protected@file@percent }
-\newlabel{fig:agentpercent1}{{4.8a}{46}{10 agents\relax }{figure.caption.14}{}}
-\newlabel{sub@fig:agentpercent1}{{a}{46}{10 agents\relax }{figure.caption.14}{}}
-\newlabel{fig:agentpercent2}{{4.8b}{46}{20 agents\relax }{figure.caption.14}{}}
-\newlabel{sub@fig:agentpercent2}{{b}{46}{20 agents\relax }{figure.caption.14}{}}
-\newlabel{fig:agentpercent3}{{4.8c}{46}{30 agents\relax }{figure.caption.14}{}}
-\newlabel{sub@fig:agentpercent3}{{c}{46}{30 agents\relax }{figure.caption.14}{}}
-\newlabel{fig:agentpercent4}{{4.8d}{46}{40 agents\relax }{figure.caption.14}{}}
-\newlabel{sub@fig:agentpercent4}{{d}{46}{40 agents\relax }{figure.caption.14}{}}
-\newlabel{fig:agentpercent5}{{4.8e}{46}{50 agents\relax }{figure.caption.14}{}}
-\newlabel{sub@fig:agentpercent5}{{e}{46}{50 agents\relax }{figure.caption.14}{}}
-\newlabel{fig:agentpercent6}{{4.8f}{46}{60 agents\relax }{figure.caption.14}{}}
-\newlabel{sub@fig:agentpercent6}{{f}{46}{60 agents\relax }{figure.caption.14}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.8}{\ignorespaces Graph illustrating the relationship between the percentage of agents in the channel and time for different agent numbers at various frame lengths.\relax }}{46}{figure.caption.14}\protected@file@percent }
-\newlabel{fig:agentpercent}{{4.8}{46}{Graph illustrating the relationship between the percentage of agents in the channel and time for different agent numbers at various frame lengths.\relax }{figure.caption.14}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{47}{chapter.5}\protected@file@percent }
+\newlabel{chap:Results}{{4}{31}{Results}{chapter.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.1}Experiment Design}{31}{section.4.1}\protected@file@percent }
+\newlabel{chap:map}{{4.1}{31}{}{section.4.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces The map used in the experiments. The outer border is not included in the map.\relax }}{31}{figure.caption.12}\protected@file@percent }
+\newlabel{fig:Map}{{4.1}{31}{The map used in the experiments. The outer border is not included in the map.\relax }{figure.caption.12}{}}
+\newlabel{chap:agent initialisation}{{4.1}{32}{}{figure.caption.12}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.2}Experiment Results}{33}{section.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.1}Quantitative Results}{33}{subsection.4.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{plan length limit and planning horizon}{33}{subsection.4.2.1}\protected@file@percent }
+\newlabel{fig:horizon=30,performance/planlengthlimit}{{4.2a}{35}{Experiment Group 1.1: path efficiency versus plan length limit (planning horizon = 30)\relax }{figure.caption.13}{}}
+\newlabel{sub@fig:horizon=30,performance/planlengthlimit}{{a}{35}{Experiment Group 1.1: path efficiency versus plan length limit (planning horizon = 30)\relax }{figure.caption.13}{}}
+\newlabel{fig:horizon=60,performance/planlengthlimit}{{4.2b}{35}{Experiment Group 1.2: path efficiency versus plan length limit (planning horizon = 60)\relax }{figure.caption.13}{}}
+\newlabel{sub@fig:horizon=60,performance/planlengthlimit}{{b}{35}{Experiment Group 1.2: path efficiency versus plan length limit (planning horizon = 60)\relax }{figure.caption.13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.2}{\ignorespaces Performance versus Planning Horizon and Plan Length Limit.\relax }}{35}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:plan_length_limit}{{4.2}{35}{Performance versus Planning Horizon and Plan Length Limit.\relax }{figure.caption.13}{}}
+\@writefile{toc}{\contentsline {subsubsection}{frame length and agent number}{37}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:Performance1}{{4.3a}{39}{Average agent arrival time results\relax }{figure.caption.14}{}}
+\newlabel{sub@fig:Performance1}{{a}{39}{Average agent arrival time results\relax }{figure.caption.14}{}}
+\newlabel{fig:Performance2}{{4.3b}{39}{Final agent arrival time results\relax }{figure.caption.14}{}}
+\newlabel{sub@fig:Performance2}{{b}{39}{Final agent arrival time results\relax }{figure.caption.14}{}}
+\newlabel{fig:Performance3}{{4.3c}{39}{Average network join time results\relax }{figure.caption.14}{}}
+\newlabel{sub@fig:Performance3}{{c}{39}{Average network join time results\relax }{figure.caption.14}{}}
+\newlabel{fig:Performance4}{{4.3d}{39}{Total path efficiency ratio result\relax }{figure.caption.14}{}}
+\newlabel{sub@fig:Performance4}{{d}{39}{Total path efficiency ratio result\relax }{figure.caption.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.3}{\ignorespaces Experiment Group 2: Performance versus agent number and frame length.\relax }}{39}{figure.caption.14}\protected@file@percent }
+\newlabel{fig:Performance}{{4.3}{39}{Experiment Group 2: Performance versus agent number and frame length.\relax }{figure.caption.14}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.2}Deadlock Situation}{41}{subsection.4.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Condition}{41}{subsection.4.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Explanation}{42}{Item.44}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.4}{\ignorespaces Example of a deadlock situation (frame length = 4, agent publishes plan with a length of 4).\relax }}{43}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:deadlock}{{4.4}{43}{Example of a deadlock situation (frame length = 4, agent publishes plan with a length of 4).\relax }{figure.caption.15}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Solution}{43}{figure.caption.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.3}Failure Situation}{44}{subsection.4.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Condition}{44}{subsection.4.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Explanation}{44}{figure.caption.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Solution}{44}{figure.caption.16}\protected@file@percent }
+\newlabel{fig:failure}{{\caption@xref {fig:failure}{ on input line 487}}{45}{Condition}{figure.caption.16}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.5}{\ignorespaces Example of failure. Due to the squeeze of agent C, agent A cannot find any possible plan (frame length = 4, agent publishes plan with a length of 4).\relax }}{45}{figure.caption.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.4}Local Optimal Trap}{46}{subsection.4.2.4}\protected@file@percent }
+\newlabel{fig:LocalOptimalTrap}{{\caption@xref {fig:LocalOptimalTrap}{ on input line 533}}{47}{Local Optimal Trap}{figure.caption.17}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.6}{\ignorespaces An agent trapped in a local optimum due to a short planning horizon, preventing its arrival.\relax }}{47}{figure.caption.17}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.5}Channel Utilization}{47}{subsection.4.2.5}\protected@file@percent }
+\newlabel{fig:framepercent1}{{4.7a}{48}{frame length = 10\relax }{figure.caption.18}{}}
+\newlabel{sub@fig:framepercent1}{{a}{48}{frame length = 10\relax }{figure.caption.18}{}}
+\newlabel{fig:framepercent2}{{4.7b}{48}{frame length = 20\relax }{figure.caption.18}{}}
+\newlabel{sub@fig:framepercent2}{{b}{48}{frame length = 20\relax }{figure.caption.18}{}}
+\newlabel{fig:framepercent3}{{4.7c}{48}{frame length = 30\relax }{figure.caption.18}{}}
+\newlabel{sub@fig:framepercent3}{{c}{48}{frame length = 30\relax }{figure.caption.18}{}}
+\newlabel{fig:framepercent4}{{4.7d}{48}{frame length = 40\relax }{figure.caption.18}{}}
+\newlabel{sub@fig:framepercent4}{{d}{48}{frame length = 40\relax }{figure.caption.18}{}}
+\newlabel{fig:framepercent5}{{4.7e}{48}{frame length = 50\relax }{figure.caption.18}{}}
+\newlabel{sub@fig:framepercent5}{{e}{48}{frame length = 50\relax }{figure.caption.18}{}}
+\newlabel{fig:framepercent6}{{4.7f}{48}{frame length = 60\relax }{figure.caption.18}{}}
+\newlabel{sub@fig:framepercent6}{{f}{48}{frame length = 60\relax }{figure.caption.18}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.7}{\ignorespaces Graph illustrating the relationship between the percentage of channel usage and time for different agent numbers.\relax }}{48}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:channelpercent}{{4.7}{48}{Graph illustrating the relationship between the percentage of channel usage and time for different agent numbers.\relax }{figure.caption.18}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.6}Portion of Agents in Channel}{49}{subsection.4.2.6}\protected@file@percent }
+\newlabel{fig:agentpercent1}{{4.8a}{50}{10 agents\relax }{figure.caption.19}{}}
+\newlabel{sub@fig:agentpercent1}{{a}{50}{10 agents\relax }{figure.caption.19}{}}
+\newlabel{fig:agentpercent2}{{4.8b}{50}{20 agents\relax }{figure.caption.19}{}}
+\newlabel{sub@fig:agentpercent2}{{b}{50}{20 agents\relax }{figure.caption.19}{}}
+\newlabel{fig:agentpercent3}{{4.8c}{50}{30 agents\relax }{figure.caption.19}{}}
+\newlabel{sub@fig:agentpercent3}{{c}{50}{30 agents\relax }{figure.caption.19}{}}
+\newlabel{fig:agentpercent4}{{4.8d}{50}{40 agents\relax }{figure.caption.19}{}}
+\newlabel{sub@fig:agentpercent4}{{d}{50}{40 agents\relax }{figure.caption.19}{}}
+\newlabel{fig:agentpercent5}{{4.8e}{50}{50 agents\relax }{figure.caption.19}{}}
+\newlabel{sub@fig:agentpercent5}{{e}{50}{50 agents\relax }{figure.caption.19}{}}
+\newlabel{fig:agentpercent6}{{4.8f}{50}{60 agents\relax }{figure.caption.19}{}}
+\newlabel{sub@fig:agentpercent6}{{f}{50}{60 agents\relax }{figure.caption.19}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.8}{\ignorespaces Graph illustrating the relationship between the percentage of agents in the channel and time for different agent numbers at various frame lengths.\relax }}{50}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:agentpercent}{{4.8}{50}{Graph illustrating the relationship between the percentage of agents in the channel and time for different agent numbers at various frame lengths.\relax }{figure.caption.19}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Discussion and Conclusion}{51}{chapter.5}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{loa}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {chapter}{\numberline {A}Appendix}{48}{appendix.A}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}Appendix}{52}{appendix.A}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{loa}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {chapter}{References}{55}{appendix*.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{References}{59}{appendix*.20}\protected@file@percent }
 \abx@aux@read@bbl@mdfivesum{0F9569B9EF9B5E737188520141176F8E}
 \abx@aux@defaultrefcontext{0}{STDMA}{none/global//global/global}
 \abx@aux@defaultrefcontext{0}{GridWorld}{none/global//global/global}
@@ -356,4 +378,4 @@
 \abx@aux@defaultrefcontext{0}{PaS_1}{none/global//global/global}
 \abx@aux@defaultrefcontext{0}{PaS_2}{none/global//global/global}
 \abx@aux@defaultrefcontext{0}{stern2019mapf}{none/global//global/global}
-\gdef \@abspage@last{56}
+\gdef \@abspage@last{60}
